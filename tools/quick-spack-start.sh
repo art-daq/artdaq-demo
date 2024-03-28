@@ -60,8 +60,6 @@ while [ -n "${1-}" ];do
 			v*)         eval $op1chr; opt_v=`expr $opt_v + 1`;;
 			x*)         eval $op1chr; set -x;;
 			s*)         eval $op1arg; squalifier=$1; shift;;
-			e*)         eval $op1arg; equalifier=$1; shift;;
-            c*)         eval $op1arg; cqualifier=$1; shift;;
 			w*)         eval $op1chr; opt_w=`expr $opt_w + 1`;;
 			-run-demo)  opt_run_demo=--run-demo;;
 			-debug)     opt_debug=--debug;;
@@ -119,7 +117,7 @@ if [[ $notag -eq 1 ]] && [[ $opt_develop -eq 0 ]]; then
   tag=$demo_version
 fi
 
-defaultS="s124"
+defaultS="s128"
 
 if [ -n "${squalifier-}" ]; then
 	squalifier="${squalifier}"
@@ -132,33 +130,36 @@ if ! [ -d $spackdir ];then
 	$(
     cd ${spackdir%/spack}
     git clone https://github.com/FNALssi/spack.git -b fnal-develop
-    cd spack
-    git checkout 28793268e7c943ad75347fe8ccbabfa30ef189b2 # For now
         )
 fi
 
+export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
+
+git clone https://github.com/FNALssi/fermi-spack-tools.git
+./fermi-spack-tools/bin/make_packages_yaml $spackdir
 
 repo_found=`spack repo list|grep -c fnal_art`
 if [ $repo_found -eq 0 ]; then
     cd $spackdir/var/spack/repos
     git clone https://github.com/FNALssi/fnal_art.git
     spack repo add ./fnal_art
+    git clone https://github.com/marcmengel/scd_recipes.git
+    spack repo add ./scd_recipes
+    git clone https://github.com/art-daq/artdaq-spack.git
+    spack repo add ./artdaq-spack
+
 fi
 
-sl7mode=0
-if ! [ -f ~/.spack/packages.yaml ];then
-	# Fetch appropriate packages.yaml from Github
-	if [ `uname -r|grep -c el7` -gt 0 ];then
-		# SL7 version
-		packurl="https://raw.githubusercontent.com/FNALssi/fermi-spack-tools/main/templates/packages.yaml.scientific7"
-		sl7mode=1
-	else
-		# AL9 version
-		packurl="https://raw.githubusercontent.com/FNALssi/fermi-spack-tools/main/templates/packages.yaml.almalinux9"
-	fi
-	curl -o $spackdir/etc/spack/packages.yaml $packurl
-fi
+
+spack config --scope=site update  --yes-to-all config
+spack config --scope=site add config:install_tree:padded_length:255
+spack mirror add --scope site fnal https://spack-cache-1.fnal.gov/binaries/
+spack buildcache update-index -k fnal
+spack mirror add --scope site scisoft https://scisoft.fnal.gov/scisoft/spack-mirror/
+spack buildcache update-index -k scisoft
+spack -k buildcache keys --install --trust --force
+spack reindex
 
 cd $Base
 spack compiler find
@@ -166,28 +167,15 @@ spack compiler find
 spack env create artdaq
 spack env activate artdaq
 
-if [ $sl7mode -eq 1 ];then
-	spack add gcc@11.3.0
-	spack concretize --force
-	spack install
-	spack load gcc@11.3.0
-	spack compiler find
-	compiler_info="%gcc@11.3.0"
-fi
-
-#spack add art-suite@s$squalifier
-#spack concretize --force
-#spack install
-
 spack add artdaq-suite@${demo_version}${compiler_info} s=${squalifier} +demo~pcp
-spack concretize --force
+spack concretize
 spack install
 
 	cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
 
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
-
+export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 spack env activate artdaq
 
@@ -245,7 +233,7 @@ sed -i -r 's!^\s*data_directory_override.*!data_directory_override: '$datadir'!'
 
 sed -i -r 's!^\s*DAQ setup script:.*!DAQ setup script: '$Base'/setupARTDAQDEMO!' boot*.txt
 
-sed -i -r 's!^\s*productsdir_for_bash_scripts:.*!productsdir_for_bash_scripts: '"$PRODUCTS"'!' settings_example
+sed -i -r 's!^\s*productsdir_for_bash_scripts:.*!spack_root_for_bash_scripts: '"$spackdir"'!' settings_example
 
 cd $Base
 
