@@ -165,7 +165,7 @@ spack -k buildcache keys --install --trust --force
 spack reindex
 
 for upstream in ${upstreams[@]}; do
-    upstreamdir=`find /mu2e/spack -type d -name .spack-db`
+    upstreamdir=`find $upstream -type d -name .spack-db`
     upstreamdir=`dirname $upstreamdir`
     
     if ! [ -d $upstreamdir/.spack-db ]; then
