@@ -37,6 +37,7 @@ prompted for this location.
 -x            set -x this script
 -w            Check out repositories read/write
 --no-extra-products  Skip the automatic use of central product areas, such as CVMFS
+--upstream    Use <dir> as a Spack upstream (repeatable)
 "
 
 # Process script arguments and options
@@ -45,6 +46,7 @@ datadir="${ARTDAQDEMO_DATA_DIR:-$Base/daqdata}"
 logdir="${ARTDAQDEMO_LOG_DIR:-$Base/daqlogs}"
 recordsdir="${ARTDAQDEMO_RECORD_DIR:-$Base/run_records}"
 spackdir="${ARTDAQDEMO_SPACK_DIR:-$Base/spack}"
+upstreams=()
 eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
@@ -73,6 +75,7 @@ while [ -n "${1-}" ];do
 			-no-extra-products)  opt_skip_extra_products=1;;
 			-mfext)     opt_mfext=1;;
 			-no-pull)   opt_no_pull=1;;
+			-upstream)  eval $op1arg; upstreams+=($1); shift;;
 			*)          echo "Unknown option -$op"; do_help=1;;
 		esac
 	else
@@ -160,6 +163,24 @@ spack mirror add --scope site scisoft https://scisoft.fnal.gov/scisoft/spack-mir
 spack buildcache update-index -k scisoft
 spack -k buildcache keys --install --trust --force
 spack reindex
+
+for upstream in ${upstreams[@]}; do
+    upstreamdir=`find /mu2e/spack -type d -name .spack-db`
+    upstreamdir=`dirname $upstreamdir`
+    
+    if ! [ -d $upstreamdir/.spack-db ]; then
+	   echo "No Spack instance found at $upstream!"
+	   continue
+    fi
+
+    if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
+	    echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
+    fi
+
+    echo "  upstream${upstream//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
+    echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
+
+done
 
 cd $Base
 spack compiler find
