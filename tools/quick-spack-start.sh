@@ -192,6 +192,8 @@ spack add artdaq-suite@${demo_version}${compiler_info} s=${squalifier} +demo~pcp
 spack concretize
 spack install
 
+ln -s ${spackdir}/var/spack/environments/artdaq srcs
+
 	cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
 
