@@ -190,6 +190,18 @@ spack env activate artdaq
 
 spack add artdaq-suite@${demo_version}${compiler_info} s=${squalifier} +demo~pcp
 spack concretize
+
+if [[ ${opt_develop:-0} -eq 1 ]];then
+	spack cd --env
+	for pkg in artdaq artdaq-core artdaq-core-demo artdaq-daqinterface artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-pcp-mmv-plugin artdaq-utilities trace;do
+	    pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
+        spack add $pkg@${pkg_version}
+	    spack develop $pkg@${pkg_version}
+	done
+	cd $Base
+fi
+spack concretize --force
+
 spack install
 
 ln -s ${spackdir}/var/spack/environments/artdaq srcs
