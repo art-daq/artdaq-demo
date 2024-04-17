@@ -16,3 +16,4 @@ obj/*
 *.vcxproj*
 NONE
 spack-build-*
+build-linux-*
