@@ -120,7 +120,7 @@ if [[ $notag -eq 1 ]] && [[ $opt_develop -eq 0 ]]; then
   tag=$demo_version
 fi
 
-defaultS="s128"
+defaultS="s132"
 
 if [ -n "${squalifier-}" ]; then
 	squalifier="${squalifier}"
@@ -183,24 +183,39 @@ for upstream in ${upstreams[@]}; do
 done
 
 cd $Base
+
+spack install gcc@13.1.0
+spack load gcc@13.1.0
+
 spack compiler find
 
 spack env create artdaq
 spack env activate artdaq
 
-spack add artdaq-suite@${demo_version}${compiler_info} s=${squalifier} +demo~pcp
+spack add gcc@13.1.0 # Have to make sure it is loaded...
 spack concretize
+spack install
+
+spack load gcc@13.1.0 # Again?!
+
+spack add artdaq-suite@${demo_version}${compiler_info} s=${squalifier} +demo~pcp %gcc@13.1.0
+spack concretize --force
 
 if [[ ${opt_develop:-0} -eq 1 ]];then
 	spack cd --env
-	for pkg in artdaq artdaq-core artdaq-core-demo artdaq-daqinterface artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-pcp-mmv-plugin artdaq-utilities trace;do
+	for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-pcp-mmv-plugin artdaq-utilities;do
 	    pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
-        spack add $pkg@${pkg_version}
-	    spack develop $pkg@${pkg_version}
+        spack add $pkg@${pkg_version} %gcc@13.1.0 cxxstd=20
+	    spack develop $pkg@${pkg_version} %gcc@13.1.0 cxxstd=20
+	done
+	for pkg in artdaq-daqinterface trace;do
+	    pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
+        spack add $pkg@${pkg_version} %gcc@13.1.0
+	    spack develop $pkg@${pkg_version} %gcc@13.1.0
 	done
 	cd $Base
+	spack concretize --force
 fi
-spack concretize --force
 
 spack install
 
