@@ -184,24 +184,18 @@ done
 
 cd $Base
 
-spack install gcc@13.1.0
+BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
+spack install -j $BUILD_J gcc@13.1.0
 spack load gcc@13.1.0
-
 spack compiler find
 
 spack env create artdaq
 spack env activate artdaq
 
-spack add gcc@13.1.0 # Have to make sure it is loaded...
-spack concretize
-spack install
-
-spack load gcc@13.1.0 # Again?!
-
 spack add artdaq-suite@${demo_version}${compiler_info} s=${squalifier} +demo~pcp %gcc@13.1.0
-spack concretize --force
 
 if [[ ${opt_develop:-0} -eq 1 ]];then
+	spack concretize --force
 	spack cd --env
 	for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-pcp-mmv-plugin artdaq-utilities;do
 	    pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
@@ -214,10 +208,9 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	    spack develop $pkg@${pkg_version} %gcc@13.1.0
 	done
 	cd $Base
-	spack concretize --force
 fi
 
-spack install
+spack concretize --force && spack install -j $BUILD_J
 
 ln -s ${spackdir}/var/spack/environments/artdaq srcs
 
