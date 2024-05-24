@@ -139,7 +139,11 @@ fi
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 
+if ! [ -d fermi-spack-tools ]; then
 git clone https://github.com/FNALssi/fermi-spack-tools.git
+else
+cd fermi-spack-tools && git pull && cd ..
+fi
 ./fermi-spack-tools/bin/make_packages_yaml $spackdir
 
 repo_found=`spack repo list|grep -c fnal_art`
@@ -189,8 +193,10 @@ spack install -j $BUILD_J gcc@13.1.0
 spack load gcc@13.1.0
 spack compiler find
 
-spack env create artdaq
-spack env activate artdaq
+spack env create artdaq-${demo_version}
+spack env activate artdaq-${demo_version}
+
+ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
 
 spack add artdaq-suite@${demo_version}${compiler_info} s=${squalifier} +demo~pcp %gcc@13.1.0
 
@@ -208,11 +214,11 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	    spack develop $pkg@${pkg_version} %gcc@13.1.0
 	done
 	cd $Base
+	rm srcs && ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version} srcs
 fi
 
 spack concretize --force && spack install -j $BUILD_J
 
-ln -s ${spackdir}/var/spack/environments/artdaq srcs
 
 	cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
@@ -220,7 +226,7 @@ echo # This script is intended to be sourced.
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
-spack env activate artdaq
+spack env activate artdaq-${demo_version}
 
 export TRACE_NAME=TRACE
 
