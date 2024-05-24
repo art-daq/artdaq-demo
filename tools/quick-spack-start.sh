@@ -5,8 +5,8 @@
 git_status=`git status 2>/dev/null`
 git_sts=$?
 if [ $git_sts -eq 0 ];then
-	echo "This script is designed to be run in a fresh install directory!"
-	exit 1
+    echo "This script is designed to be run in a fresh install directory!"
+    exit 1
 fi
 
 starttime=`date`
@@ -17,9 +17,9 @@ env_opts_var=`basename $0 | sed 's/\.sh$//' | tr 'a-z-' 'A-Z_'`_OPTS
 USAGE="\
    usage: `basename $0` [options] [demo_root]
 examples: `basename $0` .
-		  `basename $0` --run-demo
-		  `basename $0` --debug
-		  `basename $0` --tag v2_08_04
+          `basename $0` --run-demo
+          `basename $0` --debug
+          `basename $0` --tag v2_08_04
 If the \"demo_root\" optional parameter is not supplied, the user will be
 prompted for this location.
 --run-demo    runs the demo
@@ -53,42 +53,42 @@ op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
 args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0
 while [ -n "${1-}" ];do
-	if expr "x${1-}" : 'x-' >/dev/null;then
-		op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
-		leq=`expr "x$op" : 'x-[^=]*\(=\)'` lev=`expr "x$op" : 'x-[^=]*=\(.*\)'`
-		test -n "$leq"&&eval "set -- \"\$lev\" \"\$@\""&&op=`expr "x$op" : 'x\([^=]*\)'`
-		case "$op" in
-			\?*|h*)     eval $op1chr; do_help=1;;
-			v*)         eval $op1chr; opt_v=`expr $opt_v + 1`;;
-			x*)         eval $op1chr; set -x;;
-			s*)         eval $op1arg; squalifier=$1; shift;;
-			w*)         eval $op1chr; opt_w=`expr $opt_w + 1`;;
-			-run-demo)  opt_run_demo=--run-demo;;
-			-debug)     opt_debug=--debug;;
-			-develop) opt_develop=1;;
-			-tag)       eval $reqarg; tag=$1; shift;;
-			-viewer)    opt_viewer=--viewer;;
-			-logdir)    eval $op1arg; logdir=$1; shift;;
-			-datadir)   eval $op1arg; datadir=$1; shift;;
-			-recordsdir) eval $op1arg; recordsdir=$1; shift;;
-			-spackdir)  eval $op1arg; spackdir=$1; shift;;
-			-no-extra-products)  opt_skip_extra_products=1;;
-			-mfext)     opt_mfext=1;;
-			-no-pull)   opt_no_pull=1;;
-			-upstream)  eval $op1arg; upstreams+=($1); shift;;
-			*)          echo "Unknown option -$op"; do_help=1;;
-		esac
-	else
-		aa=`echo "$1" | sed -e"s/'/'\"'\"'/g"` args="$args '$aa'"; shift
-	fi
+    if expr "x${1-}" : 'x-' >/dev/null;then
+        op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
+        leq=`expr "x$op" : 'x-[^=]*\(=\)'` lev=`expr "x$op" : 'x-[^=]*=\(.*\)'`
+        test -n "$leq"&&eval "set -- \"\$lev\" \"\$@\""&&op=`expr "x$op" : 'x\([^=]*\)'`
+        case "$op" in
+            \?*|h*)     eval $op1chr; do_help=1;;
+            v*)         eval $op1chr; opt_v=`expr $opt_v + 1`;;
+            x*)         eval $op1chr; set -x;;
+            s*)         eval $op1arg; squalifier=$1; shift;;
+            w*)         eval $op1chr; opt_w=`expr $opt_w + 1`;;
+            -run-demo)  opt_run_demo=--run-demo;;
+            -debug)     opt_debug=--debug;;
+            -develop) opt_develop=1;;
+            -tag)       eval $reqarg; tag=$1; shift;;
+            -viewer)    opt_viewer=--viewer;;
+            -logdir)    eval $op1arg; logdir=$1; shift;;
+            -datadir)   eval $op1arg; datadir=$1; shift;;
+            -recordsdir) eval $op1arg; recordsdir=$1; shift;;
+            -spackdir)  eval $op1arg; spackdir=$1; shift;;
+            -no-extra-products)  opt_skip_extra_products=1;;
+            -mfext)     opt_mfext=1;;
+            -no-pull)   opt_no_pull=1;;
+            -upstream)  eval $op1arg; upstreams+=($1); shift;;
+            *)          echo "Unknown option -$op"; do_help=1;;
+        esac
+    else
+        aa=`echo "$1" | sed -e"s/'/'\"'\"'/g"` args="$args '$aa'"; shift
+    fi
 done
 eval "set -- $args \"\$@\""; unset args aa
 
 test -n "${do_help-}" -o $# -ge 2 && echo "$USAGE" && exit
 
 if [[ -n "${tag:-}" ]] && [[ $opt_develop -eq 1 ]]; then 
-	echo "The \"--tag\" and \"--develop\" options are incompatible - please specify only one."
-	exit
+    echo "The \"--tag\" and \"--develop\" options are incompatible - please specify only one."
+    exit
 fi
 
 # JCF, 1/16/15
@@ -123,39 +123,47 @@ fi
 defaultS="s132"
 
 if [ -n "${squalifier-}" ]; then
-	squalifier="${squalifier}"
+    squalifier="${squalifier}"
 else
-	squalifier="${defaultS#s}"
+    squalifier="${defaultS#s}"
 fi
 compiler_info="" # Maybe do e- and c- qualifiers?
 
 if ! [ -d $spackdir ];then
-	$(
+    $(
     cd ${spackdir%/spack}
     git clone https://github.com/FNALssi/spack.git -b fnal-develop
         )
+else
+    cd $spackdir && git pull && cd $Base
 fi
 
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 
 if ! [ -d fermi-spack-tools ]; then
-git clone https://github.com/FNALssi/fermi-spack-tools.git
+    git clone https://github.com/FNALssi/fermi-spack-tools.git
 else
-cd fermi-spack-tools && git pull && cd ..
+    cd fermi-spack-tools && git pull && cd ..
 fi
 ./fermi-spack-tools/bin/make_packages_yaml $spackdir
 
 repo_found=`spack repo list|grep -c fnal_art`
 if [ $repo_found -eq 0 ]; then
-    cd $spackdir/var/spack/repos
+    mkdir spack-repos && cd spack-repos
     git clone https://github.com/FNALssi/fnal_art.git
     spack repo add ./fnal_art
     git clone https://github.com/marcmengel/scd_recipes.git
     spack repo add ./scd_recipes
     git clone https://github.com/art-daq/artdaq-spack.git
     spack repo add ./artdaq-spack
-
+    cd $Base
+else
+    for dir in `spack repo list|awk '{print $2}'`;do
+        cd $dir
+        git pull
+    done
+    cd $Base
 fi
 
 
@@ -173,12 +181,12 @@ for upstream in ${upstreams[@]}; do
     upstreamdir=`dirname $upstreamdir`
     
     if ! [ -d $upstreamdir/.spack-db ]; then
-	   echo "No Spack instance found at $upstream!"
-	   continue
+       echo "No Spack instance found at $upstream!"
+       continue
     fi
 
     if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
-	    echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
+        echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
     fi
 
     echo "  upstream${upstream//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
@@ -201,26 +209,26 @@ ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
 spack add artdaq-suite@${demo_version}${compiler_info} s=${squalifier} +demo~pcp %gcc@13.1.0
 
 if [[ ${opt_develop:-0} -eq 1 ]];then
-	spack concretize --force
-	spack cd --env
-	for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-pcp-mmv-plugin artdaq-utilities;do
-	    pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
+    spack concretize --force
+    spack cd --env
+    for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-pcp-mmv-plugin artdaq-utilities;do
+        pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
         spack add $pkg@${pkg_version} %gcc@13.1.0 cxxstd=20
-	    spack develop $pkg@${pkg_version} %gcc@13.1.0 cxxstd=20
-	done
-	for pkg in artdaq-daqinterface trace;do
-	    pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
+        spack develop $pkg@${pkg_version} %gcc@13.1.0 cxxstd=20
+    done
+    for pkg in artdaq-daqinterface trace;do
+        pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
         spack add $pkg@${pkg_version} %gcc@13.1.0
-	    spack develop $pkg@${pkg_version} %gcc@13.1.0
-	done
-	cd $Base
-	rm srcs && ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version} srcs
+        spack develop $pkg@${pkg_version} %gcc@13.1.0
+    done
+    cd $Base
+    rm srcs && ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version} srcs
 fi
 
 spack concretize --force && spack install -j $BUILD_J
 
 
-	cat >setupARTDAQDEMO <<-EOF
+    cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
 
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
@@ -288,10 +296,10 @@ cd $Base
 
 if [ "x${opt_run_demo-}" != "x" ]; then
     if [ $installStatus -eq 0 ]; then
-	echo doing the demo
+    echo doing the demo
 
-	run_demo.sh --basedir $Base --toolsdir ${Base}/srcs/artdaq_demo/tools
-	else
+    run_demo.sh --basedir $Base --toolsdir ${Base}/srcs/artdaq_demo/tools
+    else
         echo 'Build error (see above) precludes running the demo (i.e --run-demo option specified)'
     fi
 fi
