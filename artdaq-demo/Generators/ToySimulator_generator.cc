@@ -11,6 +11,7 @@
 #include "artdaq-core-demo/Overlays/FragmentType.hh"
 #include "artdaq-core-demo/Overlays/ToyFragment.hh"
 #include "artdaq-core/Utilities/SimpleLookupPolicy.hh"
+#include "artdaq-core/Data/MetadataFragment.hh"
 #include "artdaq/Generators/GeneratorMacros.hh"
 
 #define TRACE_NAME "ToySimulator"
@@ -223,14 +224,7 @@ bool demo::ToySimulator::getNext_(artdaq::FragmentPtrs& frags)
 			}
 			if (fragmentIdZero)
 			{
-				artdaq::FragmentPtr endOfSubrunFrag(new artdaq::Fragment(static_cast<size_t>(
-				    ceil(sizeof(my_rank) / static_cast<double>(sizeof(artdaq::Fragment::value_type))))));
-				endOfSubrunFrag->setSystemType(artdaq::Fragment::EndOfSubrunFragmentType);
-
-				endOfSubrunFrag->setSequenceID(ev_counter() + 1);
-				endOfSubrunFrag->setTimestamp(1 + (ev_counter() / rollover_subrun_interval_));
-
-				*endOfSubrunFrag->dataBegin() = my_rank;
+				auto endOfSubrunFrag = artdaq::MetadataFragment::CreateEndOfSubrunFragment(my_rank, ev_counter() + 1, 1 + (ev_counter() / rollover_subrun_interval_));
 				frags.emplace_back(std::move(endOfSubrunFrag));
 			}
 		}
