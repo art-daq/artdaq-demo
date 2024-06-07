@@ -13,7 +13,7 @@ validate_basedir()
 {
 	valid_basedir=0
 	
-	if [ -d $basedir/artdaq_daqinterface ] || [ -d $ARTDAQ_DAQINTERFACE_DIR ]; then
+	if [ -d $basedir/artdaq-daqinterface ] || [ -d $ARTDAQ_DAQINTERFACE_DIR ]; then
 		valid_basedir=1
 	fi
 	if ! [ -d $basedir/DAQInterface ]; then
@@ -48,7 +48,7 @@ if [ $valid_basedir -eq 0 ]; then
   validate_basedir
 fi
 
-toolsdir="$basedir/srcs/artdaq_demo/tools"
+toolsdir="$basedir/srcs/artdaq-demo/tools"
 validate_toolsdir
 
 fhicldir="$toolsdir/fcl"

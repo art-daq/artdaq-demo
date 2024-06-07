@@ -41,6 +41,7 @@ demo::ToySimulator::ToySimulator(fhicl::ParameterSet const& ps)
     , exception_on_config_(ps.get<bool>("exception_on_config", false))
     , dies_on_config_(ps.get<bool>("dies_on_config", false))
     , lazy_mode_(ps.get<bool>("lazy_mode", false))
+    , generate_metadata_fragment_(ps.get<bool>("generate_metadata_fragment", false))
 
 {
 	hardware_interface_->AllocateReadoutBuffer(&readout_buffer_);
@@ -224,7 +225,7 @@ bool demo::ToySimulator::getNext_(artdaq::FragmentPtrs& frags)
 			}
 			if (fragmentIdZero)
 			{
-				auto endOfSubrunFrag = artdaq::MetadataFragment::CreateEndOfSubrunFragment(my_rank, ev_counter() + 1, 1 + (ev_counter() / rollover_subrun_interval_));
+				auto endOfSubrunFrag = artdaq::MetadataFragment::CreateEndOfSubrunFragment(my_rank, ev_counter() + 1, 1 + (ev_counter() / rollover_subrun_interval_), 0);
 				frags.emplace_back(std::move(endOfSubrunFrag));
 			}
 		}
@@ -232,6 +233,12 @@ bool demo::ToySimulator::getNext_(artdaq::FragmentPtrs& frags)
 		ev_counter_inc(sequence_id_scale_);
 		timestamp_ += timestampScale_;
 	}
+
+	if (metadata_fragment_ != nullptr) {
+		frags.emplace_back(std::move(metadata_fragment_));
+		metadata_fragment_.reset(nullptr);
+	}
+
 	TLOG(TLVL_DEBUG + 3) << "getNext_: DONE";
 	return true;
 }
@@ -245,6 +252,17 @@ void demo::ToySimulator::start()
 	}
 	timestamp_ = starting_timestamp_;
 	lazily_handled_requests_.clear();
+
+	if (generate_metadata_fragment_) {
+		artdaq::ArtdaqMetadata theMetadata
+		{
+			 my_rank,
+			 fragmentIDs(),
+			 "string",
+			 "TEST"
+		};
+		metadata_fragment_ = artdaq::MetadataFragment::CreateMetadataFragment(theMetadata, artdaq::Fragment::StartOfRunFragmentType, 1, 0, *fragmentIDs().begin());
+	}
 }
 
 void demo::ToySimulator::stop() { hardware_interface_->StopDatataking(); }

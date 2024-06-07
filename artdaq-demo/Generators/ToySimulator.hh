@@ -115,6 +115,8 @@ private:
 	std::chrono::microseconds fragment_group_timeout_;
 	bool exception_on_config_;
 	bool dies_on_config_;
+	bool generate_metadata_fragment_;
+	artdaq::FragmentPtr metadata_fragment_;
 
 	bool lazy_mode_;  // See Issue #22810
 	std::set<artdaq::Fragment::sequence_id_t> lazily_handled_requests_;
