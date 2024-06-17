@@ -146,7 +146,7 @@ if ! [ -d fermi-spack-tools ]; then
 else
     cd fermi-spack-tools && git pull && cd ..
 fi
-./fermi-spack-tools/bin/make_packages_yaml $spackdir
+./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
 
 repo_found=`spack repo list|grep -c fnal_art`
 if [ $repo_found -eq 0 ]; then
@@ -188,9 +188,12 @@ for upstream in ${upstreams[@]}; do
     if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
         echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
     fi
-
-    echo "  upstream${upstream//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
-    echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
+    
+    if [ `grep -c $upstreamdir $spackdir/etc/spack/upstreams.yaml` -eq 0 ]; then
+        # Only add upstream if not already present
+        echo "  upstream${upstream//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
+        echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
+    fi
 
 done
 
