@@ -200,8 +200,11 @@ done
 cd $Base
 
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
-spack install -j $BUILD_J gcc@13.1.0
-spack load gcc@13.1.0
+spack load gcc@13.1.0 >/dev/null 2>&1
+if [ $? -ne 0 ];then
+  spack install -j $BUILD_J gcc@13.1.0
+  spack load gcc@13.1.0
+fi
 spack compiler find
 
 spack env create artdaq-${demo_version}
@@ -225,7 +228,8 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
         spack develop $pkg@${pkg_version} %gcc@13.1.0
     done
     cd $Base
-    rm srcs && ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version} srcs
+    rm srcs >/dev/null 2>&1
+    ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version} srcs
 fi
 
 spack concretize --force && spack install -j $BUILD_J
