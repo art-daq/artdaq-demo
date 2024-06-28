@@ -243,7 +243,8 @@ export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 spack env activate artdaq-${demo_version}
 
-export TRACE_NAME=TRACE
+k5user=`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'`
+export TRACE_NAME=/tmp/trace_buffer_$USER.$k5user
 
 #export ARTDAQDEMO_BASE_PORT=52200
 export DAQ_INDATA_PATH=$ARTDAQ_DEMO_DIR/test/Generators
