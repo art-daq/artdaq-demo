@@ -169,10 +169,12 @@ fi
 
 spack config --scope=site update  --yes-to-all config
 spack config --scope=site add config:install_tree:padded_length:255
-spack mirror add --scope site fnal https://spack-cache-1.fnal.gov/binaries/
-spack buildcache update-index -k fnal
-spack mirror add --scope site scisoft https://scisoft.fnal.gov/scisoft/spack-mirror/
-spack buildcache update-index -k scisoft
+
+
+spack mirror add --scope site scisoft-binaries  https://scisoft.fnal.gov/scisoft/spack-mirror/spack-binary-cache-plain
+spack buildcache update-index -k scisoft-binaries
+spack mirror add --scope site scisoft-compilers https://scisoft.fnal.gov/scisoft/spack-mirror/spack-compiler-cache-plain
+spack buildcache update-index -k scisoft-compilers
 spack -k buildcache keys --install --trust --force
 spack reindex
 
