@@ -38,6 +38,8 @@ prompted for this location.
 -w            Check out repositories read/write
 --no-extra-products  Skip the automatic use of central product areas, such as CVMFS
 --upstream    Use <dir> as a Spack upstream (repeatable)
+--padding     Pad paths to 255 characters for relocatability
+--pcp         Install the artdaq-pcp-mmv-plugin metric component
 "
 
 # Process script arguments and options
@@ -51,7 +53,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0; opt_padding=0; opt_pcp=0
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -76,6 +78,8 @@ while [ -n "${1-}" ];do
             -mfext)     opt_mfext=1;;
             -no-pull)   opt_no_pull=1;;
             -upstream)  eval $op1arg; upstreams+=($1); shift;;
+            -padding)   opt_padding=1;;
+            -pcp)       opt_pcp=1;;
             *)          echo "Unknown option -$op"; do_help=1;;
         esac
     else
@@ -107,6 +111,7 @@ if [ -z "${tag:-}" ]; then
   tag=develop;
   notag=1;
 fi
+rm CMakeLists.txt*
 wget https://raw.githubusercontent.com/art-daq/artdaq-demo/$tag/CMakeLists.txt
 demo_version=v`grep "project" $Base/CMakeLists.txt|grep -oE "VERSION [^)]*"|awk '{print $2}'|sed 's/\./_/g'`
 echo "Demo Version is $demo_version"
@@ -127,7 +132,11 @@ if [ -n "${squalifier-}" ]; then
 else
     squalifier="${defaultS#s}"
 fi
-compiler_info="" # Maybe do e- and c- qualifiers?
+
+pcp_opt="~pcp"
+if [ $opt_pcp -eq 1 ];then
+  pcp_opt="+pcp"
+fi
 
 if ! [ -d $spackdir ];then
     $(
@@ -146,6 +155,8 @@ if ! [ -d fermi-spack-tools ]; then
 else
     cd fermi-spack-tools && git pull && cd ..
 fi
+
+sed -i '/perl/d' fermi-spack-tools/templates/packagelist
 ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
 
 repo_found=`spack repo list|grep -c fnal_art`
@@ -168,15 +179,17 @@ fi
 
 
 spack config --scope=site update  --yes-to-all config
-spack config --scope=site add config:install_tree:padded_length:255
 
+if [ $opt_padding -eq 1 ];then
+  spack config --scope=site add config:install_tree:padded_length:255
+fi
 
-spack mirror add --scope site scisoft-binaries  https://scisoft.fnal.gov/scisoft/spack-mirror/spack-binary-cache-plain
-spack buildcache update-index -k scisoft-binaries
-spack mirror add --scope site scisoft-compilers https://scisoft.fnal.gov/scisoft/spack-mirror/spack-compiler-cache-plain
-spack buildcache update-index -k scisoft-compilers
-spack -k buildcache keys --install --trust --force
-spack reindex
+#spack mirror add --scope site scisoft-binaries  https://scisoft.fnal.gov/scisoft/spack-mirror/spack-binary-cache-plain
+#spack buildcache update-index -k scisoft-binaries
+#spack mirror add --scope site scisoft-compilers https://scisoft.fnal.gov/scisoft/spack-mirror/spack-compiler-cache-plain
+#spack buildcache update-index -k scisoft-compilers
+#spack -k buildcache keys --install --trust --force
+#spack reindex
 
 for upstream in ${upstreams[@]}; do
     upstreamdir=`find $upstream -type d -name .spack-db`
@@ -214,16 +227,21 @@ spack env activate artdaq-${demo_version}
 
 ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
 
-spack add artdaq-suite@${demo_version}${compiler_info} s=${squalifier} +demo~pcp %gcc@13.1.0
+spack add artdaq-suite@${demo_version} s=${squalifier} +demo ${pcp_opt} %gcc@13.1.0
 
 if [[ ${opt_develop:-0} -eq 1 ]];then
     spack concretize --force
     spack cd --env
-    for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-pcp-mmv-plugin artdaq-utilities;do
+    for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-utilities;do
         pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
         spack add $pkg@${pkg_version} %gcc@13.1.0 cxxstd=20
         spack develop $pkg@${pkg_version} %gcc@13.1.0 cxxstd=20
     done
+    if [ $opt_pcp -eq 1 ];then
+        pkg_version=`grep -o "\"artdaq-pcp-mmv-plugin\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
+        spack add artdaq-pcp-mmv-plugin@${pkg_version} %gcc@13.1.0 cxxstd=20
+        spack develop artdaq-pcp-mmv-plugin@${pkg_version} %gcc@13.1.0 cxxstd=20
+    fi
     for pkg in artdaq-daqinterface trace;do
         pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
         spack add $pkg@${pkg_version} %gcc@13.1.0
@@ -246,7 +264,7 @@ source $spackdir/share/spack/setup-env.sh
 spack env activate artdaq-${demo_version}
 
 k5user=`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'`
-export TRACE_NAME=/tmp/trace_buffer_$USER.$k5user
+export TRACE_NAME=/tmp/trace_buffer_\$USER.\$k5user
 
 #export ARTDAQDEMO_BASE_PORT=52200
 export DAQ_INDATA_PATH=$ARTDAQ_DEMO_DIR/test/Generators
@@ -275,34 +293,36 @@ daqintdir=$Base/DAQInterface
 # the develop branch, 6c15e15c0f6e06282f2fd5dd8ad478659fdb29bd
 
 cd $Base
-mkdir $daqintdir
-cd $daqintdir
-ln -s ../setupARTDAQDEMO mock_ups_setup.sh
-cp $ARTDAQ_DAQINTERFACE_DIR/docs/* .
 
-sed -i -r 's!^\s*export DAQINTERFACE_SETTINGS.*!export DAQINTERFACE_SETTINGS='$PWD/settings_example'!' user_sourcefile_example
-sed -i -r 's!^\s*export DAQINTERFACE_KNOWN_BOARDREADERS_LIST.*!export DAQINTERFACE_KNOWN_BOARDREADERS_LIST='$PWD/known_boardreaders_list_example'!' user_sourcefile_example
-sed -i -r '/export DAQINTERFACE_USER_SOURCEFILE_ERRNO=0/i \
-export yourArtdaqInstallationDir='$Base'  ' user_sourcefile_example
-sed -i -r "s!DAQINTERFACE_LOGDIR=.*!DAQINTERFACE_LOGDIR=$logdir!" user_sourcefile_example
+if ! [ -d $daqintdir ]; then
+  mkdir $daqintdir
+  cd $daqintdir
+  ln -s ../setupARTDAQDEMO mock_ups_setup.sh
+  cp $ARTDAQ_DAQINTERFACE_DIR/docs/* .
 
-mkdir -p $recordsdir
-chmod g+w $recordsdir
-sed -i -r 's!^\s*record_directory.*!record_directory: '$recordsdir'!' settings_example
+  sed -i -r 's!^\s*export DAQINTERFACE_SETTINGS.*!export DAQINTERFACE_SETTINGS='$PWD/settings_example'!' user_sourcefile_example
+  sed -i -r 's!^\s*export DAQINTERFACE_KNOWN_BOARDREADERS_LIST.*!export DAQINTERFACE_KNOWN_BOARDREADERS_LIST='$PWD/known_boardreaders_list_example'!' user_sourcefile_example
+  sed -i -r '/export DAQINTERFACE_USER_SOURCEFILE_ERRNO=0/i \
+  export yourArtdaqInstallationDir='$Base'  ' user_sourcefile_example
+  sed -i -r "s!DAQINTERFACE_LOGDIR=.*!DAQINTERFACE_LOGDIR=$logdir!" user_sourcefile_example
 
-mkdir -p $logdir
-chmod g+w $logdir
-sed -i -r 's!^\s*log_directory.*!log_directory: '$logdir'!' settings_example
+  mkdir -p $recordsdir
+  chmod g+w $recordsdir
+  sed -i -r 's!^\s*record_directory.*!record_directory: '$recordsdir'!' settings_example
 
-mkdir -p $datadir
-chmod g+w $datadir
-sed -i -r 's!^\s*data_directory_override.*!data_directory_override: '$datadir'!' settings_example
+  mkdir -p $logdir
+  chmod g+w $logdir
+  sed -i -r 's!^\s*log_directory.*!log_directory: '$logdir'!' settings_example
 
-sed -i -r 's!^\s*DAQ setup script:.*!DAQ setup script: '$Base'/setupARTDAQDEMO!' boot*.txt
-
-sed -i -r 's!^\s*productsdir_for_bash_scripts:.*!spack_root_for_bash_scripts: '"$spackdir"'!' settings_example
-
-cd $Base
+  mkdir -p $datadir
+  chmod g+w $datadir
+  sed -i -r 's!^\s*data_directory_override.*!data_directory_override: '$datadir'!' settings_example
+  
+  sed -i -r 's!^\s*DAQ setup script:.*!DAQ setup script: '$Base'/setupARTDAQDEMO!' boot*.txt
+ 
+  sed -i -r 's!^\s*productsdir_for_bash_scripts:.*!spack_root_for_bash_scripts: '"$spackdir"'!' settings_example
+  cd $Base
+fi
 
 if [ "x${opt_run_demo-}" != "x" ]; then
     if [ $installStatus -eq 0 ]; then
