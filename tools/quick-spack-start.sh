@@ -169,10 +169,12 @@ fi
 
 spack config --scope=site update  --yes-to-all config
 spack config --scope=site add config:install_tree:padded_length:255
-spack mirror add --scope site fnal https://spack-cache-1.fnal.gov/binaries/
-spack buildcache update-index -k fnal
-spack mirror add --scope site scisoft https://scisoft.fnal.gov/scisoft/spack-mirror/
-spack buildcache update-index -k scisoft
+
+
+spack mirror add --scope site scisoft-binaries  https://scisoft.fnal.gov/scisoft/spack-mirror/spack-binary-cache-plain
+spack buildcache update-index -k scisoft-binaries
+spack mirror add --scope site scisoft-compilers https://scisoft.fnal.gov/scisoft/spack-mirror/spack-compiler-cache-plain
+spack buildcache update-index -k scisoft-compilers
 spack -k buildcache keys --install --trust --force
 spack reindex
 
@@ -243,7 +245,8 @@ export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 spack env activate artdaq-${demo_version}
 
-export TRACE_NAME=TRACE
+k5user=`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'`
+export TRACE_NAME=/tmp/trace_buffer_$USER.$k5user
 
 #export ARTDAQDEMO_BASE_PORT=52200
 export DAQ_INDATA_PATH=$ARTDAQ_DEMO_DIR/test/Generators
