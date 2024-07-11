@@ -263,7 +263,7 @@ export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 spack env activate artdaq-${demo_version}
 
-k5user=`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'`
+k5user=\`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'\`
 export TRACE_NAME=/tmp/trace_buffer_\$USER.\$k5user
 
 #export ARTDAQDEMO_BASE_PORT=52200
@@ -298,7 +298,7 @@ if ! [ -d $daqintdir ]; then
   mkdir $daqintdir
   cd $daqintdir
   ln -s ../setupARTDAQDEMO mock_ups_setup.sh
-  cp $ARTDAQ_DAQINTERFACE_DIR/docs/* .
+  cp $Base/srcs/artdaq-daqinterface/docs/* .
 
   sed -i -r 's!^\s*export DAQINTERFACE_SETTINGS.*!export DAQINTERFACE_SETTINGS='$PWD/settings_example'!' user_sourcefile_example
   sed -i -r 's!^\s*export DAQINTERFACE_KNOWN_BOARDREADERS_LIST.*!export DAQINTERFACE_KNOWN_BOARDREADERS_LIST='$PWD/known_boardreaders_list_example'!' user_sourcefile_example
