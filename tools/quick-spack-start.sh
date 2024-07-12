@@ -85,7 +85,7 @@ while [ -n "${1-}" ];do
             -pcp)       opt_pcp=1;;
             -setup-only) opt_setup=1;;
             -gcc-only)   opt_gcc=1;;
-            -art-olly)   opt_art=1;;
+            -art-only)   opt_art=1;;
             *)          echo "Unknown option -$op"; do_help=1;;
         esac
     else
