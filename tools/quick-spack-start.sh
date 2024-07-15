@@ -52,6 +52,7 @@ logdir="${ARTDAQDEMO_LOG_DIR:-$Base/daqlogs}"
 recordsdir="${ARTDAQDEMO_RECORD_DIR:-$Base/run_records}"
 spackdir="${ARTDAQDEMO_SPACK_DIR:-$Base/spack}"
 upstreams=()
+installStatus=0
 eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
@@ -219,7 +220,7 @@ for upstream in ${upstreams[@]}; do
 done
 
 if [ $opt_setup -eq 1 ]; then
-    exit
+    exit $installStatus
 fi
 
 cd $Base
@@ -228,17 +229,19 @@ BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
 spack load gcc@13.1.0 >/dev/null 2>&1
 if [ $? -ne 0 ];then
   spack install -j $BUILD_J gcc@13.1.0
+  installStatus=$?
   spack load gcc@13.1.0
 fi
 spack compiler find
 
 if [ $opt_gcc -eq 1 ]; then
-    exit
+    exit $installStatus
 fi
 
 if [ $opt_art -eq 1 ]; then
     spack install -j $BUILD_J art-suite@s${squalifier} %gcc@13.1.0
-    exit
+    installStatus=$?
+    exit $installStatus
 fi
 
 spack env create artdaq-${demo_version}
@@ -272,7 +275,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 fi
 
 spack concretize --force && spack install -j $BUILD_J
-
+installStatus=$?
 
     cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
@@ -358,3 +361,5 @@ endtime=`date`
 
 echo "Build start time: $starttime"
 echo "Build end time:   $endtime"
+
+exit $installStatus
