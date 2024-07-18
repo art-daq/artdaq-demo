@@ -243,7 +243,7 @@ if [ $opt_gcc -eq 1 ]; then
 fi
 
 if [ $opt_noroot -eq 1 ]; then
-    spack install -j $BUILD_J art-suite@s${squalifier} ~root %gcc@13.1.0
+    spack install -j $BUILD_J art-suite@s${squalifier}~root %gcc@13.1.0
     installStatus=$?
     exit $installStatus
 fi
