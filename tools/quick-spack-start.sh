@@ -42,6 +42,7 @@ prompted for this location.
 --pcp         Install the artdaq-pcp-mmv-plugin metric component
 --setup-only  Only do Spack area setup (exit before building gcc)
 --gcc-only    Only do GCC install (exit before building art/artdaq)
+--art-noroot  Only install art, without ROOT support (exit before building ROOT/artdaq)
 --art-only    Only install art (exit before building artdaq)
 --no-kmod     Do not build TRACE kernel module (for Docker builds)
 "
@@ -58,7 +59,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0; opt_padding=0; opt_pcp=0; opt_setup=0; opt_gcc=0; opt_art=0; opt_no_kmod=0
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0; opt_padding=0; opt_pcp=0; opt_setup=0; opt_gcc=0; opt_noroot=0; opt_art=0; opt_no_kmod=0
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -87,6 +88,7 @@ while [ -n "${1-}" ];do
             -pcp)       opt_pcp=1;;
             -setup-only) opt_setup=1;;
             -gcc-only)   opt_gcc=1;;
+            -art-noroot) opt_noroot=1;;
             -art-only)   opt_art=1;;
             -no-kmod)    opt_no_kmod=1;;
             *)          echo "Unknown option -$op"; do_help=1;;
@@ -237,6 +239,12 @@ fi
 spack compiler find
 
 if [ $opt_gcc -eq 1 ]; then
+    exit $installStatus
+fi
+
+if [ $opt_noroot -eq 1 ]; then
+    spack install -j $BUILD_J art-suite@s${squalifier} ~root %gcc@13.1.0
+    installStatus=$?
     exit $installStatus
 fi
 
