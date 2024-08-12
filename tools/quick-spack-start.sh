@@ -40,11 +40,8 @@ prompted for this location.
 --upstream    Use <dir> as a Spack upstream (repeatable)
 --padding     Pad paths to 255 characters for relocatability
 --pcp         Install the artdaq-pcp-mmv-plugin metric component
---setup-only  Only do Spack area setup (exit before building gcc)
---gcc-only    Only do GCC install (exit before building art/artdaq)
---art-noroot  Only install art, without ROOT support (exit before building ROOT/artdaq)
---art-only    Only install art (exit before building artdaq)
 --no-kmod     Do not build TRACE kernel module (for Docker builds)
+--arch        Architecture for build (e.g. linux-almalinux9-x86_64)
 "
 
 # Process script arguments and options
@@ -53,13 +50,14 @@ datadir="${ARTDAQDEMO_DATA_DIR:-$Base/daqdata}"
 logdir="${ARTDAQDEMO_LOG_DIR:-$Base/daqlogs}"
 recordsdir="${ARTDAQDEMO_RECORD_DIR:-$Base/run_records}"
 spackdir="${ARTDAQDEMO_SPACK_DIR:-$Base/spack}"
+arch=""
 upstreams=()
 installStatus=0
 eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0; opt_padding=0; opt_pcp=0; opt_setup=0; opt_gcc=0; opt_noroot=0; opt_art=0; opt_no_kmod=0
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -80,16 +78,13 @@ while [ -n "${1-}" ];do
             -datadir)   eval $op1arg; datadir=$1; shift;;
             -recordsdir) eval $op1arg; recordsdir=$1; shift;;
             -spackdir)  eval $op1arg; spackdir=$1; shift;;
+            -arch)      eval $op1arg; arch=$1; shift;;
             -no-extra-products)  opt_skip_extra_products=1;;
             -mfext)     opt_mfext=1;;
             -no-pull)   opt_no_pull=1;;
             -upstream)  eval $op1arg; upstreams+=($1); shift;;
             -padding)   opt_padding=1;;
             -pcp)       opt_pcp=1;;
-            -setup-only) opt_setup=1;;
-            -gcc-only)   opt_gcc=1;;
-            -art-noroot) opt_noroot=1;;
-            -art-only)   opt_art=1;;
             -no-kmod)    opt_no_kmod=1;;
             *)          echo "Unknown option -$op"; do_help=1;;
         esac
@@ -147,6 +142,11 @@ fi
 pcp_opt="~pcp"
 if [ $opt_pcp -eq 1 ];then
   pcp_opt="+pcp"
+fi
+
+arch_opt=""
+if [ "x$arch" != "x" ]; then
+   arch_opt="arch=$arch"
 fi
 
 if ! [ -d $spackdir ];then
@@ -223,36 +223,16 @@ for upstream in ${upstreams[@]}; do
 
 done
 
-if [ $opt_setup -eq 1 ]; then
-    exit $installStatus
-fi
-
 cd $Base
 
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
 spack load gcc@13.1.0 >/dev/null 2>&1
 if [ $? -ne 0 ];then
-  spack install -j $BUILD_J gcc@13.1.0
+  spack install -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
   installStatus=$?
   spack load gcc@13.1.0
 fi
 spack compiler find
-
-if [ $opt_gcc -eq 1 ]; then
-    exit $installStatus
-fi
-
-if [ $opt_noroot -eq 1 ]; then
-    spack install -j $BUILD_J art-suite@s${squalifier}~root %gcc@13.1.0
-    installStatus=$?
-    exit $installStatus
-fi
-
-if [ $opt_art -eq 1 ]; then
-    spack install -j $BUILD_J art-suite@s${squalifier}+root %gcc@13.1.0
-    installStatus=$?
-    exit $installStatus
-fi
 
 spack env create artdaq-${demo_version}
 spack env activate artdaq-${demo_version}
@@ -263,25 +243,25 @@ if [ $opt_no_kmod -eq 1 ];then
     spack add trace~kmod
 fi
 
-spack add artdaq-suite@${demo_version} s=${squalifier} +demo ${pcp_opt} %gcc@13.1.0
+spack add artdaq-suite@${demo_version} s=${squalifier} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
 
 if [[ ${opt_develop:-0} -eq 1 ]];then
     spack concretize --force
     spack cd --env
     for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-utilities;do
         pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
-        spack add $pkg@${pkg_version} %gcc@13.1.0 cxxstd=20
-        spack develop $pkg@${pkg_version} %gcc@13.1.0 cxxstd=20
+        spack add $pkg@${pkg_version} $arch_opt %gcc@13.1.0 cxxstd=20
+        spack develop $pkg@${pkg_version} $arch_opt %gcc@13.1.0 cxxstd=20
     done
     if [ $opt_pcp -eq 1 ];then
         pkg_version=`grep -o "\"artdaq-pcp-mmv-plugin\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
-        spack add artdaq-pcp-mmv-plugin@${pkg_version} %gcc@13.1.0 cxxstd=20
-        spack develop artdaq-pcp-mmv-plugin@${pkg_version} %gcc@13.1.0 cxxstd=20
+        spack add artdaq-pcp-mmv-plugin@${pkg_version} $arch_opt %gcc@13.1.0 cxxstd=20
+        spack develop artdaq-pcp-mmv-plugin@${pkg_version} $arch_opt %gcc@13.1.0 cxxstd=20
     fi
     for pkg in artdaq-daqinterface trace;do
         pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
-        spack add $pkg@${pkg_version} %gcc@13.1.0
-        spack develop $pkg@${pkg_version} %gcc@13.1.0
+        spack add $pkg@${pkg_version} $arch_opt %gcc@13.1.0
+        spack develop $pkg@${pkg_version} $arch_opt %gcc@13.1.0
     done
     cd $Base
     rm srcs >/dev/null 2>&1
