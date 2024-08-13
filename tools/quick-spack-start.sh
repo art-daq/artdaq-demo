@@ -196,6 +196,9 @@ if [ $opt_padding -eq 1 ];then
   spack config --scope=site add config:install_tree:padded_length:255
 fi
 
+
+BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
+
 if [ $opt_force_gcc -eq 1 ]; then
   spack install -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
   spack load gcc@13.1.0
@@ -232,7 +235,6 @@ done
 
 cd $Base
 
-BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
 spack load gcc@13.1.0 >/dev/null 2>&1
 if [ $? -ne 0 ];then
   spack install -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
