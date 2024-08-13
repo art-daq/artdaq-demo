@@ -196,6 +196,12 @@ if [ $opt_padding -eq 1 ];then
   spack config --scope=site add config:install_tree:padded_length:255
 fi
 
+if [ $opt_force_gcc -eq 1 ]; then
+  spack install -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
+  spack load gcc@13.1.0
+  spack compiler find
+fi
+
 #spack mirror add --scope site scisoft-binaries  https://scisoft.fnal.gov/scisoft/spack-mirror/spack-binary-cache-plain
 #spack buildcache update-index -k scisoft-binaries
 #spack mirror add --scope site scisoft-compilers https://scisoft.fnal.gov/scisoft/spack-mirror/spack-compiler-cache-plain
@@ -228,8 +234,8 @@ cd $Base
 
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
 spack load gcc@13.1.0 >/dev/null 2>&1
-if [ $? -ne 0 ] || [ $opt_force_gcc -eq 1 ];then
-  spack install --overwrite -y -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
+if [ $? -ne 0 ];then
+  spack install -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
   installStatus=$?
   spack load gcc@13.1.0
 fi
