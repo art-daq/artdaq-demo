@@ -57,7 +57,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_force_gcc=0
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -86,7 +86,6 @@ while [ -n "${1-}" ];do
             -padding)   opt_padding=1;;
             -pcp)       opt_pcp=1;;
             -no-kmod)    opt_no_kmod=1;;
-            -force-gcc) opt_force_gcc=1;;
             *)          echo "Unknown option -$op"; do_help=1;;
         esac
     else
@@ -196,15 +195,6 @@ if [ $opt_padding -eq 1 ];then
   spack config --scope=site add config:install_tree:padded_length:255
 fi
 
-
-BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
-
-if [ $opt_force_gcc -eq 1 ]; then
-  spack install -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
-  spack load gcc@13.1.0
-  spack compiler find
-fi
-
 #spack mirror add --scope site scisoft-binaries  https://scisoft.fnal.gov/scisoft/spack-mirror/spack-binary-cache-plain
 #spack buildcache update-index -k scisoft-binaries
 #spack mirror add --scope site scisoft-compilers https://scisoft.fnal.gov/scisoft/spack-mirror/spack-compiler-cache-plain
@@ -235,6 +225,7 @@ done
 
 cd $Base
 
+BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
 spack load gcc@13.1.0 >/dev/null 2>&1
 if [ $? -ne 0 ];then
   spack install -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
@@ -286,6 +277,10 @@ echo # This script is intended to be sourced.
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
+
+spack load gcc@13.1.0
+spack compiler find
+
 spack env activate artdaq-${demo_version}
 
 k5user=\`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'\`
