@@ -190,6 +190,7 @@ fi
 
 
 spack config --scope=site update  --yes-to-all config
+spack config --scope=site add config:flags:keep_werror:all
 
 if [ $opt_padding -eq 1 ];then
   spack config --scope=site add config:install_tree:padded_length:255
