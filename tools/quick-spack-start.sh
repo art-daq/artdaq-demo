@@ -167,6 +167,12 @@ else
     cd fermi-spack-tools && git pull && cd ..
 fi
 
+if ! [ -d spack-mpd ]; then
+    git clone https://github.com/eflumerf/spack-mpd.git
+else
+    cd spack-mpd && git pull && cd ..
+fi
+
 sed -i '/perl/d' fermi-spack-tools/templates/packagelist
 ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
 
@@ -190,7 +196,7 @@ fi
 
 
 spack config --scope=site update  --yes-to-all config
-spack config --scope=site add config:flags:keep_werror:all
+#spack config --scope=site add config:flags:keep_werror:all # Not needed when using spack-mpd
 
 if [ $opt_padding -eq 1 ];then
   spack config --scope=site add config:install_tree:padded_length:255
@@ -245,32 +251,53 @@ if [ $opt_no_kmod -eq 1 ];then
 fi
 
 spack add artdaq-suite@${demo_version} s=${squalifier} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
-
-if [[ ${opt_develop:-0} -eq 1 ]];then
-    spack concretize --force
-    spack cd --env
-    for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-utilities;do
-        pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
-        spack add $pkg@${pkg_version} $arch_opt %gcc@13.1.0 cxxstd=20
-        spack develop $pkg@${pkg_version} $arch_opt %gcc@13.1.0 cxxstd=20
-    done
-    if [ $opt_pcp -eq 1 ];then
-        pkg_version=`grep -o "\"artdaq-pcp-mmv-plugin\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
-        spack add artdaq-pcp-mmv-plugin@${pkg_version} $arch_opt %gcc@13.1.0 cxxstd=20
-        spack develop artdaq-pcp-mmv-plugin@${pkg_version} $arch_opt %gcc@13.1.0 cxxstd=20
-    fi
-    for pkg in artdaq-daqinterface trace;do
-        pkg_version=`grep -o "\"$pkg\",\"version\":\"[^\"]*\"" spack.lock|cut -d: -f2|sed 's/"//g'`
-        spack add $pkg@${pkg_version} $arch_opt %gcc@13.1.0
-        spack develop $pkg@${pkg_version} $arch_opt %gcc@13.1.0
-    done
-    cd $Base
-    rm srcs >/dev/null 2>&1
-    ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version} srcs
-fi
+env_to_activate="artdaq-${demo_version}"
 
 spack concretize --force && spack install -j $BUILD_J
 installStatus=$?
+
+function checkout_package()
+{
+	pkg=$1
+	if ! [ -d $pkg ]; then
+		if [ $opt_w -eq 0 ];then
+			git clone https://github.com/art-daq/$pkg.git
+	    else
+			git clone git@github.com:art-daq/$pkg.git
+		fi
+	else
+		cd $pkg
+		git pull
+		cd ..
+	fi
+}
+
+if [[ ${opt_develop:-0} -eq 1 ]];then
+	spack env deactivate
+    env_to_activate="artdaq-develop"
+	
+	spack config --scope=site add "config:extensions:- $Base/spack-mpd"
+	spack mpd init -r site -u $Base/spack-repos/mpd
+	
+	cd $Base
+	mkdir srcs
+	cd srcs
+    for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-utilities artdaq-daqinterface trace;do
+		checkout_package $pkg
+    done
+    if [ $opt_pcp -eq 1 ];then
+	    checkout_package artdaq-pcp-mmv-plugin
+    fi
+	cd $Base
+	
+	spack mpd new-project --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 --force -y
+	spack install cetmodules@3.26.00 # Needed for now
+	spack env activate artdaq-develop
+	spack add cetmodules@3.26.00
+	spack concretize --force
+	spack mpd build
+	installStatus=$?
+fi
 
     cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
@@ -282,7 +309,7 @@ source $spackdir/share/spack/setup-env.sh
 spack load gcc@13.1.0
 spack compiler find
 
-spack env activate artdaq-${demo_version}
+spack env activate ${env_to_activate}
 
 k5user=\`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'\`
 export TRACE_FILE=/tmp/trace_buffer_\$USER.\$k5user
@@ -299,6 +326,8 @@ IFSsav=\$IFS IFS=:; for dd in \$LD_LIBRARY_PATH;do IFS=\$IFSsav; ls \$dd/*Toy* 2
 echo ...done with check for Toy
 
 alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disabling TRACE so that it will not affect rawEventDump output ; sleep 1; fi; art -c rawEventDump.fcl"
+alias mpd="spack mpd"
+
 
 EOF
 #
@@ -319,7 +348,9 @@ if ! [ -d $daqintdir ]; then
   mkdir $daqintdir
   cd $daqintdir
   ln -s ../setupARTDAQDEMO mock_ups_setup.sh
-  cp $Base/srcs/artdaq-daqinterface/docs/* .
+  
+  git clone https://github.com/art-daq/artdaq_daqinterface
+  cp artdaq_daqinterface/docs/* . && rm -rf artdaq_daqinterface
 
   sed -i -r 's!^\s*export DAQINTERFACE_SETTINGS.*!export DAQINTERFACE_SETTINGS='$PWD/settings_example'!' user_sourcefile_example
   sed -i -r 's!^\s*export DAQINTERFACE_KNOWN_BOARDREADERS_LIST.*!export DAQINTERFACE_KNOWN_BOARDREADERS_LIST='$PWD/known_boardreaders_list_example'!' user_sourcefile_example
