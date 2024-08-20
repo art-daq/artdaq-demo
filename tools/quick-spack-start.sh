@@ -197,6 +197,7 @@ fi
 
 spack config --scope=site update  --yes-to-all config
 #spack config --scope=site add config:flags:keep_werror:all # Not needed when using spack-mpd
+spack config --scope=site add "config:extensions:- $Base/spack-mpd"
 
 if [ $opt_padding -eq 1 ];then
   spack config --scope=site add config:install_tree:padded_length:255
@@ -276,7 +277,6 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	spack env deactivate
     env_to_activate="artdaq-develop"
 	
-	spack config --scope=site add "config:extensions:- $Base/spack-mpd"
 	spack mpd init -r site -u $Base/spack-repos/mpd
 	
 	cd $Base
