@@ -40,8 +40,8 @@ demo::ToySimulator::ToySimulator(fhicl::ParameterSet const& ps)
     , fragment_group_timeout_(ps.get<int>("fragment_group_timeout_us", 1000000))
     , exception_on_config_(ps.get<bool>("exception_on_config", false))
     , dies_on_config_(ps.get<bool>("dies_on_config", false))
-    , lazy_mode_(ps.get<bool>("lazy_mode", false))
     , generate_metadata_fragment_(ps.get<bool>("generate_metadata_fragment", false))
+    , lazy_mode_(ps.get<bool>("lazy_mode", false))
 
 {
 	hardware_interface_->AllocateReadoutBuffer(&readout_buffer_);
