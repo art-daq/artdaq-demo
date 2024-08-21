@@ -211,7 +211,7 @@ fi
 #spack reindex
 
 for upstream in ${upstreams[@]}; do
-    upstreamdir=`find $upstream -type d -name .spack-db`
+    upstreamdir=`find $upstream -type d -name .spack-db 2>/dev/null`
     upstreamdir=`dirname $upstreamdir`
     
     if ! [ -d $upstreamdir/.spack-db ]; then
