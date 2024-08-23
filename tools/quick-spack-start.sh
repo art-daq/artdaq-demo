@@ -307,7 +307,7 @@ sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 
-spack load gcc@13.1.0
+spack load --first gcc@13.1.0
 spack compiler find
 
 spack env activate ${env_to_activate}
