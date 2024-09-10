@@ -326,6 +326,7 @@ export TRACE_FILE=/tmp/trace_buffer_\$USER.\$k5user
 export DAQ_INDATA_PATH=$ARTDAQ_DEMO_DIR/test/Generators
 ${opt_mfext+export ARTDAQ_MFEXTENSIONS_ENABLED=1}
 
+export ARTDAQDEMO_ROOT=$Base
 export ARTDAQDEMO_DATA_DIR=${datadir}
 export ARTDAQDEMO_LOG_DIR=${logdir}
 
@@ -335,7 +336,8 @@ echo ...done with check for Toy
 
 alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disabling TRACE so that it will not affect rawEventDump output ; sleep 1; fi; art -c rawEventDump.fcl"
 alias mpd="spack mpd"
-
+# Note that the Ninja install command is needed to activate built changes!
+alias mb="spack mpd build -G Ninja && cd $Base/build && ninja install"
 
 EOF
 #
