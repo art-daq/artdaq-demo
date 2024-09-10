@@ -337,7 +337,7 @@ echo ...done with check for Toy
 alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disabling TRACE so that it will not affect rawEventDump output ; sleep 1; fi; art -c rawEventDump.fcl"
 alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
-alias mb="spack mpd build -G Ninja && cd $Base/build && ninja install"
+alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd"
 
 EOF
 #
