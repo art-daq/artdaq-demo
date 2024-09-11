@@ -15,6 +15,7 @@ project(artdaq_demo VERSION 3.14.00)
 
 include(CetCMakeEnv)
 cet_cmake_env()
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 cet_set_compiler_flags(DIAGS VIGILANT
  WERROR
