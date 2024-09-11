@@ -302,6 +302,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	installStatus=$?
 fi
 
+cd $Base
     cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
 
