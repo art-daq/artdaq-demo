@@ -319,6 +319,7 @@ if [ -d $Base/local/install ]; then
   export PATH=$Base/local/install/bin:\$PATH
   export LD_LIBRARY_PATH=$Base/local/install/lib:\$LD_LIBRARY_PATH
   export CET_PLUGIN_PATH=$Base/local/install/lib:\$CET_PLUGIN_PATH
+  export ARTDAQ_DAQINTERFACE_DIR=$Base/local/install
 fi
 
 k5user=\`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'\`

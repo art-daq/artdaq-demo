@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 source setupARTDAQDEMO
 
@@ -8,6 +9,14 @@ extra_args="${extra_args}"
 daqinterface_rundir=${daqinterface_rundir:-"$PWD/DAQInterface"}
 only_print_cmdline=0
 
+SOURCE=${BASH_SOURCE[0]}
+while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  SCRIPT_DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+  SOURCE=$(readlink "$SOURCE")
+  [[ $SOURCE != /* ]] && SOURCE=$SCRIPT_DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+SCRIPT_DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+
 if [ -d $ARTDAQ_DAQINTERFACE_DIR/simple_test_config ]; then
 	simple_test_config_dir=$ARTDAQ_DAQINTERFACE_DIR/simple_test_config
 elif [ -d $PWD/artdaq_daqinterface/simple_test_config ]; then
@@ -17,8 +26,8 @@ else
 	exit 2
 fi
 
-if ! [ -e $PWD/run_demo.sh ]; then
-	echo "ERROR: Could not locate run_demo.sh in current directory!" >&2
+if ! [ -e $SCRIPT_DIR/run_demo.sh ]; then
+	echo "ERROR: Could not locate run_demo.sh in $SCRIPT_DIR!" >&2
 	exit 3
 fi
 
@@ -78,10 +87,10 @@ function run_simple_test_config() {
 		om="--no_om"
 	fi
 
-	echo "Command line: ./run_demo.sh --auto --config $config $bootfile $brlist $om --comps $brs -- ${extra_args}"
+	echo "Command line: $SCRIPT_DIR/run_demo.sh --auto --config $config $bootfile $brlist $om --comps $brs -- ${extra_args}"
 
     if [ $only_print_cmdline -ne 1 ]; then
-	    ./run_demo.sh --auto --config $config $bootfile $brlist $om --comps $brs -- ${extra_args}
+	    $SCRIPT_DIR/run_demo.sh --auto --config $config $bootfile $brlist $om --comps $brs -- ${extra_args}
     fi
 
 	echo "=================LATEST FILE=================="
@@ -168,7 +177,7 @@ done
 echo "=============================================="
 echo "demo (Hung online monitor)"
 echo "=============================================="
-./run_demo.sh --auto --om_fhicl TransferInputShmemWithDelay --bootfile $daqinterface_rundir/$bootfile_name --brlist $daqinterface_rundir/$brlistfile_name ${extra_args}
+$SCRIPT_DIR/run_demo.sh --auto --om_fhicl TransferInputShmemWithDelay --bootfile $daqinterface_rundir/$bootfile_name --brlist $daqinterface_rundir/$brlistfile_name ${extra_args}
 mv out.bin daqdata/demo_hung_om.bin
 echo "=================LATEST FILE=================="
 echo `ls -t daqdata|head -1`
