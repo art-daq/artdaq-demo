@@ -195,7 +195,7 @@ else
 fi
 
 
-spack config --scope=site update  --yes-to-all config
+#spack config --scope=site update  --yes-to-all config
 #spack config --scope=site add config:flags:keep_werror:all # Not needed when using spack-mpd
 spack config --scope=site add "config:extensions:- $Base/spack-mpd"
 
@@ -319,12 +319,14 @@ if [ -d $Base/local/install ]; then
   export PATH=$Base/local/install/bin:\$PATH
   export LD_LIBRARY_PATH=$Base/local/install/lib:\$LD_LIBRARY_PATH
   export CET_PLUGIN_PATH=$Base/local/install/lib:\$CET_PLUGIN_PATH
+  export FHICL_FILE_PATH=$Base/local/install/fcl:\$FHICL_FILE_PATH
   export ARTDAQ_DAQINTERFACE_DIR=$Base/local/install
 fi
 
 k5user=\`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'\`
 export TRACE_FILE=/tmp/trace_buffer_\$USER.\$k5user
 
+export ARTDAQ_DAQINTERFACE_VERSION=SPACK
 #export ARTDAQDEMO_BASE_PORT=52200
 export DAQ_INDATA_PATH=$ARTDAQ_DEMO_DIR/test/Generators
 ${opt_mfext+export ARTDAQ_MFEXTENSIONS_ENABLED=1}
