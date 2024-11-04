@@ -66,6 +66,7 @@ outputs: {
 source: {
   module_type: TransferInput
   register_fragment_types: false
+  allowMultipleRuns: true
 
   # The timeout shouldn't be much smaller than the period between events, otherwise 
   # there's a spew of timeout messages

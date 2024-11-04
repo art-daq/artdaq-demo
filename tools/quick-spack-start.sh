@@ -306,6 +306,9 @@ cd $Base
     cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
 
+# Save environment
+declare -x >$Base/.env_before_setupARTDAQDEMO
+
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
@@ -321,6 +324,7 @@ if [ -d $Base/local/install ]; then
   export CET_PLUGIN_PATH=$Base/local/install/lib:\$CET_PLUGIN_PATH
   export FHICL_FILE_PATH=$Base/local/install/fcl:\$FHICL_FILE_PATH
   export ARTDAQ_DAQINTERFACE_DIR=$Base/local/install
+  source trace_functions.sh
 fi
 
 k5user=\`klist|grep "Default principal"|cut -d: -f2|sed 's/@.*//;s/ //'\`
@@ -343,6 +347,11 @@ alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disab
 alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
 alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd"
+
+# Now save a copy of the environment after setup
+declare -x >$Base/.env_after_setupARTDAQDEMO
+# Next, remove any variables that haven't changed
+grep -v -x -f $Base/.env_before_setupARTDAQDEMO $Base/.env_after_setupARTDAQDEMO >$Base/artdaq_demo_rte.sh
 
 EOF
 #
@@ -385,7 +394,7 @@ if ! [ -d $daqintdir ]; then
   chmod g+w $datadir
   sed -i -r 's!^\s*data_directory_override.*!data_directory_override: '$datadir'!' settings_example
   
-  sed -i -r 's!^\s*DAQ setup script:.*!DAQ setup script: '$Base'/setupARTDAQDEMO!' boot*.txt
+  sed -i -r 's!^\s*DAQ setup script:.*!DAQ setup script: '$Base'/artdaq_demo_rte.sh!' boot*.txt
  
   sed -i -r 's!^\s*productsdir_for_bash_scripts:.*!spack_root_for_bash_scripts: '"$spackdir"'!' settings_example
   cd $Base
