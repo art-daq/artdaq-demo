@@ -218,23 +218,26 @@ fi
 #spack reindex
 
 for upstream in ${upstreams[@]}; do
-    upstreamdir=`find $upstream -type d -name .spack-db 2>/dev/null`
-    upstreamdir=`dirname $upstreamdir`
+    for upstreamdir in `find $upstream -type d -name .spack-db 2>/dev/null`; do
     
-    if ! [ -d $upstreamdir/.spack-db ]; then
-       echo "No Spack instance found at $upstream!"
-       continue
-    fi
+        upstreamdir=`dirname $upstreamdir`
+        upstreamname=`echo $upstreamdir|sed 's|/__spack[^/]*||g;s|/spack/opt/spack||g'`
+    
+        if ! [ -d $upstreamdir/.spack-db ]; then
+            echo "No Spack instance found at $upstream!"
+            continue
+        fi
 
-    if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
-        echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
-    fi
+        if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
+            echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
+        fi
     
-    if [ `grep -c $upstreamdir $spackdir/etc/spack/upstreams.yaml` -eq 0 ]; then
-        # Only add upstream if not already present
-        echo "  upstream${upstream//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
-        echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
-    fi
+        if [ `grep -c $upstreamdir $spackdir/etc/spack/upstreams.yaml` -eq 0 ]; then
+            # Only add upstream if not already present
+            echo "  upstream${upstreamname//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
+            echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
+        fi
+    done
 
 done
 
