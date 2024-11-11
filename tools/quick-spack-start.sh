@@ -23,9 +23,7 @@ examples: `basename $0` .
 If the \"demo_root\" optional parameter is not supplied, the user will be
 prompted for this location.
 --run-demo    runs the demo
---debug       perform a debug build
 --develop     Install the develop version of the software (may be unstable!)
---viewer      install and run the artdaq Message Viewer
 --mfext       Use artdaq_mfextensions Destinations by default
 --tag         Install a specific tag of artdaq_demo
 --logdir      Set <dir> as the destination for log files
@@ -36,7 +34,6 @@ prompted for this location.
 -v            Be more verbose
 -x            set -x this script
 -w            Check out repositories read/write
---no-extra-products  Skip the automatic use of central product areas, such as CVMFS
 --upstream    Use <dir> as a Spack upstream (repeatable)
 --no-view     Do not create Spack environment views
 --padding     Pad paths to 255 characters for relocatability
@@ -58,7 +55,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -71,18 +68,14 @@ while [ -n "${1-}" ];do
             s*)         eval $op1arg; squalifier=$1; shift;;
             w*)         eval $op1chr; opt_w=`expr $opt_w + 1`;;
             -run-demo)  opt_run_demo=--run-demo;;
-            -debug)     opt_debug=--debug;;
             -develop) opt_develop=1;;
             -tag)       eval $reqarg; tag=$1; shift;;
-            -viewer)    opt_viewer=--viewer;;
             -logdir)    eval $op1arg; logdir=$1; shift;;
             -datadir)   eval $op1arg; datadir=$1; shift;;
             -recordsdir) eval $op1arg; recordsdir=$1; shift;;
             -spackdir)  eval $op1arg; spackdir=$1; shift;;
             -arch)      eval $op1arg; arch=$1; shift;;
-            -no-extra-products)  opt_skip_extra_products=1;;
             -mfext)     opt_mfext=1;;
-            -no-pull)   opt_no_pull=1;;
             -upstream)  eval $op1arg; upstreams+=($1); shift;;
             -padding)   opt_padding=1;;
             -pcp)       opt_pcp=1;;
