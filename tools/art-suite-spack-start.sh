@@ -162,7 +162,7 @@ fi
 #spack reindex
 
 for upstream in ${upstreams[@]}; do
-    for upstreamdir in `find $upstream -type d -wholename .spack-db/index.json 2>/dev/null`; do
+    for upstreamdir in `find $upstream -type f -wholename .spack-db/index.json 2>/dev/null`; do
     
         upstreamdir=`dirname $upstreamdir`
         upstreamdir=`dirname $upstreamdir`
