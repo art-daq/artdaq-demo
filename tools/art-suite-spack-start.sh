@@ -162,8 +162,9 @@ fi
 #spack reindex
 
 for upstream in ${upstreams[@]}; do
-    for upstreamdir in `find $upstream -type d -name .spack-db 2>/dev/null`; do
+    for upstreamdir in `find $upstream -type d -wholename .spack-db/index.json 2>/dev/null`; do
     
+        upstreamdir=`dirname $upstreamdir`
         upstreamdir=`dirname $upstreamdir`
         upstreamname=`echo $upstreamdir|sed 's|/__spack[^/]*||g;s|/spack/opt/spack||g'`
     
@@ -184,6 +185,8 @@ for upstream in ${upstreams[@]}; do
     done
 
 done
+
+spack reindex
 
 cd $Base
 
@@ -206,10 +209,6 @@ env_to_activate="art-s${squalifier}"
 
 spack concretize --force && spack install -j $BUILD_J
 installStatus=$?
-
-if [ $opt_padding -eq 1 ];then
-    rm -rf ${spackdir}/opt/spack/.spack-db
-fi
 
 endtime=`date`
 
