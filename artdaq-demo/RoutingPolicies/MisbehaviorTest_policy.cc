@@ -106,7 +106,7 @@ void MisbehaviorTest::CreateRoutingTable(artdaq::detail::RoutingPacket& table)
 			if (misbehave_corrupt_table_data_)
 			{
 				mf::LogError("MisbehaviorTest") << "Adding random data point";
-				table.emplace_back(seedAndRandom(), rand());  // NOLINT(cert-msc50-cpp)
+				table.emplace_back(artdaq::Globals::SeedAndRandom(), rand());  // NOLINT(cert-msc50-cpp)
 			}
 			if (misbehave_overload_event_builder_)
 			{
@@ -153,7 +153,7 @@ artdaq::detail::RoutingPacketEntry MisbehaviorTest::CreateRouteForSequenceID(art
 			if (misbehave_corrupt_table_data_)
 			{
 				mf::LogError("MisbehaviorTest") << "Adding random data point";
-				output = artdaq::detail::RoutingPacketEntry(seedAndRandom(), rand());  // NOLINT(cert-msc50-cpp)
+				output = artdaq::detail::RoutingPacketEntry(artdaq::Globals::SeedAndRandom(), rand());  // NOLINT(cert-msc50-cpp)
 			}
 			if (misbehave_overload_event_builder_)
 			{
