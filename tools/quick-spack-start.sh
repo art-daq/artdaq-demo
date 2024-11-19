@@ -23,9 +23,7 @@ examples: `basename $0` .
 If the \"demo_root\" optional parameter is not supplied, the user will be
 prompted for this location.
 --run-demo    runs the demo
---debug       perform a debug build
 --develop     Install the develop version of the software (may be unstable!)
---viewer      install and run the artdaq Message Viewer
 --mfext       Use artdaq_mfextensions Destinations by default
 --tag         Install a specific tag of artdaq_demo
 --logdir      Set <dir> as the destination for log files
@@ -36,8 +34,8 @@ prompted for this location.
 -v            Be more verbose
 -x            set -x this script
 -w            Check out repositories read/write
---no-extra-products  Skip the automatic use of central product areas, such as CVMFS
 --upstream    Use <dir> as a Spack upstream (repeatable)
+--no-view     Do not create Spack environment views
 --padding     Pad paths to 255 characters for relocatability
 --pcp         Install the artdaq-pcp-mmv-plugin metric component
 --no-kmod     Do not build TRACE kernel module (for Docker builds)
@@ -57,7 +55,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_skip_extra_products=0; opt_no_pull=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -70,22 +68,19 @@ while [ -n "${1-}" ];do
             s*)         eval $op1arg; squalifier=$1; shift;;
             w*)         eval $op1chr; opt_w=`expr $opt_w + 1`;;
             -run-demo)  opt_run_demo=--run-demo;;
-            -debug)     opt_debug=--debug;;
             -develop) opt_develop=1;;
             -tag)       eval $reqarg; tag=$1; shift;;
-            -viewer)    opt_viewer=--viewer;;
             -logdir)    eval $op1arg; logdir=$1; shift;;
             -datadir)   eval $op1arg; datadir=$1; shift;;
             -recordsdir) eval $op1arg; recordsdir=$1; shift;;
             -spackdir)  eval $op1arg; spackdir=$1; shift;;
             -arch)      eval $op1arg; arch=$1; shift;;
-            -no-extra-products)  opt_skip_extra_products=1;;
             -mfext)     opt_mfext=1;;
-            -no-pull)   opt_no_pull=1;;
             -upstream)  eval $op1arg; upstreams+=($1); shift;;
             -padding)   opt_padding=1;;
             -pcp)       opt_pcp=1;;
             -no-kmod)    opt_no_kmod=1;;
+            -no-view)   opt_no_view=1;;
             *)          echo "Unknown option -$op"; do_help=1;;
         esac
     else
@@ -149,6 +144,11 @@ if [ "x$arch" != "x" ]; then
    arch_opt="arch=$arch"
 fi
 
+view_opt=""
+if [ $opt_no_view -eq 1 ];then
+    view_opt="--without-view"
+fi
+
 if ! [ -d $spackdir ];then
     $(
     cd ${spackdir%/spack}
@@ -158,8 +158,11 @@ else
     cd $spackdir && git pull && cd $Base
 fi
 
+cat >setup-env.sh <<-EOF
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
+EOF
+source setup-env.sh
 
 if ! [ -d fermi-spack-tools ]; then
     git clone https://github.com/FNALssi/fermi-spack-tools.git
@@ -211,25 +214,31 @@ fi
 #spack reindex
 
 for upstream in ${upstreams[@]}; do
-    upstreamdir=`find $upstream -type d -name .spack-db 2>/dev/null`
-    upstreamdir=`dirname $upstreamdir`
+    for upstreamdir in `find $upstream -type f -wholename */.spack-db/index.json 2>/dev/null`; do
     
-    if ! [ -d $upstreamdir/.spack-db ]; then
-       echo "No Spack instance found at $upstream!"
-       continue
-    fi
+        upstreamdir=`dirname $upstreamdir`
+        upstreamdir=`dirname $upstreamdir`
+        upstreamname=`echo $upstreamdir|sed 's|/__spack[^/]*||g;s|/spack/opt/spack||g'`
+    
+        if ! [ -d $upstreamdir/.spack-db ]; then
+            echo "No Spack instance found at $upstream!"
+            continue
+        fi
 
-    if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
-        echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
-    fi
+        if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
+            echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
+        fi
     
-    if [ `grep -c $upstreamdir $spackdir/etc/spack/upstreams.yaml` -eq 0 ]; then
-        # Only add upstream if not already present
-        echo "  upstream${upstream//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
-        echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
-    fi
+        if [ `grep -c $upstreamdir $spackdir/etc/spack/upstreams.yaml` -eq 0 ]; then
+            # Only add upstream if not already present
+            echo "  upstream${upstreamname//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
+            echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
+        fi
+    done
 
 done
+
+spack reindex
 
 cd $Base
 
@@ -242,7 +251,7 @@ if [ $? -ne 0 ];then
 fi
 spack compiler find
 
-spack env create artdaq-${demo_version}
+spack env create ${view_opt} artdaq-${demo_version}
 spack env activate artdaq-${demo_version}
 
 ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
