@@ -177,10 +177,18 @@ else
 fi
 
 sed -i '/perl/d' fermi-spack-tools/templates/packagelist
-./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
+if [ -f $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml ];then
+    echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
+    echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml already exists"
+else
+    echo "executing ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
+    echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml"
+    ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
+fi
 
 repo_found=`spack repo list|grep -c fnal_art`
 if [ $repo_found -eq 0 ]; then
+    echo "Adding repos: fnal_art scd_recipes artdaq-spack"
     mkdir spack-repos && cd spack-repos
     git clone https://github.com/FNALssi/fnal_art.git
     spack repo add ./fnal_art
@@ -190,12 +198,14 @@ if [ $repo_found -eq 0 ]; then
     spack repo add ./artdaq-spack
     cd $Base
 else
+    echo "Repo's previously added -- pull any updates"
     for dir in `spack repo list|awk '{print $2}'`;do
         cd $dir
         git pull
     done
     cd $Base
 fi
+#exit
 
 
 #spack config --scope=site update  --yes-to-all config
@@ -360,7 +370,7 @@ alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd"
 # Now save a copy of the environment after setup
 declare -x >$Base/.env_after_setupARTDAQDEMO
 # Next, remove any variables that haven't changed
-grep -v -x -f $Base/.env_before_setupARTDAQDEMO $Base/.env_after_setupARTDAQDEMO >$Base/artdaq_demo_rte.sh
+grep -v -x -Ff $Base/.env_before_setupARTDAQDEMO $Base/.env_after_setupARTDAQDEMO >$Base/artdaq_demo_rte.sh
 
 EOF
 #
