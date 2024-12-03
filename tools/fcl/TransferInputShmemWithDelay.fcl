@@ -10,7 +10,7 @@
 # JCF, Sep-13-2016
 
 # Specifically, using artdaq-demo's NthEvent transfer plugin, which in
-# turn will use the Shmem transfer plugin for physical
+# turn will use the TCPSocket transfer plugin for physical
 # transport. Note the assumption in the FHiCL is that you're on the
 # same host as the dispatcher aggregator
 
@@ -126,7 +126,7 @@ source: {
 
     physical_transfer_plugin: {
 
-      transferPluginType: Shmem
+      transferPluginType: TCPSocket
     
       shm_key: 0x40471452
 
@@ -154,7 +154,7 @@ source: {
 
     physical_transfer_plugin: {
 
-      transferPluginType: Shmem
+      transferPluginType: TCPSocket
     
       shm_key: 0x40471452
 
