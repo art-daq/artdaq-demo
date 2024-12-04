@@ -338,10 +338,10 @@ void demo::WFViewer::analyze(art::Event const& e)
 	// fragments per board
 
 	// For every Nth event, where N is the "prescale" setting, plot the
-	// distribution of ADC counts from each board_id / fragment_id
-	// combo. Also, if "digital_sum_only" is set to false in the FHiCL
+	// distribution of ADC counts from each fragment_id.
+	// Also, if "digital_sum_only" is set to false in the FHiCL
 	// string, then plot, for the Nth event, a graph of the ADC values
-	// across all channels in each board_id / fragment_id combo
+	// across all channels in each fragment_id
 
 	artdaq::Fragment::sequence_id_t expected_sequence_id = std::numeric_limits<artdaq::Fragment::sequence_id_t>::max();
 
@@ -395,7 +395,7 @@ void demo::WFViewer::analyze(art::Event const& e)
 			continue;
 		}
 
-		// If a histogram doesn't exist for this board_id / fragment_id combo, create it
+		// If a histogram doesn't exist for this fragment_id, create it
 
 		if (histograms_.count(fragment_id) == 0 || histograms_[fragment_id] == nullptr)
 		{
