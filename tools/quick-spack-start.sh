@@ -223,11 +223,15 @@ fi
 #spack -k buildcache keys --install --trust --force
 #spack reindex
 
+concrete_include_cmd=
+
 for upstream in ${upstreams[@]}; do
-    for upstreamdir in `find $upstream -type f -wholename */.spack-db/index.json 2>/dev/null`; do
-    
+    echo "Adding upstream $upstream"
+    for upstreamdir in `find $upstream -type f -wholename '*/.spack-db/index.json' 2>/dev/null`; do
+        echo "Getting real directory for upstream database $upstreamdir"
         upstreamdir=`dirname $upstreamdir`
         upstreamdir=`dirname $upstreamdir`
+        upstreamdir=`realpath $upstreamdir`
         upstreamname=`echo $upstreamdir|sed 's|/__spack[^/]*||g;s|/spack/opt/spack||g'`
     
         if ! [ -d $upstreamdir/.spack-db ]; then
@@ -246,6 +250,15 @@ for upstream in ${upstreams[@]}; do
         fi
     done
 
+    for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
+        echo "Looking for art-suite environments in $envdir"
+        for environment in $envdir/art-*;do
+            if ! [ -d $environment ]; then continue; fi
+            environment_dir=`realpath $environment`
+            echo "Adding environment $environment_dir to include-concrete list"
+            concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
+        done
+    done
 done
 
 spack reindex
@@ -261,7 +274,7 @@ if [ $? -ne 0 ];then
 fi
 spack compiler find
 
-spack env create ${view_opt} artdaq-${demo_version}
+spack env create ${concrete_include_cmd} ${view_opt} artdaq-${demo_version}
 spack env activate artdaq-${demo_version}
 
 ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
@@ -325,8 +338,10 @@ cd $Base
     cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
 
-# Save environment
-declare -x >$Base/.env_before_setupARTDAQDEMO
+if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
+  # Save environment
+  declare -x >$Base/.env_before_setupARTDAQDEMO
+fi
 
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
 export SPACK_DISABLE_LOCAL_CONFIG=true
@@ -367,10 +382,13 @@ alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
 alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd"
 
-# Now save a copy of the environment after setup
-declare -x >$Base/.env_after_setupARTDAQDEMO
-# Next, remove any variables that haven't changed
-grep -v -x -Ff $Base/.env_before_setupARTDAQDEMO $Base/.env_after_setupARTDAQDEMO >$Base/artdaq_demo_rte.sh
+if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
+  # Now save a copy of the environment after setup
+  declare -x >$Base/.env_after_setupARTDAQDEMO
+  # Next, remove any variables that haven't changed
+  grep -v -x -Ff $Base/.env_before_setupARTDAQDEMO $Base/.env_after_setupARTDAQDEMO >$Base/artdaq_demo_rte.sh
+fi
+export ARTDAQ_SETUP=1
 
 EOF
 #
