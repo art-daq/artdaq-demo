@@ -250,15 +250,15 @@ for upstream in ${upstreams[@]}; do
         fi
     done
 
-    for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
-        echo "Looking for art-suite environments in $envdir"
-        for environment in $envdir/art-*;do
-            if ! [ -d $environment ]; then continue; fi
-            environment_dir=`realpath $environment`
-            echo "Adding environment $environment_dir to include-concrete list"
-            concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
-        done
-    done
+    #for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
+    #    echo "Looking for art-suite environments in $envdir"
+    #    for environment in $envdir/art-*;do
+    #        if ! [ -d $environment ]; then continue; fi
+    #        environment_dir=`realpath $environment`
+    #        echo "Adding environment $environment_dir to include-concrete list"
+    #        concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
+    #    done
+    #done
 done
 
 spack reindex
@@ -309,7 +309,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	spack env deactivate
     env_to_activate="artdaq-develop"
 	
-	spack mpd init -r site -u $Base/spack-repos/mpd
+	spack mpd init 
 	
 	cd $Base
 	mkdir srcs
@@ -322,13 +322,13 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     fi
 	cd $Base
 	
-	spack mpd new-project --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 --force -y
+	spack mpd new-project --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 generator=ninja --force -y
 	spack install cetmodules@3.26.00 # Needed for now
 	spack env activate artdaq-develop
 	spack add cetmodules@3.26.00
 	spack concretize --force
     spack install
-	spack mpd build -G Ninja
+	spack mpd build 
     cd $Base/build
     ninja install
 	installStatus=$?
@@ -380,7 +380,7 @@ echo ...done with check for Toy
 alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disabling TRACE so that it will not affect rawEventDump output ; sleep 1; fi; art -c rawEventDump.fcl"
 alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
-alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd"
+alias mb="spack mpd build;pushd $Base/build;ninja install;popd"
 
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
   # Now save a copy of the environment after setup
