@@ -165,7 +165,7 @@ EOF
 source setup-env.sh
 
 if ! [ -d fermi-spack-tools ]; then
-    git clone https://github.com/FNALssi/fermi-spack-tools.git
+    git clone https://github.com/eflumerf/fermi-spack-tools.git
 else
     cd fermi-spack-tools && git pull && cd ..
 fi
@@ -176,7 +176,6 @@ else
     cd spack-mpd && git pull && cd ..
 fi
 
-sed -i '/perl/d' fermi-spack-tools/templates/packagelist
 if [ -f $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml ];then
     echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
     echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml already exists"
