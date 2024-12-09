@@ -119,7 +119,7 @@ else
 fi
 
 if ! [ -d spack-mpd ]; then
-    git clone https://github.com/eflumerf/spack-mpd.git
+    git clone https://github.com/FNALssi/spack-mpd.git
 else
     cd spack-mpd && git pull && cd ..
 fi
