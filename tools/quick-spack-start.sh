@@ -322,7 +322,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     fi
 	cd $Base
 	
-	spack mpd new-project --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 --force -y generator=ninja
+	spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 generator=ninja
 	spack install cetmodules@3.26.00 # Needed for now
 	spack env activate artdaq-develop
 	spack add cetmodules@3.26.00
