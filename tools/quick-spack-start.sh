@@ -165,13 +165,13 @@ EOF
 source setup-env.sh
 
 if ! [ -d fermi-spack-tools ]; then
-    git clone https://github.com/FNALssi/fermi-spack-tools.git
+    git clone https://github.com/eflumerf/fermi-spack-tools.git
 else
     cd fermi-spack-tools && git pull && cd ..
 fi
 
 if ! [ -d spack-mpd ]; then
-    git clone https://github.com/eflumerf/spack-mpd.git
+    git clone https://github.com/FNALssi/spack-mpd.git
 else
     cd spack-mpd && git pull && cd ..
 fi
@@ -223,11 +223,15 @@ fi
 #spack -k buildcache keys --install --trust --force
 #spack reindex
 
+concrete_include_cmd=
+
 for upstream in ${upstreams[@]}; do
-    for upstreamdir in `find $upstream -type f -wholename */.spack-db/index.json 2>/dev/null`; do
-    
+    echo "Adding upstream $upstream"
+    for upstreamdir in `find $upstream -type f -wholename '*/.spack-db/index.json' 2>/dev/null`; do
+        echo "Getting real directory for upstream database $upstreamdir"
         upstreamdir=`dirname $upstreamdir`
         upstreamdir=`dirname $upstreamdir`
+        upstreamdir=`realpath $upstreamdir`
         upstreamname=`echo $upstreamdir|sed 's|/__spack[^/]*||g;s|/spack/opt/spack||g'`
     
         if ! [ -d $upstreamdir/.spack-db ]; then
@@ -246,6 +250,15 @@ for upstream in ${upstreams[@]}; do
         fi
     done
 
+    for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
+        echo "Looking for artdaq environments in $envdir"
+        for environment in $envdir/artdaq-*;do
+            if ! [ -d $environment ]; then continue; fi
+            environment_dir=`realpath $environment`
+            echo "Adding environment $environment_dir to include-concrete list"
+            concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
+        done
+    done
 done
 
 spack reindex
@@ -261,7 +274,7 @@ if [ $? -ne 0 ];then
 fi
 spack compiler find
 
-spack env create ${view_opt} artdaq-${demo_version}
+spack env create ${concrete_include_cmd} ${view_opt} artdaq-${demo_version}
 spack env activate artdaq-${demo_version}
 
 ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
@@ -296,7 +309,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	spack env deactivate
     env_to_activate="artdaq-develop"
 	
-	spack mpd init -r site -u $Base/spack-repos/mpd
+	spack mpd init
 	
 	cd $Base
 	mkdir srcs
@@ -309,13 +322,13 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     fi
 	cd $Base
 	
-	spack mpd new-project --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 --force -y
+	spack mpd new-project --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 --force -y generator=ninja
 	spack install cetmodules@3.26.00 # Needed for now
 	spack env activate artdaq-develop
 	spack add cetmodules@3.26.00
 	spack concretize --force
     spack install
-	spack mpd build -G Ninja
+	spack mpd build
     cd $Base/build
     ninja install
 	installStatus=$?
@@ -325,8 +338,10 @@ cd $Base
     cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
 
-# Save environment
-declare -x >$Base/.env_before_setupARTDAQDEMO
+if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
+  # Save environment
+  declare -x >$Base/.env_before_setupARTDAQDEMO
+fi
 
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
 export SPACK_DISABLE_LOCAL_CONFIG=true
@@ -365,12 +380,15 @@ echo ...done with check for Toy
 alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disabling TRACE so that it will not affect rawEventDump output ; sleep 1; fi; art -c rawEventDump.fcl"
 alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
-alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd"
+alias mb="spack mpd build;pushd $Base/build;ninja install;popd"
 
-# Now save a copy of the environment after setup
-declare -x >$Base/.env_after_setupARTDAQDEMO
-# Next, remove any variables that haven't changed
-grep -v -x -Ff $Base/.env_before_setupARTDAQDEMO $Base/.env_after_setupARTDAQDEMO >$Base/artdaq_demo_rte.sh
+if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
+  # Now save a copy of the environment after setup
+  declare -x >$Base/.env_after_setupARTDAQDEMO
+  # Next, remove any variables that haven't changed
+  grep -v -x -Ff $Base/.env_before_setupARTDAQDEMO $Base/.env_after_setupARTDAQDEMO >$Base/artdaq_demo_rte.sh
+fi
+export ARTDAQ_SETUP=1
 
 EOF
 #

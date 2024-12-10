@@ -119,16 +119,24 @@ else
 fi
 
 if ! [ -d spack-mpd ]; then
-    git clone https://github.com/eflumerf/spack-mpd.git
+    git clone https://github.com/FNALssi/spack-mpd.git
 else
     cd spack-mpd && git pull && cd ..
 fi
 
 sed -i '/perl/d' fermi-spack-tools/templates/packagelist
-./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
+if [ -f $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml ];then
+    echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
+    echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml already exists"
+else
+    echo "executing ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
+    echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml"
+    ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
+fi
 
 repo_found=`spack repo list|grep -c fnal_art`
 if [ $repo_found -eq 0 ]; then
+    echo "Adding repos: fnal_art scd_recipes artdaq-spack"
     mkdir spack-repos && cd spack-repos
     git clone https://github.com/FNALssi/fnal_art.git
     spack repo add ./fnal_art
@@ -138,6 +146,7 @@ if [ $repo_found -eq 0 ]; then
     spack repo add ./artdaq-spack
     cd $Base
 else
+    echo "Repo's previously added -- pull any updates"
     for dir in `spack repo list|awk '{print $2}'`;do
         cd $dir
         git pull
