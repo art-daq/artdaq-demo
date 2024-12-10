@@ -171,7 +171,8 @@ else
 fi
 
 if ! [ -d spack-mpd ]; then
-    git clone https://github.com/FNALssi/spack-mpd.git
+    # git clone https://github.com/FNALssi/spack-mpd.git # Upstream
+    git clone https://github.com/eflumerf/spack-mpd.git # Fork
 else
     cd spack-mpd && git pull && cd ..
 fi
@@ -309,7 +310,8 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	spack env deactivate
     env_to_activate="artdaq-develop"
 	
-	spack mpd init
+	# spack mpd init # Upstream
+        spack mpd init -r site -u $Base/spack-repos/mpd # Fork
 	
 	cd $Base
 	mkdir srcs
@@ -322,13 +324,15 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     fi
 	cd $Base
 	
-	spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 generator=ninja
+	# spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
+	spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 # Fork
 	spack install cetmodules@3.26.00 # Needed for now
 	spack env activate artdaq-develop
 	spack add cetmodules@3.26.00
 	spack concretize --force
-    spack install
-	spack mpd build
+        spack install
+	# spack mpd build # Upstream
+        spack mpd build -G Ninja # Fork
     cd $Base/build
     ninja install
 	installStatus=$?
@@ -380,7 +384,8 @@ echo ...done with check for Toy
 alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disabling TRACE so that it will not affect rawEventDump output ; sleep 1; fi; art -c rawEventDump.fcl"
 alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
-alias mb="spack mpd build;pushd $Base/build;ninja install;popd"
+# alias mb="spack mpd build;pushd $Base/build;ninja install;popd" # When using upstream spack-mpd
+# alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd" # When using eflumerf fork
 
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
   # Now save a copy of the environment after setup
