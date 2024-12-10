@@ -335,10 +335,9 @@ void DemoViewer::analyze(art::Event const& e) {
 	// fragments per board
 
 	// For every Nth event, where N is the "prescale" setting, plot the
-	// distribution of ADC counts from each board_id / fragment_id
-	// combo. 
+	// distribution of ADC counts from each fragment_id. 
 	// also , plot, for the Nth event, a graph of the ADC values
-	// across all channels in each board_id / fragment_id combo
+	// across all channels in each fragment_id
 
 	artdaq::Fragment::sequence_id_t expected_sequence_id = std::numeric_limits<artdaq::Fragment::sequence_id_t>::max();
 
@@ -382,7 +381,7 @@ void DemoViewer::analyze(art::Event const& e) {
 
 		std::size_t ind = id_to_index_[fid];
 
-		// If a histogram doesn't exist for this board_id / fragment_id combo, create it
+		// If a histogram doesn't exist for this fragment_id, create it
 
 		if (histograms_.count(fid) == 0 || histograms_[fid] == nullptr) {
 			histograms_[fid] = new TH1D(Form("Fragment_%d_hist",fid),"",max_adc_count+1,-0.5,max_adc_count+0.5);
