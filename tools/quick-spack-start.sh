@@ -96,6 +96,12 @@ if [[ -n "${tag:-}" ]] && [[ $opt_develop -eq 1 ]]; then
     exit
 fi
 
+if [ "x$SPACK_ROOT" == "x$spackdir" ]; then
+  echo "Using pre-existing Spack installation $SPACK_ROOT.\nIf this is not correct, hit Ctrl-C and run 'unset SPACK_ROOT'."
+  sleep 5
+  spack env deactivate
+fi
+
 # JCF, 1/16/15
 # Save all output from this script (stdout + stderr) in a file with a
 # name that looks like "quick-start.sh_Fri_Jan_16_13:58:27.script" as
@@ -112,6 +118,7 @@ if [ -z "${tag:-}" ]; then
   tag=develop;
   notag=1;
 fi
+
 rm CMakeLists.txt*
 wget https://raw.githubusercontent.com/art-daq/artdaq-demo/$tag/CMakeLists.txt
 demo_version=v`grep "project" $Base/CMakeLists.txt|grep -oE "VERSION [^)]*"|awk '{print $2}'|sed 's/\./_/g'`
@@ -208,21 +215,11 @@ else
 fi
 #exit
 
-
-#spack config --scope=site update  --yes-to-all config
-#spack config --scope=site add config:flags:keep_werror:all # Not needed when using spack-mpd
 spack config --scope=site add "config:extensions:- $Base/spack-mpd"
 
 if [ $opt_padding -eq 1 ];then
   spack config --scope=site add config:install_tree:padded_length:255
 fi
-
-#spack mirror add --scope site scisoft-binaries  https://scisoft.fnal.gov/scisoft/spack-mirror/spack-binary-cache-plain
-#spack buildcache update-index -k scisoft-binaries
-#spack mirror add --scope site scisoft-compilers https://scisoft.fnal.gov/scisoft/spack-mirror/spack-compiler-cache-plain
-#spack buildcache update-index -k scisoft-compilers
-#spack -k buildcache keys --install --trust --force
-#spack reindex
 
 concrete_include_cmd=
 
@@ -330,9 +327,9 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	spack env activate artdaq-develop
 	spack add cetmodules@3.26.00
 	spack concretize --force
-        spack install
+    spack install
 	# spack mpd build # Upstream
-        spack mpd build -G Ninja # Fork
+    spack mpd build -G Ninja # Fork
     cd $Base/build
     ninja install
 	installStatus=$?
