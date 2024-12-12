@@ -197,7 +197,7 @@ fi
 repo_found=`spack repo list|grep -c fnal_art`
 if [ $repo_found -eq 0 ]; then
     echo "Adding repos: fnal_art scd_recipes artdaq-spack"
-    mkdir spack-repos && cd spack-repos
+    mkdir spack-repos;cd spack-repos
     git clone https://github.com/FNALssi/fnal_art.git
     spack repo add ./fnal_art
     git clone https://github.com/marcmengel/scd_recipes.git
