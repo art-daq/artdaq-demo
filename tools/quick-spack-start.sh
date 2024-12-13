@@ -133,12 +133,10 @@ if [[ $notag -eq 1 ]] && [[ $opt_develop -eq 0 ]]; then
   tag=$demo_version
 fi
 
-defaultS="s0"
+svariant=""
 
 if [ -n "${squalifier-}" ]; then
-    squalifier="${squalifier}"
-else
-    squalifier="${defaultS#s}"
+    svariant="s=${squalifier}"
 fi
 
 pcp_opt="~pcp"
@@ -281,7 +279,7 @@ if [ $opt_no_kmod -eq 1 ];then
     spack add trace~kmod
 fi
 
-spack add artdaq-suite@${demo_version} s=${squalifier} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
+spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
 env_to_activate="artdaq-${demo_version}"
 
 spack concretize --force && spack install -j $BUILD_J
