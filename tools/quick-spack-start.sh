@@ -133,7 +133,7 @@ if [[ $notag -eq 1 ]] && [[ $opt_develop -eq 0 ]]; then
   tag=$demo_version
 fi
 
-defaultS="s132"
+defaultS="s0"
 
 if [ -n "${squalifier-}" ]; then
     squalifier="${squalifier}"
