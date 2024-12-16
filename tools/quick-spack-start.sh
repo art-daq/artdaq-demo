@@ -246,15 +246,15 @@ for upstream in ${upstreams[@]}; do
         fi
     done
 
-    for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
-        echo "Looking for artdaq environments in $envdir"
-        for environment in $envdir/artdaq-*;do
-            if ! [ -d $environment ]; then continue; fi
-            environment_dir=`realpath $environment`
-            echo "Adding environment $environment_dir to include-concrete list"
-            concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
-        done
-    done
+    #for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
+    #    echo "Looking for artdaq environments in $envdir"
+    #    for environment in $envdir/artdaq-*;do
+    #        if ! [ -d $environment ]; then continue; fi
+    #        environment_dir=`realpath $environment`
+    #        echo "Adding environment $environment_dir to include-concrete list"
+    #        concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
+    #    done
+    #done
 done
 
 spack reindex
