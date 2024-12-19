@@ -133,12 +133,10 @@ if [[ $notag -eq 1 ]] && [[ $opt_develop -eq 0 ]]; then
   tag=$demo_version
 fi
 
-defaultS="s132"
+svariant=""
 
 if [ -n "${squalifier-}" ]; then
-    squalifier="${squalifier}"
-else
-    squalifier="${defaultS#s}"
+    svariant="s=${squalifier}"
 fi
 
 pcp_opt="~pcp"
@@ -248,15 +246,15 @@ for upstream in ${upstreams[@]}; do
         fi
     done
 
-    for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
-        echo "Looking for artdaq environments in $envdir"
-        for environment in $envdir/artdaq-*;do
-            if ! [ -d $environment ]; then continue; fi
-            environment_dir=`realpath $environment`
-            echo "Adding environment $environment_dir to include-concrete list"
-            concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
-        done
-    done
+    #for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
+    #    echo "Looking for artdaq environments in $envdir"
+    #    for environment in $envdir/artdaq-*;do
+    #        if ! [ -d $environment ]; then continue; fi
+    #        environment_dir=`realpath $environment`
+    #        echo "Adding environment $environment_dir to include-concrete list"
+    #        concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
+    #    done
+    #done
 done
 
 spack reindex
@@ -281,7 +279,7 @@ if [ $opt_no_kmod -eq 1 ];then
     spack add trace~kmod
 fi
 
-spack add artdaq-suite@${demo_version} s=${squalifier} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
+spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
 env_to_activate="artdaq-${demo_version}"
 
 spack concretize --force && spack install -j $BUILD_J
