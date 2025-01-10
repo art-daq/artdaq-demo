@@ -92,7 +92,8 @@ public:
 private:
 	bool taking_data_;
 
-	struct RateInfo {
+	struct RateInfo
+	{
 		std::size_t size_bytes;
 		std::size_t rate_hz;
 		std::chrono::microseconds duration;
@@ -125,7 +126,6 @@ private:
 	int rate_send_calls_;
 	int serial_number_;
 
-	
 	std::chrono::microseconds rate_to_delay_(std::size_t hz);
 	std::chrono::steady_clock::time_point next_trigger_time_();
 	size_t bytes_to_nWords_(size_t bytes);
