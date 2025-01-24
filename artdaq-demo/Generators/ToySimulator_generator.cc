@@ -10,8 +10,8 @@
 
 #include "artdaq-core-demo/Overlays/FragmentType.hh"
 #include "artdaq-core-demo/Overlays/ToyFragment.hh"
-#include "artdaq-core/Utilities/SimpleLookupPolicy.hh"
 #include "artdaq-core/Data/MetadataFragment.hh"
+#include "artdaq-core/Utilities/SimpleLookupPolicy.hh"
 #include "artdaq/Generators/GeneratorMacros.hh"
 
 #define TRACE_NAME "ToySimulator"
@@ -234,7 +234,8 @@ bool demo::ToySimulator::getNext_(artdaq::FragmentPtrs& frags)
 		timestamp_ += timestampScale_;
 	}
 
-	if (metadata_fragment_ != nullptr) {
+	if (metadata_fragment_ != nullptr)
+	{
 		frags.emplace_back(std::move(metadata_fragment_));
 		metadata_fragment_.reset(nullptr);
 	}
@@ -253,14 +254,13 @@ void demo::ToySimulator::start()
 	timestamp_ = starting_timestamp_;
 	lazily_handled_requests_.clear();
 
-	if (generate_metadata_fragment_) {
-		artdaq::ArtdaqMetadata theMetadata
-		{
-			 my_rank,
-			 fragmentIDs(),
-			 "string",
-			 "TEST"
-		};
+	if (generate_metadata_fragment_)
+	{
+		artdaq::ArtdaqMetadata theMetadata{
+		    my_rank,
+		    fragmentIDs(),
+		    "string",
+		    "TEST"};
 		metadata_fragment_ = artdaq::MetadataFragment::CreateMetadataFragment(theMetadata, artdaq::Fragment::StartOfRunFragmentType, 1, 0, *fragmentIDs().begin());
 	}
 }
