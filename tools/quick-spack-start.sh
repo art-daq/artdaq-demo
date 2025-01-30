@@ -120,7 +120,7 @@ if [ -z "${tag:-}" ]; then
 fi
 
 rm CMakeLists.txt*
-wget https://raw.githubusercontent.com/art-daq/artdaq-demo/$tag/CMakeLists.txt
+wget https://raw.githubusercontent.com/art-daq/artdaq/$tag/CMakeLists.txt
 demo_version=v`grep "project" $Base/CMakeLists.txt|grep -oE "VERSION [^)]*"|awk '{print $2}'|sed 's/\./_/g'`
 echo "Demo Version is $demo_version"
 if [[ $notag -eq 1 ]] && [[ $opt_develop -eq 0 ]]; then
@@ -128,7 +128,7 @@ if [[ $notag -eq 1 ]] && [[ $opt_develop -eq 0 ]]; then
 
   # 06-Mar-2017, KAB: re-fetch the product_deps file based on the tag
   mv CMakeLists.txt CMakeLists.txt.orig
-  wget https://raw.githubusercontent.com/art-daq/artdaq_demo/$tag/CMakeLists.txt
+  wget https://raw.githubusercontent.com/art-daq/artdaq/$tag/CMakeLists.txt
   demo_version=v`grep "project" $Base/CMakeLists.txt|grep -oE "VERSION [^)]*"|awk '{print $2}'|sed 's/\./_/g'`
   tag=$demo_version
 fi
@@ -249,7 +249,7 @@ for upstream in ${upstreams[@]}; do
     for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
         echo "Looking for artdaq environments in $envdir"
         
-        environment=`ls -td artdaq-*|head -1`
+        environment="artdaq-${demo_version}"
         if ! [ -d $environment ]; then continue; fi
         environment_dir=`realpath $environment`
         echo "Adding environment $environment_dir to include-concrete list"
