@@ -3,8 +3,8 @@ cet_make_library(
     ToyHardwareInterface.cc
         LIBRARIES
   artdaq::DAQdata
-	artdaq_core::artdaq-core_Data
-	artdaq_core_demo::artdaq-core-demo_Overlays
+	artdaq-core::Data
+	artdaq-core-demo::Overlays
 	
         )
         
