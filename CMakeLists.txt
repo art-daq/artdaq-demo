@@ -56,7 +56,7 @@ endif()
 
 #cet_report_compiler_flags()
 
-find_package(artdaq_utilities 1.07.02 REQUIRED)
+find_package(artdaq-utilities 1.07.02 REQUIRED)
 find_package(artdaq-core 3.08.04 REQUIRED)
 find_package(artdaq 3.11.02 REQUIRED)
 find_package(art 3.09.03 REQUIRED QUIET)
