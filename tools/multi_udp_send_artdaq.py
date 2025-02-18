@@ -30,7 +30,7 @@ def main(argv):
 
     node,port = argv[1].split(':')
     seqnum= int(argv[2])&0xff
-    s = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )  
+    s = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
 
     if jsonMode:
         packetsSent = 0

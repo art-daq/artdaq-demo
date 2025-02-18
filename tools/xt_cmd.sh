@@ -167,7 +167,7 @@ if [ ! -f "$pseudo_home/$rcfile" ];then
     init_profile_file      "$pseudo_home/$rcfile"
     append_cmd_str_support "$pseudo_home/$rcfile"
 else
-    : # check if current is 
+    : # check if current is
 fi
 
 # Note: bash has a a "-l" option and also a "--rcfile" option which could

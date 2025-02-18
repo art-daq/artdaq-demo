@@ -62,7 +62,7 @@ while [ -n "${1-}" ];do
 			x*)         eval $op1chr; set -x;;
 			s*)         eval $op1arg; squalifier=$1; shift;;
 			e*)         eval $op1arg; equalifier=$1; shift;;
-            c*)         eval $op1arg; cqualifier=$1; shift;;
+			c*)         eval $op1arg; cqualifier=$1; shift;;
 			w*)         eval $op1chr; opt_w=`expr $opt_w + 1`;;
 			-run-demo)  opt_run_demo=--run-demo;;
 			-debug)     opt_debug=--debug;;
@@ -85,7 +85,7 @@ eval "set -- $args \"\$@\""; unset args aa
 
 test -n "${do_help-}" -o $# -ge 2 && echo "$USAGE" && exit
 
-if [[ -n "${tag:-}" ]] && [[ $opt_develop -eq 1 ]]; then 
+if [[ -n "${tag:-}" ]] && [[ $opt_develop -eq 1 ]]; then
 	echo "The \"--tag\" and \"--develop\" options are incompatible - please specify only one."
 	exit
 fi
@@ -125,15 +125,15 @@ function detectAndPull() {
 
 	if [[ "$packageOs" != "noarch" ]]; then
 		local upsflavor=`ups flavor`
-                if [ -n "${qualifiers-}" ];then
-                	local packageQualifiers="-`echo $qualifiers|sed 's/:/-/g'`"
-		        local packageUPSString="-f $upsflavor -q$qualifiers"
-                fi
+				if [ -n "${qualifiers-}" ];then
+					local packageQualifiers="-`echo $qualifiers|sed 's/:/-/g'`"
+				local packageUPSString="-f $upsflavor -q$qualifiers"
+				fi
 	fi
 	local packageInstalled=`ups list -aK+ $packageName $packageVersion ${packageUPSString-}|grep -c "$packageName"`
 	if [ $packageInstalled -eq 0 ]; then
-	    local packagePath="$packageName/$packageVersion/$packageName-$packageDotVersion-${packageOs}${packageQualifiers-}.tar.bz2"
-                echo INFO: about to wget $packageName-$packageDotVersion-${packageOs}${packageQualifiers-}
+		local packagePath="$packageName/$packageVersion/$packageName-$packageDotVersion-${packageOs}${packageQualifiers-}.tar.bz2"
+				echo INFO: about to wget $packageName-$packageDotVersion-${packageOs}${packageQualifiers-}
 		wget --load-cookies=$cookief http://scisoft.fnal.gov/scisoft/packages/$packagePath >/dev/null 2>&1
 		local packageFile=$( echo $packagePath | awk 'BEGIN { FS="/" } { print $NF }' )
 
@@ -207,7 +207,7 @@ fi
 
 # Get all the information we'll need to decide which exact flavor of the software to install
 notag=0
-if [ -z "${tag:-}" ]; then 
+if [ -z "${tag:-}" ]; then
   tag=develop;
   notag=1;
 fi
@@ -233,10 +233,10 @@ defaultQuals=`grep "defaultqual" $Base/download/product_deps|awk '{print $2}'`
 
 defaultE=`echo $defaultQuals|cut -f1 -d:`
 defaultS=`echo $defaultQuals|cut -f2 -d:`
-if [ -n "${equalifier-}" ]; then 
+if [ -n "${equalifier-}" ]; then
 	equalifier="e${equalifier}";
 elif [ -n "${cqualifier-}" ]; then
-    equalifier="c${cqualifier-}";
+	equalifier="c${cqualifier-}";
 else
 	equalifier=$defaultE
 fi
@@ -291,11 +291,11 @@ if [[ $opt_develop -eq 1 ]]; then
 	else
 		mrb gitCheckout https://github.com/art-daq/artdaq_core
 		mrb gitCheckout https://github.com/art-daq/artdaq_utilities
-        mrb gitCheckout https://github.com/art-daq/artdaq
-        mrb gitCheckout https://github.com/art-daq/artdaq_core_demo
-        mrb gitCheckout https://github.com/art-daq/artdaq_demo
-        mrb gitCheckout https://github.com/art-daq/artdaq_epics_plugin
-        mrb gitCheckout https://github.com/art-daq/artdaq_mfextensions
+		mrb gitCheckout https://github.com/art-daq/artdaq
+		mrb gitCheckout https://github.com/art-daq/artdaq_core_demo
+		mrb gitCheckout https://github.com/art-daq/artdaq_demo
+		mrb gitCheckout https://github.com/art-daq/artdaq_epics_plugin
+		mrb gitCheckout https://github.com/art-daq/artdaq_mfextensions
 	fi
 else
 		mrb gitCheckout -t ${coredemo_version} https://github.com/art-daq/artdaq_core_demo
@@ -313,9 +313,9 @@ if [[ "x${opt_viewer-}" != "x" ]] && [[ $opt_develop -eq 1 ]]; then
 fi
 for vv in `awk '/cetbuildtools/{print$2}' */ups/product_deps | sort -u`;do
 	detectAndPull cetbuildtools noarch nq $vv
-        # the following looks for a missing cmake in the depend error output or a non-missing cmake in normal output
-        cmake_ver=`ups depend cetbuildtools $vv 2>&1 | sed -n -e '/cmake /{s/.*cmake //;s/ .*//;p;}'`
-        detectAndPull cmake ${os}-x86_64 nq $cmake_ver
+		# the following looks for a missing cmake in the depend error output or a non-missing cmake in normal output
+		cmake_ver=`ups depend cetbuildtools $vv 2>&1 | sed -n -e '/cmake /{s/.*cmake //;s/ .*//;p;}'`
+		detectAndPull cmake ${os}-x86_64 nq $cmake_ver
 done
 for vv in `awk '/TRACE\s*v/{print$2}' */ups/product_deps | sort -u`;do
 	detectAndPull TRACE ${os}-x86_64 nq $vv
@@ -347,8 +347,8 @@ source $Base/products/setup
 echo PRODUCTS cleanup and check...
 PRODUCTS=\`dropit -D -E -p"\$PRODUCTS"\`
 if [ "\$PRODUCTS" != "$PRODUCTS_SET" ]; then
-    echo WARNING: PRODUCTS environment has changed from initial installation.
-    echo "current \"\$PRODUCTS\" != demo start \"$PRODUCTS_SET\""
+	echo WARNING: PRODUCTS environment has changed from initial installation.
+	echo "current \"\$PRODUCTS\" != demo start \"$PRODUCTS_SET\""
 fi
 
 unsetup git >/dev/null 2>&1
@@ -423,19 +423,19 @@ daqintdir=$Base/DAQInterface
 cd $Base
 
 if [ $opt_w -gt 0 ];then
-    git clone git@github.com:art-daq/artdaq_daqinterface.git 
+	git clone git@github.com:art-daq/artdaq_daqinterface.git
 else
-    git clone https://github.com/art-daq/artdaq_daqinterface
+	git clone https://github.com/art-daq/artdaq_daqinterface
 fi
 cd artdaq_daqinterface
-if [[ $opt_develop -eq 1 ]]; then 
-    git checkout develop
+if [[ $opt_develop -eq 1 ]]; then
+	git checkout develop
 else
-    # JCF, Sep-25-2018: grep out the protodune DAQInterface series when searching for the newest DAQInterface version...
+	# JCF, Sep-25-2018: grep out the protodune DAQInterface series when searching for the newest DAQInterface version...
 
-    artdaq_daqinterface_version=$( git tag --sort creatordate | grep -v "v3_00_0[0-9].*" | tail -1 )
-    echo "Checking out version $artdaq_daqinterface_version of artdaq_daqinterface"
-    git checkout $artdaq_daqinterface_version # Fetch latest tagged version
+	artdaq_daqinterface_version=$( git tag --sort creatordate | grep -v "v3_00_0[0-9].*" | tail -1 )
+	echo "Checking out version $artdaq_daqinterface_version of artdaq_daqinterface"
+	git checkout $artdaq_daqinterface_version # Fetch latest tagged version
 fi
 
 mkdir $daqintdir
@@ -472,13 +472,13 @@ ln -s srcs/artdaq_demo/tools/run_integration_tests.sh .
 
 
 if [ "x${opt_run_demo-}" != "x" ]; then
-    if [ $installStatus -eq 0 ]; then
+	if [ $installStatus -eq 0 ]; then
 	echo doing the demo
 
 	. ./run_demo.sh --basedir $Base --toolsdir ${Base}/srcs/artdaq_demo/tools
 	else
-        echo 'Build error (see above) precludes running the demo (i.e --run-demo option specified)'
-    fi
+		echo 'Build error (see above) precludes running the demo (i.e --run-demo option specified)'
+	fi
 fi
 
 

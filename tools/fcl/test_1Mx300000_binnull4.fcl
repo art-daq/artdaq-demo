@@ -51,7 +51,7 @@ metrics: {
 ######################################################################
 art: {
 services: {
-   ArtdaqSharedMemoryServiceInterface: { 
+   ArtdaqSharedMemoryServiceInterface: {
      service_provider: ArtdaqSharedMemoryService
      waiting_time: 900
      resume_after_timeout: true

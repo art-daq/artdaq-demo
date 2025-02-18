@@ -23,23 +23,23 @@ op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
 args= do_help= opt_v=0
 while [ -n "${1-}" ];do
-    if expr "x${1-}" : 'x-' >/dev/null;then
-        op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
-        leq=`expr "x$op" : 'x-[^=]*\(=\)'` lev=`expr "x$op" : 'x-[^=]*=\(.*\)'`
-        test -n "$leq"&&eval "set -- \"\$lev\" \"\$@\""&&op=`expr "x$op" : 'x\([^=]*\)'`
-        case "$op" in
-        \?*|h*)    eval $op1chr; do_help=1;;
-        v*)        eval $op1chr; opt_v=`expr $opt_v + 1`;;
-        x*)        eval $op1chr; set -x;;
-	    -HEAD) opt_HEAD=--HEAD;;
-        -debug)    opt_debug=--debug;;
-        -quals)    eval $op1arg; qualifiers=$1; shift;;
-        c*)        eval $op1chr; opt_clean=1;;
-        *)         echo "Unknown option -$op"; do_help=1;;
-        esac
-    else
-        aa=`echo "$1" | sed -e"s/'/'\"'\"'/g"` args="$args '$aa'"; shift
-    fi
+	if expr "x${1-}" : 'x-' >/dev/null;then
+		op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
+		leq=`expr "x$op" : 'x-[^=]*\(=\)'` lev=`expr "x$op" : 'x-[^=]*=\(.*\)'`
+		test -n "$leq"&&eval "set -- \"\$lev\" \"\$@\""&&op=`expr "x$op" : 'x\([^=]*\)'`
+		case "$op" in
+		\?*|h*)    eval $op1chr; do_help=1;;
+		v*)        eval $op1chr; opt_v=`expr $opt_v + 1`;;
+		x*)        eval $op1chr; set -x;;
+		-HEAD) opt_HEAD=--HEAD;;
+		-debug)    opt_debug=--debug;;
+		-quals)    eval $op1arg; qualifiers=$1; shift;;
+		c*)        eval $op1chr; opt_clean=1;;
+		*)         echo "Unknown option -$op"; do_help=1;;
+		esac
+	else
+		aa=`echo "$1" | sed -e"s/'/'\"'\"'/g"` args="$args '$aa'"; shift
+	fi
 done
 eval "set -- $args \"\$@\""; unset args aa
 
@@ -57,12 +57,12 @@ echo "Building ARTDAQ-DEMO with qualifiers: $equalifier:$squalifier:eth"
 export CETPKG_INSTALL=$products_dir
 export CETPKG_J=16
 
-test -d "$demo_dir/build_artdaq-demo" || mkdir "$demo_dir/build_artdaq-demo" 
+test -d "$demo_dir/build_artdaq-demo" || mkdir "$demo_dir/build_artdaq-demo"
 
 if [[ -n "${opt_debug:-}" ]];then
-    build_arg="d"
+	build_arg="d"
 else
-    build_arg="p"
+	build_arg="p"
 fi
 
 cd $demo_dir >/dev/null  # potential git clones under here
@@ -71,27 +71,27 @@ REPO_PREFIX=http://cdcvs.fnal.gov/projects
 #REPO_PREFIX=ssh://p-artdaq@cdcvs.fnal.gov/cvs/projects # p-artdaq can be used to access artdaq-demo
 
 function install_package {
-    local packagename=$1
-    local commit_tag=$2
+	local packagename=$1
+	local commit_tag=$2
 
-    # Get rid of the first two positional arguments now that they're stored in named variables
-    shift;
-    shift;
+	# Get rid of the first two positional arguments now that they're stored in named variables
+	shift;
+	shift;
 
-    test -d "$demo_dir/build_$packagename" || mkdir "$demo_dir/build_$packagename"    
+	test -d "$demo_dir/build_$packagename" || mkdir "$demo_dir/build_$packagename"
 
-    test -d ${packagename} || git clone $REPO_PREFIX/$packagename
-    cd $packagename
-    git fetch origin
-    git checkout $commit_tag
-    cd ../build_$packagename
+	test -d ${packagename} || git clone $REPO_PREFIX/$packagename
+	cd $packagename
+	git fetch origin
+	git checkout $commit_tag
+	cd ../build_$packagename
 
-    echo IN $PWD: about to . ../$packagename/ups/setup_for_development
-    . ../$packagename/ups/setup_for_development -${build_arg} $equalifier $squalifier $@
-    echo FINISHED ../$packagename/ups/setup_for_development
-    buildtool ${opt_clean+-c} -i && res=0 || res=1
-    cd ..
-    return $res
+	echo IN $PWD: about to . ../$packagename/ups/setup_for_development
+	. ../$packagename/ups/setup_for_development -${build_arg} $equalifier $squalifier $@
+	echo FINISHED ../$packagename/ups/setup_for_development
+	buildtool ${opt_clean+-c} -i && res=0 || res=1
+	cd ..
+	return $res
 }
 
 . $products_dir/setup
@@ -111,9 +111,9 @@ install_package artdaq-core-demo v1_05_04 || exit 1
 fi
 
 if [ -n "${opt_HEAD-}" ];then
-    install_package artdaq-utilities develop || exit 1
+	install_package artdaq-utilities develop || exit 1
 else
-    install_package artdaq-utilities v1_00_10 || exit 1
+	install_package artdaq-utilities v1_00_10 || exit 1
 fi
 
 # JCF, Sep-29-2016
@@ -131,7 +131,7 @@ fi
 setup_qualifier="$equalifier $squalifier eth"
 
 if [ ! -e ./setupARTDAQDEMO -o "${opt_clean-}" == 1 ]; then
-    cat >setupARTDAQDEMO <<-EOF
+	cat >setupARTDAQDEMO <<-EOF
 	echo # This script is intended to be sourced.
 
 	sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
@@ -156,7 +156,7 @@ if [ ! -e ./setupARTDAQDEMO -o "${opt_clean-}" == 1 ]; then
 	alias compressedEventDump="art -c $artdaq_demo_dir/artdaq-demo/ArtModules/fcl/compressedEventDump.fcl"
 	alias compressedEventComparison="art -c $artdaq_demo_dir/artdaq-demo/ArtModules/fcl/compressedEventComparison.fcl"
 	EOF
-    #
+	#
 fi
 
 
@@ -164,4 +164,3 @@ echo "Building artdaq-demo..."
 cd $ARTDAQDEMO_BUILD
 . $demo_dir/setupARTDAQDEMO
 buildtool ${opt_clean+-c} && exit 0 || exit 1
-

@@ -25,9 +25,9 @@ string( STRIP ${rawUTCDate} utcDateTime )
 
 execute_process(COMMAND git describe --tags
 				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-				RESULT_VARIABLE GIT_DESCRIBE_RESULT 
-                OUTPUT_VARIABLE GIT_DESCRIBE_VERSION 
-                ERROR_QUIET
+				RESULT_VARIABLE GIT_DESCRIBE_RESULT
+				OUTPUT_VARIABLE GIT_DESCRIBE_VERSION
+				ERROR_QUIET
 				OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 message("${GIT_DESCRIBE_RESULT}: ${GIT_DESCRIBE_VERSION} || $ENV{CETPKG_VERSION}")
@@ -42,10 +42,10 @@ configure_file ( ${CMAKE_CURRENT_SOURCE_DIR}/GetPackageBuildInfo.cc.in
   ${CMAKE_CURRENT_BINARY_DIR}/GetPackageBuildInfo.cc @ONLY )
 
 cet_make_library( LIBRARY_NAME artdaq-demo_BuildInfo
-                  SOURCE
+				  SOURCE
 		  ${CMAKE_CURRENT_BINARY_DIR}/GetPackageBuildInfo.cc
 			LIBRARIES artdaq_core::artdaq-core_Data
-                 )
+				 )
 
 install_headers()
 install_source()

@@ -234,7 +234,7 @@ if [[ ! -n ${productsdir:-} && ( ! -d products || ! -d download || -n "${opt_for
     wget http://scisoft.fnal.gov/scisoft/bundles/tools/pullProducts
     chmod +x pullProducts
     version=`grep "^artdaq " $git_working_path/ups/product_deps | awk '{print $2}'`
-    
+
     echo "Cloning cetpkgsupport to determine current OS"
     git clone http://cdcvs.fnal.gov/projects/cetpkgsupport
     os=`./cetpkgsupport/bin/get-directory-name os`
@@ -266,14 +266,14 @@ if [[ ! -n ${productsdir:-} && ( ! -d products || ! -d download || -n "${opt_for
 
     echo "Running ./pullProducts ../products ${os} artdaq-${version} $defaultqualWithS $build_type"
     ./pullProducts ../products ${os} artdaq-${version} $defaultqualWithS $build_type
-    
+
     if [ $? -ne 0 ]; then
 		echo "Error in pullProducts. Please go to http://scisoft.fnal.gov/scisoft/bundles/artdaq/${version}/manifest and make sure that a manifest for the specified qualifiers ($defaultqualWithS) exists."
 		exit 1
     fi
     cd ..
 
-elif [[ -n ${productsdir:-} ]] ; then 
+elif [[ -n ${productsdir:-} ]] ; then
 
     if [[ ! -d $productsdir ]] ; then
 		echo 'Unable to find products directory "'$productsdir'", ' \
@@ -318,7 +318,7 @@ if [ $installStatus -eq 0 ] &&  [ "x${opt_viewer-}" != "x" ] && [ $qt_installed 
 	for packagehtml in $packagelist ; do
 		echo "Downloading http://scisoft.fnal.gov/scisoft/packages/${packagehtml}..."
 		wget http://scisoft.fnal.gov/scisoft/packages/$packagehtml > /dev/null 2>&1
-		
+
 		packagename=$( echo $packagehtml | awk 'BEGIN { FS="/" } { print $NF }' )
 
 		if [[ ! -e $packagename ]]; then
