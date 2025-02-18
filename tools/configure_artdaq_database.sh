@@ -146,7 +146,7 @@ function configure_artdaq_database()
     local this_setup_script="$arg_setup_script"
     if [[ ! -f $this_setup_script ]]; then
       ret_msg="Error: \"$this_setup_script\" does not exist."
-      return 1		
+      return 1
     fi
 
     [[ "$arg_basedir" == "$value_notset" ]] && unset arg_basedir
@@ -320,7 +320,7 @@ function configure_artdaq_database()
 
     echo "Info: Configuring artdaq_database $this_database_version with qualifiers $this_database_quals in $this_database_data_dir."
 
-    load_configs 
+    load_configs
 }
 
 
@@ -349,7 +349,7 @@ function delete_database()
       local fn=${f%.*}
       echo "Info: Restoring $fn to its original."
       cp -f $fn{$file_ext,}
-      if [[ $? != 0 ]]; then 
+      if [[ $? != 0 ]]; then
         ret_msg+="Error: Unable to restore $f to its original. "
         ((error_count+=1))
       fi
@@ -360,7 +360,7 @@ function delete_database()
  flags=$-; set +x
  source $this_daqint_settings_dir/$def_usersourcefile || return 0
  set -$flags
- if [[ $? != 0 ]]; then 
+ if [[ $? != 0 ]]; then
     ret_msg+="Error: Unable to source $this_daqint_settings_dir/$def_usersourcefile"
     ((error_count+=1))
  fi
@@ -373,20 +373,20 @@ function create_schema_fcl()
     test $arg_verbose == 1 && echo Info: create_schema_fcl
     cat > schema.fcl <<EOF
 artdaq_processes: [{
-collection: SimpleTestConfig 
-pattern: "^(?!.*config_includes)(.*/)(.*)(\.fcl$)" 
-}] 
+collection: SimpleTestConfig
+pattern: "^(?!.*config_includes)(.*/)(.*)(\.fcl$)"
+}]
 artdaq_includes: [{
-collection: config_includes 
-pattern: "(.*/)config_includes\/(.*)(\.fcl$)" 
-}] 
+collection: config_includes
+pattern: "(.*/)config_includes\/(.*)(\.fcl$)"
+}]
 run_history: [{
-collection: RunHistory 
-pattern: "(.*/)(.*)(\.fcl$)" 
-}] 
+collection: RunHistory
+pattern: "(.*/)(.*)(\.fcl$)"
+}]
 system_layout: [{
-collection: SystemLayout 
-pattern: "^(?!.*config_includes)(.*)(schema)(\.fcl$)" 
+collection: SystemLayout
+pattern: "^(?!.*config_includes)(.*)(schema)(\.fcl$)"
 }]
 EOF
 }
@@ -427,13 +427,13 @@ function load_configs()
 
     local config_name=$(basename $d)
     mkdir -p $this_tmp_dir/$config_name
-    if [[ $? != 0 ]]; then 
+    if [[ $? != 0 ]]; then
      ret_msg+="Error: Unable to create $this_tmp_dir/$config_name. "
      ((error_count+=1))
     fi
 
     cp -rf $d/*.fcl $this_tmp_dir/$config_name/
-    if [[ $? != 0 ]]; then 
+    if [[ $? != 0 ]]; then
       ret_msg+="Error: Unable to copy $d into $this_tmp_dir/$config_name. "
       ((error_count+=1))
     fi
@@ -444,7 +444,7 @@ function load_configs()
 
     echo "Info: Importing $config_name"
     local message=$(conftool.py  importConfiguration $config_name 2>&1)
-    #if [[ ! $message =~ ^.*True$ ]]; then 
+    #if [[ ! $message =~ ^.*True$ ]]; then
     if [[ ! $message =~ None$ && ! $message =~ True$ ]]; then
         test -f $this_basedir/message.out || echo "$message" >$this_basedir/message.out
       echo "Error: Unable to import \"$config_name\"."
@@ -459,7 +459,7 @@ function load_configs()
 
     if [[ "$this_tmp_dir" == "/tmp/load_configs/tmp$def_timestamp" ]]; then
       rm -rf $this_tmp_dir
-      if [[ $? != 0 ]]; then 
+      if [[ $? != 0 ]]; then
         ret_msg+="Error: Unable to delete files in  $this_tmp_dir. "
         ((error_count+=1))
       fi
@@ -649,7 +649,7 @@ function stop_daqinterface_if_running(){
     done
 }   # stop_daqinterface_if_running
 
-function disable_database() 
+function disable_database()
 {
   test $arg_verbose == 1 && echo Info: disable_database
   local error_count=0
@@ -665,7 +665,7 @@ function disable_database()
   echo "Info: Running disable_database()"
 
   sed -i "/$def_ignore_database/d" $glb_daqintdir/$def_usersourcefile
-  if [[ $? != 0 ]]; then 
+  if [[ $? != 0 ]]; then
     ret_msg+="Error: Unable to disable artdaq_database. "
     ((error_count+=1))
   else

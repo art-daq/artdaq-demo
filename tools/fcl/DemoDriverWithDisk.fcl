@@ -11,7 +11,7 @@ debug_cout: false
 fragment_receiver: {
 
    # Parameters defining and configuring the fragment generator to be used
-   generator: ToySimulator 
+   generator: ToySimulator
    fragment_type: TOY2        # Make sure downstream modules know about this fragment_type!
    nADCcounts: 20971500
    distribution_type: 3

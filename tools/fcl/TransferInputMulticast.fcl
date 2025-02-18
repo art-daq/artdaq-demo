@@ -69,8 +69,6 @@ outputs:
     wantProductFriendlyClassName: true
     onlyIfPresent: true
   }
-
-
 }
 
 source:
@@ -114,6 +112,3 @@ source:
 }
 
 process_name: TransferInputMulticast
-
-
-
