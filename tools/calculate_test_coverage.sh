@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# lcov has to be installed manually -- 
+# lcov has to be installed manually --
 # https://github.com/linux-test-project/lcov/releases/tag/v1.15
 # lcov-1.15-1.noarch.rpm
 

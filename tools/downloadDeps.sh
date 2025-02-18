@@ -1,5 +1,5 @@
 #!/bin/bash
-# 
+#
 # downloadArtDaq.sh <product directory>
 
 
@@ -26,7 +26,7 @@ TRACE/v3_06_07/TRACE-3.06.07-slf6-x86_64-e7.tar.bz2"
 
 # $1=prod_area $2="prod_lines"
 
-download() 
+download()
 {   prod_area=$1
      prod_lines=$2
      cd $1

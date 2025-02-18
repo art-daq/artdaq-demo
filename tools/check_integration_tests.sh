@@ -132,7 +132,7 @@ function check_fragment_count() {
 
     local ldump=`get_run_dump_file $lfile`
 #	echo "Dump file is $ldump"
-    
+
     local ffragments=`grep "ENDSUBRUN: There were " $ldump|sed 's/.*There were \([0-9]*\) events with \([0-9]*\) TOY1 or TOY2.*/\1:\2/g'`
 
 	local minfragsVarname=`echo min_fragments_${lconfig}`
@@ -156,7 +156,7 @@ function check_fragment_count() {
 	if [ $badevents -gt 0 ];then
 		badEventsPct=$(( 100 * $badevents / $totalevents ))
 		echo "    File $lfile has $badevents events with fewer than $minfrags Fragments out of $totalevents (${badEventsPct}%)"
-		
+
 		histo="===================================================================================================="
 
 		for fragResult in $ffragments;do
@@ -171,7 +171,7 @@ function check_fragment_count() {
     return $res
 }
 
-for run in `ls -d run_records/*|sort -V`;do 
+for run in `ls -d run_records/*|sort -V`;do
     run_number=`echo $run|sed 's|.*/||g'`
 
     get_run_config $run

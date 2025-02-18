@@ -172,11 +172,11 @@ fi
 
 for upstream in ${upstreams[@]}; do
     for upstreamdir in `find $upstream -type f -wholename */.spack-db/index.json 2>/dev/null`; do
-    
+
         upstreamdir=`dirname $upstreamdir`
         upstreamdir=`dirname $upstreamdir`
         upstreamname=`echo $upstreamdir|sed 's|/__spack[^/]*||g;s|/spack/opt/spack||g'`
-    
+
         if ! [ -d $upstreamdir/.spack-db ]; then
             echo "No Spack instance found at $upstream!"
             continue
@@ -185,7 +185,7 @@ for upstream in ${upstreams[@]}; do
         if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
             echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
         fi
-    
+
         if [ `grep -c $upstreamdir $spackdir/etc/spack/upstreams.yaml` -eq 0 ]; then
             # Only add upstream if not already present
             echo "  upstream${upstreamname//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
