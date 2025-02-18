@@ -9,8 +9,8 @@ transition_timeout: 30
 fragment_receiver: {
 
    # Parameters defining and configuring the fragment generator to be used
-   		    
-   generator: ToySimulator 
+
+   generator: ToySimulator
    fragment_type: TOY2        # Make sure downstream modules know about this fragment_type!
    nADCcounts: 524268         # nBytes = nADCcounts * 2 + 40, 1 MB
    distribution_type: 3
@@ -22,13 +22,13 @@ fragment_receiver: {
 
    fragment_id: 0
    board_id: 0
-}  		  
+}
 
 event_builder: {
 
   expected_fragments_per_event: 1
 max_fragment_size_bytes: 0x300000
-buffer_count: 20  
+buffer_count: 20
   use_art: true
   print_event_store_stats: false
   verbose: false
@@ -81,5 +81,3 @@ module_type: ArtdaqInput
 
 process_name: Driver
 }
-
-

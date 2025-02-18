@@ -67,9 +67,9 @@ source: {
   register_fragment_types: false
   allowMultipleRuns: true
 
-  # The timeout shouldn't be much smaller than the period between events, otherwise 
+  # The timeout shouldn't be much smaller than the period between events, otherwise
   # there's a spew of timeout messages
-  timeoutInUsecs: 10000000  
+  timeoutInUsecs: 10000000
 
   commanderPluginType: xmlrpc
   dispatcherHost: localhost
@@ -103,7 +103,7 @@ source: {
 	outputs: {
 	  out: {
 		module_type: TransferOutput
-		SelectEvents: [ pmod ] 
+		SelectEvents: [ pmod ]
 		transfer_plugin: {
 		  transferPluginType: NthEvent
 		  nth: @local::modulus
@@ -116,7 +116,7 @@ source: {
 		destination_rank: 6
 		  }
 		}
-	  } 
+	  }
 	}
   }
 }

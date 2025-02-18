@@ -16,7 +16,7 @@ fragment_receiver: {
 
    # Parameters defining and configuring the fragment generator to be used
 
-   generator: ToySimulator 
+   generator: ToySimulator
    fragment_type: TOY2        # Make sure downstream modules know about this fragment_type!
    nADCcounts: 100
    distribution_type: 1
@@ -46,7 +46,7 @@ event_builder: {
 art: {
     services: {
         TimeTracker: {}
-        ArtdaqSharedMemoryServiceInterface: { service_provider: ArtdaqSharedMemoryService 
+        ArtdaqSharedMemoryServiceInterface: { service_provider: ArtdaqSharedMemoryService
         waiting_time: 10
         resume_after_timeout: true}
         ArtdaqFragmentNamingServiceInterface: { service_provider: ArtdaqFragmentNamingService helper_plugin: "ArtdaqDemo" }
