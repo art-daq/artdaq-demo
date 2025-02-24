@@ -302,9 +302,8 @@ if [ $do_om -eq 1 ]; then
 	sed -r -i "s/dispatcherPort:.*/dispatcherPort: ${dispatcherPort}/" ${thisrecorddir}/${om_fhicl}2.fcl
 	sed -r -i "s/.*modulus.*[0-9]+.*/modulus: 100/" ${thisrecorddir}/${om_fhicl}2.fcl
 	sed -r -i "/end_paths:/s/a3/a1/" ${thisrecorddir}/${om_fhicl}2.fcl
-	sed -r -i "/shm_key:/s/.*/shm_key: 0x40471453/" ${thisrecorddir}/${om_fhicl}2.fcl
-	sed -r -i "s/shmem1/shmem2/"  ${thisrecorddir}/${om_fhicl}2.fcl
-	sed -r -i "s/destination_rank: 6/destination_rank: 7/" ${thisrecorddir}/${om_fhicl}2.fcl
+    sed -r -i "s/om1/om2/"  ${thisrecorddir}/${om_fhicl}2.fcl
+	sed -r -i "s/destination_rank: [0-9]+/destination_rank: 57/" ${thisrecorddir}/${om_fhicl}2.fcl
 
 		chmod $save_perm ${thisrecorddir}
 
