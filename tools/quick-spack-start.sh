@@ -375,7 +375,7 @@ alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disab
 alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
 # alias mb="spack mpd build;pushd $Base/build;ninja install;popd" # When using upstream spack-mpd
-# alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd" # When using eflumerf fork
+alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd" # When using eflumerf fork
 
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
   # Now save a copy of the environment after setup
