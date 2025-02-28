@@ -257,11 +257,11 @@ spack reindex
 cd $Base
 
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
-spack load --first gcc@13.3.0 >/dev/null 2>&1
+spack load --first gcc@13.1.0 >/dev/null 2>&1
 if [ $? -ne 0 ];then
-  spack install -j $BUILD_J gcc@13.3.0 $arch_opt +binutils
+  spack install -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
   installStatus=$?
-  spack load gcc@13.3.0
+  spack load gcc@13.1.0
 fi
 spack compiler find
 
@@ -276,7 +276,7 @@ else
 	spack add trace+kmod
 fi
 
-spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.3.0
+spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
 env_to_activate="artdaq-${demo_version}"
 
 spack concretize --deprecated --force && spack install -j $BUILD_J
@@ -316,8 +316,8 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	fi
 	cd $Base
 
-	# spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.3.0 generator=ninja # Upstream
-	spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.3.0 # Fork
+	# spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
+	spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 # Fork
 	spack install cetmodules@3.26.00 # Needed for now
 	spack env activate artdaq-develop
 	spack add cetmodules@3.26.00
@@ -343,7 +343,7 @@ sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 
-spack load --first gcc@13.3.0 >/dev/null 2>&1
+spack load --first gcc@13.1.0 >/dev/null 2>&1
 spack compiler find >/dev/null 2>&1
 
 spack env activate ${env_to_activate}
