@@ -272,6 +272,8 @@ ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
 
 if [ $opt_no_kmod -eq 1 ];then
 	spack add trace~kmod
+else
+	spack add trace+kmod
 fi
 
 spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.3.0
