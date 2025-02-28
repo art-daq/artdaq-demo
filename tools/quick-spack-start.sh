@@ -279,7 +279,7 @@ fi
 spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.3.0
 env_to_activate="artdaq-${demo_version}"
 
-spack concretize --force && spack install -j $BUILD_J
+spack concretize --deprecated --force && spack install -j $BUILD_J
 installStatus=$?
 
 function checkout_package()
@@ -321,7 +321,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	spack install cetmodules@3.26.00 # Needed for now
 	spack env activate artdaq-develop
 	spack add cetmodules@3.26.00
-	spack concretize --force
+	spack concretize --force --deprecated
 	spack install
 	# spack mpd build # Upstream
 	spack mpd build -G Ninja # Fork
