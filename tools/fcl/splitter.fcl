@@ -13,8 +13,7 @@ run_number: 101
 fragment_receiver: {
 
    # Parameters defining and configuring the fragment generator to be used
-   		    
-   generator: ToySimulator 
+   generator: ToySimulator
    fragment_type: TOY2        # Make sure downstream modules know about this fragment_type!
    nADCcounts: 100
    random_seed: 6514
@@ -24,7 +23,7 @@ fragment_receiver: {
 
    fragment_id: 0
    board_id: 0
-}  		  
+}
 
 event_builder: {
 
@@ -43,7 +42,7 @@ event_builder: {
 art: {
 services: {
   ArtdaqSharedMemoryServiceInterface: {
-    service_provider: ArtdaqSharedMemoryService 
+    service_provider: ArtdaqSharedMemoryService
     waiting_time: 900
   }
   ArtdaqFragmentNamingServiceInterface: {
@@ -68,7 +67,7 @@ physics:
       prescaleFactor: 2
       prescaleOffset: 1
     }
-  } 	
+  }
 
   endpath: [ evenOutput, oddOutput ]
   evenpath: [ filterEven ]
@@ -107,4 +106,3 @@ module_type: ArtdaqInput
 process_name: Driver
 
 }
-

@@ -1,7 +1,7 @@
 include(BuildPlugins) # Art Module
 
-cet_build_plugin(ArtdaqDemoBuildInfo art::module 
-  LIBRARIES REG 
+cet_build_plugin(ArtdaqDemoBuildInfo art::module
+  LIBRARIES REG
   TRACE::MF
   artdaq-demo::BuildInfo
   artdaq-core::BuildInfo
@@ -22,7 +22,7 @@ cet_build_plugin(WFViewer art::module LIBRARIES REG artdaq-core-demo::Overlays R
 cet_build_plugin(DemoViewer art::module LIBRARIES REG artdaq-core-demo::Overlays ROOT::Core ROOT::Gui)
 
 cet_build_plugin(CheckIntegrity art::module LIBRARIES REG artdaq-core-demo::Overlays)
-  
+
 cet_build_plugin(EventReporterOutput art::module LIBRARIES REG artdaq::DAQdata ROOT::Core artdaq-core::Data_ParentageMap)
 
 install_headers(SUBDIRS detail)

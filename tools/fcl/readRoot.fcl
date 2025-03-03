@@ -31,7 +31,7 @@ physics:
   producers:
   {
 
-  }   
+  }
 
   a1: [ printBuildInfo ]
   a2: [ toyDump]
@@ -58,6 +58,3 @@ fileNames: [ "driver.root" ]
 }
 
 process_name: readRoot
-
-
-

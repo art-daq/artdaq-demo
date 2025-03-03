@@ -3,19 +3,19 @@
 require 'fileutils'
 
 if ARGV.length != 2
-  puts "Usage: " + __FILE__ + " <Fragment generator token> <Fragment token>" 
+  puts "Usage: " + __FILE__ + " <Fragment generator token> <Fragment token>"
   exit 1
 end
 
 fraggentoken = ARGV[0]
 fragtoken = ARGV[1]
 
-if ! ENV['ARTDAQDEMO_REPO'] 
+if ! ENV['ARTDAQDEMO_REPO']
   puts "Couldn\'t find ARTDAQDEMO_REPO variable; have you sourced setupARTDAQDEMO?"
   exit 1
 end
 
-basedir = ENV['ARTDAQDEMO_REPO'] 
+basedir = ENV['ARTDAQDEMO_REPO']
 gendir = basedir + "/artdaq-demo/Generators/"
 overlaydir = basedir + "/artdaq-demo/Overlays/"
 
@@ -55,7 +55,7 @@ end
 # Add in the new generator to the CMakeLists.txt file for compilation
 
 sourcetext = File.read( gendir + "CMakeLists.txt" )
-sourcetext += "\n\n" 
+sourcetext += "\n\n"
 sourcetext += "simple_plugin(" + fraggentoken + " \"generator\"\n"
 sourcetext += <<-'EOS'
   artdaq-demo_Overlays
@@ -63,11 +63,10 @@ sourcetext += <<-'EOS'
   artdaq_DAQdata
   artdaq_Utilities
   art_Utilities
-  ${FHICLCPP} 
-  ${CETLIB} 
+  ${FHICLCPP}
+  ${CETLIB}
   )
 EOS
 
 outf = File.open( gendir + "CMakeLists.txt", 'w')
 outf.puts sourcetext
-

@@ -9,8 +9,8 @@ transition_timeout: 30
 fragment_receiver: {
 
    # Parameters defining and configuring the fragment generator to be used
-   		    
-   generator: ToySimulator 
+
+   generator: ToySimulator
    fragment_type: TOY2        # Make sure downstream modules know about this fragment_type!
    #nADCcounts: 524268         # nBytes = nADCcounts * 2 + 40, 1 MB
    nADCcounts: 5242860         # nBytes = nADCcounts * 2 + 40, 10 MB
@@ -22,7 +22,7 @@ fragment_receiver: {
    # artdaq::CommandableFragmentGenerator
    fragment_id: 0
    board_id: 0
-}  		  
+}
 
 event_builder: {
   expected_fragments_per_event: 1
@@ -49,7 +49,7 @@ metrics: {
 ######################################################################
 art: {
 services: {
-   ArtdaqSharedMemoryServiceInterface: { 
+   ArtdaqSharedMemoryServiceInterface: {
      service_provider: ArtdaqSharedMemoryService
      waiting_time: 900
      resume_after_timeout: true
@@ -86,5 +86,3 @@ physics: {
 
 process_name: Driver
 }
-
-

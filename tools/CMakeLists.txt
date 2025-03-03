@@ -16,11 +16,9 @@ cet_make_exec(NAME read_fhicl SOURCE readfhicl.cc
   LIBRARIES
   fhiclcpp::fhiclcpp
   Boost::program_options
-  )  
-  
+  )
+
 # Is this necessary?
-#install_source()
 install_fhicl(SUBDIRS fcl)
 install_headers()
 install_source()
-

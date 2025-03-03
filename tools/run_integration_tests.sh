@@ -31,8 +31,8 @@ if ! [ -e $SCRIPT_DIR/run_demo.sh ]; then
 	exit 3
 fi
 
-function treset () 
-{ 
+function treset ()
+{
 	${TRACE_BIN}/trace_cntl reset "$@"
 }
 
@@ -46,7 +46,7 @@ function cleanup() {
 
 function run_simple_test_config() {
 	config=$1
-	
+
 	cleanup
 	echo "=============================================="
 	echo $config
@@ -117,7 +117,7 @@ function run_simple_test_config() {
 env_opts_var=`basename $0 | sed 's/\.sh$//' | tr 'a-z-' 'A-Z_'`_OPTS
 USAGE="\
    usage: `basename $0` [options]
-examples: `basename $0` 
+examples: `basename $0`
 		  `basename $0` --runduration 60 --runs 3
           `basename $0` --brlist_name known_boardreaders_list_example.mu2edaq --boot_name boot.mu2edaq.txt
 --help        This help message

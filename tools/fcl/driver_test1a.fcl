@@ -8,7 +8,7 @@ transition_timeout: 30
 
 fragment_receiver: {
    # Parameters defining and configuring the fragment generator to be used
-   generator: ToySimulator 
+   generator: ToySimulator
    fragment_type: TOY2        # Make sure downstream modules know about this fragment_type!
    #nADCcounts: 524268         # nBytes = nADCcounts * 2 + 40, 1 MB
    nADCcounts: 5242860         # nBytes = nADCcounts * 2 + 40, 10 MB
@@ -43,7 +43,7 @@ metrics: {
 ######################################################################
 art: {
 services: {
-   ArtdaqSharedMemoryServiceInterface: { 
+   ArtdaqSharedMemoryServiceInterface: {
      service_provider: ArtdaqSharedMemoryService
      waiting_time: 900
      resume_after_timeout: true

@@ -3,7 +3,7 @@
 # JCF, Oct-5-2017
 # This script basically follows the instructions found in https://cdcvs.fnal.gov/redmine/projects/artdaq-utilities/wiki/Artdaq-daqinterface
 
-get_this_dir() 
+get_this_dir()
 {
 	reldir=`dirname ${0}`
 	ssi_mdt_dir=`cd ${reldir} && pwd -P`
@@ -12,7 +12,7 @@ get_this_dir()
 validate_basedir()
 {
 	valid_basedir=0
-	
+
 	if [ -d $basedir/artdaq-daqinterface ] || [ -d $ARTDAQ_DAQINTERFACE_DIR ]; then
 		valid_basedir=1
 	fi
@@ -61,7 +61,7 @@ om_fhicl=TransferInputShmem
 env_opts_var=`basename $0 | sed 's/\.sh$//' | tr 'a-z-' 'A-Z_'`_OPTS
 USAGE="\
    usage: `basename $0` [options] [just_do_it.sh options]
-examples: `basename $0` 
+examples: `basename $0`
 		  `basename $0` --om --om_fhicl TransferInputShmemWithDelay
 		  `basename $0` --om --config demo_largesystem --compfile $PWD/DAQInterface/comps.list --runduration 40
 --help        This help message
@@ -177,7 +177,7 @@ test -n "$ARTDAQ_PARTITION_NUMBER" && \
 
 if [ -n "${do_jdi_help-}" ]; then
 	cd ${daqintdir}
-	source ./mock_ups_setup.sh	
+	source ./mock_ups_setup.sh
 	source $ARTDAQ_DAQINTERFACE_DIR/source_me
 	just_do_it.sh --help
 	exit
@@ -302,9 +302,8 @@ if [ $do_om -eq 1 ]; then
 	sed -r -i "s/dispatcherPort:.*/dispatcherPort: ${dispatcherPort}/" ${thisrecorddir}/${om_fhicl}2.fcl
 	sed -r -i "s/.*modulus.*[0-9]+.*/modulus: 100/" ${thisrecorddir}/${om_fhicl}2.fcl
 	sed -r -i "/end_paths:/s/a3/a1/" ${thisrecorddir}/${om_fhicl}2.fcl
-	sed -r -i "/shm_key:/s/.*/shm_key: 0x40471453/" ${thisrecorddir}/${om_fhicl}2.fcl
-	sed -r -i "s/shmem1/shmem2/"  ${thisrecorddir}/${om_fhicl}2.fcl
-	sed -r -i "s/destination_rank: 6/destination_rank: 7/" ${thisrecorddir}/${om_fhicl}2.fcl
+    sed -r -i "s/om1/om2/"  ${thisrecorddir}/${om_fhicl}2.fcl
+	sed -r -i "s/destination_rank: [0-9]+/destination_rank: 57/" ${thisrecorddir}/${om_fhicl}2.fcl
 
 		chmod $save_perm ${thisrecorddir}
 
