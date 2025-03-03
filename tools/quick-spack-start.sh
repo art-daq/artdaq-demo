@@ -272,12 +272,14 @@ ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
 
 if [ $opt_no_kmod -eq 1 ];then
 	spack add trace~kmod
+else
+	spack add trace+kmod
 fi
 
 spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
 env_to_activate="artdaq-${demo_version}"
 
-spack concretize --force && spack install -j $BUILD_J
+spack concretize --deprecated --force && spack install -j $BUILD_J
 installStatus=$?
 
 function checkout_package()
@@ -319,7 +321,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	spack install cetmodules@3.26.00 # Needed for now
 	spack env activate artdaq-develop
 	spack add cetmodules@3.26.00
-	spack concretize --force
+	spack concretize --force --deprecated
 	spack install
 	# spack mpd build # Upstream
 	spack mpd build -G Ninja # Fork
@@ -341,8 +343,8 @@ sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 
-spack load --first gcc@13.1.0
-spack compiler find
+spack load --first gcc@13.1.0 >/dev/null 2>&1
+spack compiler find >/dev/null 2>&1
 
 spack env activate ${env_to_activate}
 
@@ -375,7 +377,7 @@ alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disab
 alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
 # alias mb="spack mpd build;pushd $Base/build;ninja install;popd" # When using upstream spack-mpd
-# alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd" # When using eflumerf fork
+alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd" # When using eflumerf fork
 
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
   # Now save a copy of the environment after setup
