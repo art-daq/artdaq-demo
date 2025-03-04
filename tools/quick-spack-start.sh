@@ -24,6 +24,7 @@ If the \"demo_root\" optional parameter is not supplied, the user will be
 prompted for this location.
 --run-demo    runs the demo
 --develop     Install the develop version of the software (may be unstable!)
+--dev-only    Do not install the suite in an environment (use with upstreams!)
 --mfext       Use artdaq_mfextensions Destinations by default
 --tag         Install a specific tag of artdaq_demo
 --logdir      Set <dir> as the destination for log files
@@ -55,33 +56,34 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0; opt_dev_only=0
 while [ -n "${1-}" ];do
 	if expr "x${1-}" : 'x-' >/dev/null;then
 		op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
 		leq=`expr "x$op" : 'x-[^=]*\(=\)'` lev=`expr "x$op" : 'x-[^=]*=\(.*\)'`
 		test -n "$leq"&&eval "set -- \"\$lev\" \"\$@\""&&op=`expr "x$op" : 'x\([^=]*\)'`
 		case "$op" in
-			\?*|h*)     eval $op1chr; do_help=1;;
-			v*)         eval $op1chr; opt_v=`expr $opt_v + 1`;;
-			x*)         eval $op1chr; set -x;;
-			s*)         eval $op1arg; squalifier=$1; shift;;
-			w*)         eval $op1chr; opt_w=`expr $opt_w + 1`;;
-			-run-demo)  opt_run_demo=--run-demo;;
-			-develop) opt_develop=1;;
-			-tag)       eval $reqarg; tag=$1; shift;;
-			-logdir)    eval $op1arg; logdir=$1; shift;;
-			-datadir)   eval $op1arg; datadir=$1; shift;;
+			\?*|h*)      eval $op1chr; do_help=1;;
+			v*)          eval $op1chr; opt_v=`expr $opt_v + 1`;;
+			x*)          eval $op1chr; set -x;;
+			s*)          eval $op1arg; squalifier=$1; shift;;
+			w*)          eval $op1chr; opt_w=`expr $opt_w + 1`;;
+			-run-demo)   opt_run_demo=--run-demo;;
+			-develop)    opt_develop=1;;
+            -dev-only)   opt_dev_only=1;;
+			-tag)        eval $reqarg; tag=$1; shift;;
+			-logdir)     eval $op1arg; logdir=$1; shift;;
+			-datadir)    eval $op1arg; datadir=$1; shift;;
 			-recordsdir) eval $op1arg; recordsdir=$1; shift;;
-			-spackdir)  eval $op1arg; spackdir=$1; shift;;
-			-arch)      eval $op1arg; arch=$1; shift;;
-			-mfext)     opt_mfext=1;;
-			-upstream)  eval $op1arg; upstreams+=($1); shift;;
-			-padding)   opt_padding=1;;
-			-pcp)       opt_pcp=1;;
+			-spackdir)   eval $op1arg; spackdir=$1; shift;;
+			-arch)       eval $op1arg; arch=$1; shift;;
+			-mfext)      opt_mfext=1;;
+			-upstream)   eval $op1arg; upstreams+=($1); shift;;
+			-padding)    opt_padding=1;;
+			-pcp)        opt_pcp=1;;
 			-no-kmod)    opt_no_kmod=1;;
-			-no-view)   opt_no_view=1;;
-			*)          echo "Unknown option -$op"; do_help=1;;
+			-no-view)    opt_no_view=1;;
+			*)           echo "Unknown option -$op"; do_help=1;;
 		esac
 	else
 		aa=`echo "$1" | sed -e"s/'/'\"'\"'/g"` args="$args '$aa'"; shift
@@ -265,22 +267,24 @@ if [ $? -ne 0 ];then
 fi
 spack compiler find
 
-spack env create ${concrete_include_cmd} ${view_opt} artdaq-${demo_version}
-spack env activate artdaq-${demo_version}
+if [ ${opt_dev_only:-0} -eq 0 ];then
+    spack env create ${concrete_include_cmd} ${view_opt} artdaq-${demo_version}
+    spack env activate artdaq-${demo_version}
 
-ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
+    ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
 
-if [ $opt_no_kmod -eq 1 ];then
-	spack add trace~kmod
-else
-	spack add trace+kmod
+    if [ $opt_no_kmod -eq 1 ];then
+	    spack add trace~kmod
+    else
+	    spack add trace+kmod
+    fi
+
+    spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
+    env_to_activate="artdaq-${demo_version}"
+
+    spack concretize --deprecated --force && spack install -j $BUILD_J
+    installStatus=$?
 fi
-
-spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
-env_to_activate="artdaq-${demo_version}"
-
-spack concretize --deprecated --force && spack install -j $BUILD_J
-installStatus=$?
 
 function checkout_package()
 {
@@ -316,8 +320,13 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	fi
 	cd $Base
 
-	# spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
-	spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 # Fork
+    if [ ${opt_dev_only:-0} -eq 0 ];then
+	    # spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
+	    spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 # Fork
+    else
+	    # spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
+	    spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 # Fork
+    fi
 	spack env activate artdaq-develop
 	spack add cetmodules@3.26.00
 	spack concretize --force --deprecated
