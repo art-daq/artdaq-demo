@@ -327,9 +327,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
 	    # spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
 	    spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 # Fork
     fi
-    spack install cetmodules@3.26.00 # Needed for now Mar 5, 2025
 	spack env activate artdaq-develop
-	spack add cetmodules@3.26.00
 	spack concretize --force --deprecated
 	spack install
 	# spack mpd build # Upstream
