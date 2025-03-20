@@ -282,7 +282,7 @@ if [ ${opt_dev_only:-0} -eq 0 ];then
     spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
     env_to_activate="artdaq-${demo_version}"
 
-    spack concretize --deprecated --force && spack install -j $BUILD_J
+    spack concretize --deprecated --force && spack install --deprecated -j $BUILD_J
     installStatus=$?
 fi
 
@@ -329,7 +329,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     fi
 	spack env activate artdaq-develop
 	spack concretize --force --deprecated
-	spack install
+	spack install --deprecated
 	# spack mpd build # Upstream
 	spack mpd build -G Ninja # Fork
 	cd $Base/build

@@ -216,7 +216,7 @@ ln -s ${spackdir}/var/spack/environments/art-s${squalifier}
 spack add art-suite@s${squalifier} +root $arch_opt %gcc@13.1.0
 env_to_activate="art-s${squalifier}"
 
-spack concretize --force --deprecated && spack install -j $BUILD_J
+spack concretize --force --deprecated && spack install --deprecated -j $BUILD_J
 installStatus=$?
 
 endtime=`date`
