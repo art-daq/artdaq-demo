@@ -82,12 +82,12 @@ void DemoDataProducer::endSubRun(art::SubRun& sr)
 	{
 		art::SubRunNumber_t subrunNumber = sr.subRun();
 		art::RunNumber_t runNumber = sr.run();
-		TLOG(TLVL_DEBUG + 35) << "DemoDataProducer::" << __func__ << ": Run:SubRun " << runNumber << ":" << subrunNumber << " app_name = " << app_name 
-            << ": Writing out " << subrun_demo_datas_->size() << " DemoDataProducts";
+		TLOG(TLVL_DEBUG + 35) << "DemoDataProducer::" << __func__ << ": Run:SubRun " << runNumber << ":" << subrunNumber << " app_name = " << app_name
+		                      << ": Writing out " << subrun_demo_datas_->size() << " DemoDataProducts";
 
-        sr.put(std::move(subrun_demo_datas_), instance_name_, art::fullSubRun());
+		sr.put(std::move(subrun_demo_datas_), instance_name_, art::fullSubRun());
 
-        subrun_demo_datas_.reset(nullptr);
+		subrun_demo_datas_.reset(nullptr);
 	}
 }
 
@@ -112,26 +112,29 @@ void DemoDataProducer::produce(art::Event& event)
 	const art::SubRunNumber_t subrunNumber = event.subRun();
 	const art::RunNumber_t runNumber = event.run();
 
-    TLOG(TLVL_DEBUG + 36) << "Producing DemoDataProduct for Run:Subrun:Event " << runNumber << ":" << subrunNumber << ":" << eventNumber;
+	TLOG(TLVL_DEBUG + 36) << "Producing DemoDataProduct for Run:Subrun:Event " << runNumber << ":" << subrunNumber << ":" << eventNumber;
 
-    std::vector<int> arr;
-    for (size_t ii = 0; ii < data_array_size_; ++ii) {
+	std::vector<int> arr;
+	for (size_t ii = 0; ii < data_array_size_; ++ii)
+	{
 		arr.push_back(eventNumber + ii);
-    }
+	}
 	auto prod_event = std::make_unique<DemoDataProduct>("event-" + std::to_string(eventNumber), arr);
 	DemoDataProduct prod_subrun("event-" + std::to_string(eventNumber), arr);
 	DemoDataProduct prod_run("event-" + std::to_string(eventNumber), arr);
 
-    if (produces_events_) {
+	if (produces_events_)
+	{
 		event.put(std::move(prod_event));
-    }
-    if (produces_subruns_) {
+	}
+	if (produces_subruns_)
+	{
 		if (subrun_demo_datas_ == nullptr)
 		{
 			subrun_demo_datas_.reset(new std::vector<demo::DemoDataProduct>());
-        }
+		}
 		subrun_demo_datas_->push_back(prod_subrun);
-    }
+	}
 	if (produces_runs_)
 	{
 		if (run_demo_datas_ == nullptr)
@@ -139,7 +142,7 @@ void DemoDataProducer::produce(art::Event& event)
 			run_demo_datas_.reset(new std::vector<demo::DemoDataProduct>());
 		}
 		run_demo_datas_->push_back(prod_run);
-    }
+	}
 
 }  // produce
 

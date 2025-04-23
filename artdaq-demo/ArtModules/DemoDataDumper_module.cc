@@ -49,24 +49,28 @@ demo::DemoDataDumper::DemoDataDumper(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
 {}
 
-TraceStreamer& operator<<(TraceStreamer& l, std::vector<int> const& r) {
+TraceStreamer& operator<<(TraceStreamer& l, std::vector<int> const& r)
+{
 	l << "{";
 
-    size_t count = r.size() - 1;
+	size_t count = r.size() - 1;
 	if (r.size() > 4) count = 4;
-    for (size_t ii = 0; ii < count; ++ii) {
+	for (size_t ii = 0; ii < count; ++ii)
+	{
 		l << r[ii] << ", ";
-    }
+	}
 
-    if (r.size() > 4) {
+	if (r.size() > 4)
+	{
 		l << "...";
 	}
-    else {
+	else
+	{
 		l << r[r.size() - 1];
-    }
+	}
 
-    l << "}";
-    return l;
+	l << "}";
+	return l;
 }
 
 void demo::DemoDataDumper::analyze(art::Event const& evt)
@@ -77,7 +81,7 @@ void demo::DemoDataDumper::analyze(art::Event const& evt)
 	size_t count = 0;
 	for (const auto& handle : productHandles)
 	{
-		if (!handle.isValid() )
+		if (!handle.isValid())
 		{
 			continue;
 		}
@@ -87,7 +91,7 @@ void demo::DemoDataDumper::analyze(art::Event const& evt)
 	}
 
 	TLOG(TLVL_INFO) << "Run " << evt.run() << ", subrun " << evt.subRun() << ", event " << evt.event() << " has "
-	                 << count << " DemoDataProducts";
+	                << count << " DemoDataProducts";
 }
 
 void demo::DemoDataDumper::endSubRun(art::SubRun const& sr)
@@ -107,14 +111,15 @@ void demo::DemoDataDumper::endSubRun(art::SubRun const& sr)
 		TLOG(TLVL_INFO) << "DemoDataProduct vector size: " << handle->size();
 		for (auto& prod : *handle)
 		{
-			TLOG(TLVL_INFO) << "    " << "DemoDataProduct " << prod.instance_name << ", data: " << prod.data;
+			TLOG(TLVL_INFO) << "    "
+			                << "DemoDataProduct " << prod.instance_name << ", data: " << prod.data;
 			countcount++;
 		}
 		count++;
 	}
 
 	TLOG(TLVL_INFO) << "Run " << sr.run() << ", subrun " << sr.subRun() << " has "
-	                 << count << " DemoDataProduct vectors, with a total of " << countcount << " DemoDataProduct instances";
+	                << count << " DemoDataProduct vectors, with a total of " << countcount << " DemoDataProduct instances";
 }
 
 void demo::DemoDataDumper::endRun(art::Run const& r)
@@ -134,14 +139,15 @@ void demo::DemoDataDumper::endRun(art::Run const& r)
 		TLOG(TLVL_INFO) << "DemoDataProduct vector size: " << handle->size();
 		for (auto& prod : *handle)
 		{
-			TLOG(TLVL_INFO) << "    " << "DemoDataProduct " << prod.instance_name << ", data: " << prod.data;
+			TLOG(TLVL_INFO) << "    "
+			                << "DemoDataProduct " << prod.instance_name << ", data: " << prod.data;
 			countcount++;
 		}
 		count++;
 	}
 
 	TLOG(TLVL_INFO) << "Run " << r.run() << " has "
-	                 << count << " DemoDataProduct vectors, with a total of " << countcount << " DemoDataProduct instances";
+	                << count << " DemoDataProduct vectors, with a total of " << countcount << " DemoDataProduct instances";
 }
 
 DEFINE_ART_MODULE(demo::DemoDataDumper)  // NOLINT(performance-unnecessary-value-param)
