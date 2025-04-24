@@ -25,6 +25,9 @@ cet_build_plugin(CheckIntegrity art::module LIBRARIES REG artdaq-core-demo::Over
 
 cet_build_plugin(EventReporterOutput art::module LIBRARIES REG artdaq::DAQdata ROOT::Core artdaq-core::Data_ParentageMap)
 
+cet_build_plugin(DemoDataProducer art::module LIBRARIES REG artdaq::DAQdata artdaq-core-demo::Data)
+cet_build_plugin(DemoDataDumper art::module LIBRARIES REG artdaq::DAQdata artdaq-core-demo::Data)
+
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)
 install_fhicl(SUBDIRS fcl)
