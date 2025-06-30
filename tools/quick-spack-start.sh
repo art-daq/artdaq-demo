@@ -5,8 +5,8 @@
 git_status=`git status 2>/dev/null`
 git_sts=$?
 if [ $git_sts -eq 0 ];then
-	echo "This script is designed to be run in a fresh install directory!"
-	exit 1
+    echo "This script is designed to be run in a fresh install directory!"
+    exit 1
 fi
 
 starttime=`date`
@@ -17,9 +17,9 @@ env_opts_var=`basename $0 | sed 's/\.sh$//' | tr 'a-z-' 'A-Z_'`_OPTS
 USAGE="\
    usage: `basename $0` [options] [demo_root]
 examples: `basename $0` .
-		  `basename $0` --run-demo
-		  `basename $0` --debug
-		  `basename $0` --tag v2_08_04
+          `basename $0` --run-demo
+          `basename $0` --debug
+          `basename $0` --tag v2_08_04
 If the \"demo_root\" optional parameter is not supplied, the user will be
 prompted for this location.
 --run-demo    runs the demo
@@ -58,36 +58,36 @@ op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
 args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0; opt_dev_only=0
 while [ -n "${1-}" ];do
-	if expr "x${1-}" : 'x-' >/dev/null;then
-		op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
-		leq=`expr "x$op" : 'x-[^=]*\(=\)'` lev=`expr "x$op" : 'x-[^=]*=\(.*\)'`
-		test -n "$leq"&&eval "set -- \"\$lev\" \"\$@\""&&op=`expr "x$op" : 'x\([^=]*\)'`
-		case "$op" in
-			\?*|h*)      eval $op1chr; do_help=1;;
-			v*)          eval $op1chr; opt_v=`expr $opt_v + 1`;;
-			x*)          eval $op1chr; set -x;;
-			s*)          eval $op1arg; squalifier=$1; shift;;
-			w*)          eval $op1chr; opt_w=`expr $opt_w + 1`;;
-			-run-demo)   opt_run_demo=--run-demo;;
-			-develop)    opt_develop=1;;
+    if expr "x${1-}" : 'x-' >/dev/null;then
+        op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
+        leq=`expr "x$op" : 'x-[^=]*\(=\)'` lev=`expr "x$op" : 'x-[^=]*=\(.*\)'`
+        test -n "$leq"&&eval "set -- \"\$lev\" \"\$@\""&&op=`expr "x$op" : 'x\([^=]*\)'`
+        case "$op" in
+            \?*|h*)      eval $op1chr; do_help=1;;
+            v*)          eval $op1chr; opt_v=`expr $opt_v + 1`;;
+            x*)          eval $op1chr; set -x;;
+            s*)          eval $op1arg; squalifier=$1; shift;;
+            w*)          eval $op1chr; opt_w=`expr $opt_w + 1`;;
+            -run-demo)   opt_run_demo=--run-demo;;
+            -develop)    opt_develop=1;;
             -dev-only)   opt_dev_only=1;;
-			-tag)        eval $reqarg; tag=$1; shift;;
-			-logdir)     eval $op1arg; logdir=$1; shift;;
-			-datadir)    eval $op1arg; datadir=$1; shift;;
-			-recordsdir) eval $op1arg; recordsdir=$1; shift;;
-			-spackdir)   eval $op1arg; spackdir=$1; shift;;
-			-arch)       eval $op1arg; arch=$1; shift;;
-			-mfext)      opt_mfext=1;;
-			-upstream)   eval $op1arg; upstreams+=($1); shift;;
-			-padding)    opt_padding=1;;
-			-pcp)        opt_pcp=1;;
-			-no-kmod)    opt_no_kmod=1;;
-			-no-view)    opt_no_view=1;;
-			*)           echo "Unknown option -$op"; do_help=1;;
-		esac
-	else
-		aa=`echo "$1" | sed -e"s/'/'\"'\"'/g"` args="$args '$aa'"; shift
-	fi
+            -tag)        eval $reqarg; tag=$1; shift;;
+            -logdir)     eval $op1arg; logdir=$1; shift;;
+            -datadir)    eval $op1arg; datadir=$1; shift;;
+            -recordsdir) eval $op1arg; recordsdir=$1; shift;;
+            -spackdir)   eval $op1arg; spackdir=$1; shift;;
+            -arch)       eval $op1arg; arch=$1; shift;;
+            -mfext)      opt_mfext=1;;
+            -upstream)   eval $op1arg; upstreams+=($1); shift;;
+            -padding)    opt_padding=1;;
+            -pcp)        opt_pcp=1;;
+            -no-kmod)    opt_no_kmod=1;;
+            -no-view)    opt_no_view=1;;
+            *)           echo "Unknown option -$op"; do_help=1;;
+        esac
+    else
+        aa=`echo "$1" | sed -e"s/'/'\"'\"'/g"` args="$args '$aa'"; shift
+    fi
 done
 eval "set -- $args \"\$@\""; unset args aa
 
@@ -133,7 +133,7 @@ fi
 svariant=""
 
 if [ -n "${squalifier-}" ]; then
-	svariant="s=${squalifier}"
+    svariant="s=${squalifier}"
 fi
 
 pcp_opt="~pcp"
@@ -148,7 +148,7 @@ fi
 
 view_opt=""
 if [ $opt_no_view -eq 1 ];then
-	view_opt="--without-view"
+    view_opt="--without-view"
 fi
 
 if ! [ -d $spackdir ];then
@@ -185,36 +185,36 @@ fi
 
 sed -i '/perl/d' fermi-spack-tools/templates/packagelist
 if [ -f $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml ];then
-	echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
-	echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml already exists"
+    echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
+    echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml already exists"
 else
-	echo "executing ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
-	echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml"
-	./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
+    echo "executing ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
+    echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml"
+    ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
 fi
 
 repo_found=`spack repo list|grep -c fnal_art`
 if [ $repo_found -eq 0 ]; then
-	echo "Adding repos: fnal_art scd_recipes artdaq-spack"
-	mkdir spack-repos;cd spack-repos
-	git clone https://github.com/FNALssi/fnal_art.git
+    echo "Adding repos: fnal_art scd_recipes artdaq-spack"
+    mkdir spack-repos;cd spack-repos
+    git clone https://github.com/FNALssi/fnal_art.git
     cd fnal_art && git checkout ddeec355456e3bca5e4a743ce5d4906fa74a51b6 ; cd ..
-	spack repo add ./fnal_art
-	git clone https://github.com/fnal-fife/scd_recipes.git
+    spack repo add ./fnal_art
+    git clone https://github.com/fnal-fife/scd_recipes.git
     cd scd_recipes && git checkout e9c8cc8af792008c3c85724cc8ae3ee0662233d6 ; cd ..
     rm -rf scd_recipes/packages/perl-ipc-run3
-	spack repo add ./scd_recipes
-	git clone https://github.com/art-daq/artdaq-spack.git
+    spack repo add ./scd_recipes
+    git clone https://github.com/art-daq/artdaq-spack.git
     cd artdaq-spack && git checkout artdaq-${demo_version}; cd ..
-	spack repo add ./artdaq-spack
-	cd $Base
+    spack repo add ./artdaq-spack
+    cd $Base
 else
     cd spack-repos
     cd fnal_art && git fetch -a && git checkout ddeec355456e3bca5e4a743ce5d4906fa74a51b6 ; cd ..
     cd scd_recipes && git fetch -a && git checkout e9c8cc8af792008c3c85724cc8ae3ee0662233d6 ; cd ..
     rm -rf scd_recipes/packages/perl-ipc-run3
     cd artdaq-spack && git fetch -a && git checkout artdaq-${demo_version}; cd ..
-	cd $Base
+    cd $Base
 fi
 #exit
 
@@ -227,39 +227,39 @@ fi
 concrete_include_cmd=
 
 for upstream in ${upstreams[@]}; do
-	echo "Adding upstream $upstream"
-	for upstreamdir in `find $upstream -type f -wholename '*/.spack-db/index.json' 2>/dev/null`; do
-		echo "Getting real directory for upstream database $upstreamdir"
-		upstreamdir=`dirname $upstreamdir`
-		upstreamdir=`dirname $upstreamdir`
-		upstreamdir=`realpath $upstreamdir`
-		upstreamname=`echo $upstreamdir|sed 's|/__spack[^/]*||g;s|/spack/opt/spack||g'`
+    echo "Adding upstream $upstream"
+    for upstreamdir in `find $upstream -type f -wholename '*/.spack-db/index.json' 2>/dev/null`; do
+        echo "Getting real directory for upstream database $upstreamdir"
+        upstreamdir=`dirname $upstreamdir`
+        upstreamdir=`dirname $upstreamdir`
+        upstreamdir=`realpath $upstreamdir`
+        upstreamname=`echo $upstreamdir|sed 's|/__spack[^/]*||g;s|/spack/opt/spack||g'`
 
-		if ! [ -d $upstreamdir/.spack-db ]; then
-			echo "No Spack instance found at $upstream!"
-			continue
-		fi
+        if ! [ -d $upstreamdir/.spack-db ]; then
+            echo "No Spack instance found at $upstream!"
+            continue
+        fi
 
-		if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
-			echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
-		fi
+        if ! [ -f $spackdir/etc/spack/upstreams.yaml ]; then
+            echo "upstreams:" > $spackdir/etc/spack/upstreams.yaml
+        fi
 
-		if [ `grep -c $upstreamdir $spackdir/etc/spack/upstreams.yaml` -eq 0 ]; then
-			# Only add upstream if not already present
-			echo "  upstream${upstreamname//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
-			echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
-		fi
-	done
+        if [ `grep -c $upstreamdir $spackdir/etc/spack/upstreams.yaml` -eq 0 ]; then
+            # Only add upstream if not already present
+            echo "  upstream${upstreamname//\//-}:" >>$spackdir/etc/spack/upstreams.yaml
+            echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
+        fi
+    done
 
-	for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
-		echo "Looking for artdaq environments in $envdir"
+    for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
+        echo "Looking for artdaq environments in $envdir"
 
-		environment="artdaq-${demo_version}"
-		if ! [ -d $environment ]; then continue; fi
-		environment_dir=`realpath $environment`
-		echo "Adding environment $environment_dir to include-concrete list"
-		concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
-	done
+        environment="artdaq-${demo_version}"
+        if ! [ -d $environment ]; then continue; fi
+        environment_dir=`realpath $environment`
+        echo "Adding environment $environment_dir to include-concrete list"
+        concrete_include_cmd="$concrete_include_cmd --include-concrete $environment_dir"
+    done
 done
 
 spack reindex
@@ -282,13 +282,12 @@ if [ ${opt_dev_only:-0} -eq 0 ];then
     ln -s ${spackdir}/var/spack/environments/artdaq-${demo_version}
 
     if [ $opt_no_kmod -eq 1 ];then
-	    spack add trace~kmod
+        spack add trace~kmod
     else
-	    spack add trace+kmod
+        spack add trace+kmod
     fi
 
     spack add artdaq-suite@${demo_version} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
-    spack add lcov # For coverage collection
     env_to_activate="artdaq-${demo_version}"
 
     spack concretize --deprecated --force && spack install --deprecated -j $BUILD_J
@@ -297,57 +296,58 @@ fi
 
 function checkout_package()
 {
-	pkg=$1
-	if ! [ -d $pkg ]; then
-		if [ $opt_w -eq 0 ];then
-			git clone https://github.com/art-daq/$pkg.git
-		else
-			git clone git@github.com:art-daq/$pkg.git
-		fi
-	else
-		cd $pkg
-		git pull
-		cd ..
-	fi
+    pkg=$1
+    if ! [ -d $pkg ]; then
+        if [ $opt_w -eq 0 ];then
+            git clone https://github.com/art-daq/$pkg.git
+        else
+            git clone git@github.com:art-daq/$pkg.git
+        fi
+    else
+        cd $pkg
+        git pull
+        cd ..
+    fi
 }
 
 if [[ ${opt_develop:-0} -eq 1 ]];then
-	spack env deactivate
-	env_to_activate="artdaq-develop"
+    spack env deactivate
+    env_to_activate="artdaq-develop"
 
-	# spack mpd init # Upstream
-		spack mpd init -r site -u $Base/spack-repos/mpd # Fork
+    # spack mpd init # Upstream
+        spack mpd init -r site -u $Base/spack-repos/mpd # Fork
 
-	cd $Base
-	mkdir srcs
-	cd srcs
-	for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-utilities artdaq-daqinterface trace;do
-		checkout_package $pkg
-	done
-	if [ $opt_pcp -eq 1 ];then
-		checkout_package artdaq-pcp-mmv-plugin
-	fi
-	cd $Base
+    cd $Base
+    mkdir srcs
+    cd srcs
+    for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-utilities artdaq-daqinterface trace;do
+        checkout_package $pkg
+    done
+    if [ $opt_pcp -eq 1 ];then
+        checkout_package artdaq-pcp-mmv-plugin
+    fi
+    cd $Base
 
     if [ ${opt_dev_only:-0} -eq 0 ];then
-	    # spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
-	    spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 # Fork
+        # spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
+        spack mpd new-project --force -y --name artdaq-develop -E artdaq-${demo_version} cxxstd=20 %gcc@13.1.0 # Fork
     else
-	    # spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
-	    spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 # Fork
+        # spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
+        spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 # Fork
     fi
-	spack env activate artdaq-develop
-	spack concretize --force --deprecated
-	spack install --deprecated
-	# spack mpd build # Upstream
-	spack mpd build -G Ninja # Fork
-	cd $Base/build
-	ninja install
-	installStatus=$?
+    spack env activate artdaq-develop
+    spack add lcov # For coverage collection
+    spack concretize --force --deprecated
+    spack install --deprecated
+    # spack mpd build # Upstream
+    spack mpd build -G Ninja # Fork
+    cd $Base/build
+    ninja install
+    installStatus=$?
 fi
 
 cd $Base
-	cat >setupARTDAQDEMO <<-EOF
+    cat >setupARTDAQDEMO <<-EOF
 echo # This script is intended to be sourced.
 
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
@@ -451,13 +451,13 @@ if ! [ -d $daqintdir ]; then
 fi
 
 if [ "x${opt_run_demo-}" != "x" ]; then
-	if [ $installStatus -eq 0 ]; then
-	echo doing the demo
+    if [ $installStatus -eq 0 ]; then
+    echo doing the demo
 
-	run_demo.sh --basedir $Base --toolsdir ${Base}/srcs/artdaq_demo/tools
-	else
-		echo 'Build error (see above) precludes running the demo (i.e --run-demo option specified)'
-	fi
+    run_demo.sh --basedir $Base --toolsdir ${Base}/srcs/artdaq_demo/tools
+    else
+        echo 'Build error (see above) precludes running the demo (i.e --run-demo option specified)'
+    fi
 fi
 
 
