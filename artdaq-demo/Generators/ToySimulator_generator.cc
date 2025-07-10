@@ -259,17 +259,18 @@ void demo::ToySimulator::stop()
 {
 	if (generate_metadata_fragment_)
 	{
-		artdaq::ArtdaqMetadata theMetadata{
-		artdaq::ArtdaqMetadata theMetadata{
-		    my_rank,
-		    fragmentIDs(),
-		    "string",
-		    "TEST"};
-		metadata_fragment_ = artdaq::MetadataFragment::CreateMetadataFragment(theMetadata, artdaq::Fragment::EndOfRunFragmentType, 1, 0, *fragmentIDs().begin());
+		artdaq::ArtdaqMetadata theMetadata
+		{
+			artdaq::ArtdaqMetadata theMetadata{
+			    my_rank,
+			    fragmentIDs(),
+			    "string",
+			    "TEST"};
+			metadata_fragment_ = artdaq::MetadataFragment::CreateMetadataFragment(theMetadata, artdaq::Fragment::EndOfRunFragmentType, 1, 0, *fragmentIDs().begin());
+		}
+
+		hardware_interface_->StopDatataking();
 	}
 
-	hardware_interface_->StopDatataking();
-}
-
-// The following macro is defined in artdaq's GeneratorMacros.hh header
-DEFINE_ARTDAQ_COMMANDABLE_GENERATOR(demo::ToySimulator)
+	// The following macro is defined in artdaq's GeneratorMacros.hh header
+	DEFINE_ARTDAQ_COMMANDABLE_GENERATOR(demo::ToySimulator)
