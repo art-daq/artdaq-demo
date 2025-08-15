@@ -378,7 +378,7 @@ export TRACE_FILE=/tmp/trace_buffer_\$USER.\$k5user
 
 export ARTDAQ_DAQINTERFACE_VERSION=SPACK
 #export ARTDAQDEMO_BASE_PORT=52200
-export DAQ_INDATA_PATH=$ARTDAQ_DEMO_DIR/test/Generators
+export DAQ_INDATA_PATH=\$ARTDAQ_DEMO_DIR/test/Generators
 ${opt_mfext+export ARTDAQ_MFEXTENSIONS_ENABLED=1}
 
 export ARTDAQDEMO_ROOT=$Base
