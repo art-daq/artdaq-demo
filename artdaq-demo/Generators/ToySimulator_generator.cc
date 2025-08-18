@@ -253,7 +253,10 @@ void demo::ToySimulator::start()
 	}
 	timestamp_ = starting_timestamp_;
 	lazily_handled_requests_.clear();
+}
 
+void demo::ToySimulator::stop()
+{
 	if (generate_metadata_fragment_)
 	{
 		artdaq::ArtdaqMetadata theMetadata{
@@ -261,11 +264,11 @@ void demo::ToySimulator::start()
 		    fragmentIDs(),
 		    "string",
 		    "TEST"};
-		metadata_fragment_ = artdaq::MetadataFragment::CreateMetadataFragment(theMetadata, artdaq::Fragment::StartOfRunFragmentType, 1, 0, *fragmentIDs().begin());
+		metadata_fragment_ = artdaq::MetadataFragment::CreateMetadataFragment(theMetadata, artdaq::Fragment::EndOfRunFragmentType, 1, 0, *fragmentIDs().begin());
 	}
-}
 
-void demo::ToySimulator::stop() { hardware_interface_->StopDatataking(); }
+	hardware_interface_->StopDatataking();
+}
 
 // The following macro is defined in artdaq's GeneratorMacros.hh header
 DEFINE_ARTDAQ_COMMANDABLE_GENERATOR(demo::ToySimulator)
