@@ -36,6 +36,7 @@ prompted for this location.
 -x            set -x this script
 -w            Check out repositories read/write
 --upstream    Use <dir> as a Spack upstream (repeatable)
+--use-cvmfs   Use CVMFS artdaq areas if available
 --no-view     Do not create Spack environment views
 --padding     Pad paths to 255 characters for relocatability
 --pcp         Install the artdaq-pcp-mmv-plugin metric component
@@ -56,7 +57,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0; opt_dev_only=0
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0; opt_dev_only=0; opt_use_cvmfs=0;
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -83,6 +84,7 @@ while [ -n "${1-}" ];do
             -pcp)        opt_pcp=1;;
             -no-kmod)    opt_no_kmod=1;;
             -no-view)    opt_no_view=1;;
+            -use-cvmfs)  opt_use_cvmfs=1;;
             *)           echo "Unknown option -$op"; do_help=1;;
         esac
     else
@@ -225,6 +227,13 @@ if [ $opt_padding -eq 1 ];then
 fi
 
 concrete_include_cmd=
+
+if [ $opt_use_cvmfs -eq 1 ] && [ -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_areas ]; then
+  art=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_areas/art-suite-*|tail -1`
+  artdaq=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_areas/artdaq-*|tail -1`
+
+  upstreams+=($artdaq $art)
+fi
 
 for upstream in ${upstreams[@]}; do
     echo "Adding upstream $upstream"
