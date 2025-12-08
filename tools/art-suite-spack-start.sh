@@ -40,7 +40,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0
+args= do_help= opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -48,10 +48,8 @@ while [ -n "${1-}" ];do
         test -n "$leq"&&eval "set -- \"\$lev\" \"\$@\""&&op=`expr "x$op" : 'x\([^=]*\)'`
         case "$op" in
             \?*|h*)     eval $op1chr; do_help=1;;
-            v*)         eval $op1chr; opt_v=`expr $opt_v + 1`;;
             x*)         eval $op1chr; set -x;;
             s*)         eval $op1arg; squalifier=$1; shift;;
-            w*)         eval $op1chr; opt_w=`expr $opt_w + 1`;;
             -spackdir)  eval $op1arg; spackdir=$1; shift;;
             -arch)      eval $op1arg; arch=$1; shift;;
             -upstream)  eval $op1arg; upstreams+=($1); shift;;
@@ -97,72 +95,15 @@ if [ $opt_no_view -eq 1 ];then
     view_opt="--without-view"
 fi
 
-if ! [ -d $spackdir ];then
-    $(
-    cd ${spackdir%/spack}
-    git clone https://github.com/FNALssi/spack.git -b fnal-develop
-    cd $spackdir && git checkout e18ecaaa780b863b2104e2971d3320c97ebf3b65
-        )
-else
-    #cd $spackdir && git pull && cd $Base
-    cd $spackdir && git fetch -a && git checkout e18ecaaa780b863b2104e2971d3320c97ebf3b65 ; cd $Base
+build_system_script=`find $Base -type f -name setup_spack_build_system.sh`
+if [[ "x$build_system_script" == "x" ]];then
+  echo "WARNING: setup_spack_build_system.sh not found, downloading from https://github.com/art-daq/artdaq-demo"
+  wget https://raw.githubusercontent.com/art-daq/artdaq_demo/refs/heads/develop/tools/setup_spack_build_system.sh $Base/setup_spack_build_system.sh
+  build_system_script=$Base/setup_spack_build_system.sh
 fi
-
-cat >setup-env.sh <<-EOF
-export SPACK_DISABLE_LOCAL_CONFIG=true
-source $spackdir/share/spack/setup-env.sh
-EOF
-source setup-env.sh
-
-if ! [ -d fermi-spack-tools ]; then
-    git clone https://github.com/FNALssi/fermi-spack-tools.git # Upstream
-    cd fermi-spack-tools && git checkout 965e0e73896328f8137c2bd53bad77a42b39e0bf ; cd $Base
-else
-    cd fermi-spack-tools && git fetch -a && git checkout 965e0e73896328f8137c2bd53bad77a42b39e0bf ; cd $Base
-fi
-
-sed -i '/perl/d' fermi-spack-tools/templates/packagelist
-if [ -f $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml ];then
-    echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
-    echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml already exists"
-else
-    echo "executing ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
-    echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml"
-    ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
-fi
-
-repo_found=`spack repo list|grep -c fnal_art`
-if [ $repo_found -eq 0 ]; then
-    echo "Adding repos: fnal_art scd_recipes"
-    mkdir spack-repos && cd spack-repos
-    git clone https://github.com/FNALssi/fnal_art.git
-    cd fnal_art && git checkout ddeec355456e3bca5e4a743ce5d4906fa74a51b6 ; cd ..
-    spack repo add ./fnal_art
-    git clone https://github.com/marcmengel/scd_recipes.git
-    cd scd_recipes && git checkout e9c8cc8af792008c3c85724cc8ae3ee0662233d6 ; cd ..
-    spack repo add ./scd_recipes
-    cd $Base
-else
-    cd fnal_art && git fetch -a && git checkout ddeec355456e3bca5e4a743ce5d4906fa74a51b6 ; cd ..
-    cd scd_recipes && git fetch -a && git checkout e9c8cc8af792008c3c85724cc8ae3ee0662233d6 ; cd ..
-    cd $Base
-fi
-
-
-#spack config --scope=site update  --yes-to-all config
-#spack config --scope=site add config:flags:keep_werror:all # Not needed when using spack-mpd
-spack config --scope=site add "config:extensions:- $Base/spack-mpd"
-
-if [ $opt_padding -eq 1 ];then
-  spack config --scope=site add config:install_tree:padded_length:255
-fi
-
-#spack mirror add --scope site scisoft-binaries  https://scisoft.fnal.gov/scisoft/spack-mirror/spack-binary-cache-plain
-#spack buildcache update-index -k scisoft-binaries
-#spack mirror add --scope site scisoft-compilers https://scisoft.fnal.gov/scisoft/spack-mirror/spack-compiler-cache-plain
-#spack buildcache update-index -k scisoft-compilers
-#spack -k buildcache keys --install --trust --force
-#spack reindex
+source $build_system_script
+# Note that install_spack_build_system sources setup-env.sh
+install_spack_build_system $Base $spackdir
 
 for upstream in ${upstreams[@]}; do
     for upstreamdir in `find $upstream -type f -wholename */.spack-db/index.json 2>/dev/null`; do
