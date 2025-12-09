@@ -47,7 +47,7 @@ EOF
     fi
 
     mkdir spack-repos 2>/dev/null;cd spack-repos
-    repo_found=`spack repo list|grep -c fnal_art`
+    repo_found=`spack repo list|awk '{print $1}'|grep -c fnal_art`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: fnal_art"
         git clone https://github.com/FNALssi/fnal_art.git
@@ -57,7 +57,7 @@ EOF
         cd fnal_art && git fetch -a && git checkout ddeec355456e3bca5e4a743ce5d4906fa74a51b6 ; cd ..
     fi
 
-    repo_found=`spack repo list|grep -c scd_recipes`
+    repo_found=`spack repo list|awk '{print $1}'|grep -c scd_recipes`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: scd_recipes"
         git clone https://github.com/fnal-fife/scd_recipes.git
@@ -69,7 +69,7 @@ EOF
         rm -rf scd_recipes/packages/perl-ipc-run3
     fi
 
-    repo_found=`spack repo list|grep -c artdaq-spack`
+    repo_found=`spack repo list|awk '{print $1}'|grep -c artdaq-spack`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: artdaq-spack"
         git clone https://github.com/art-daq/artdaq-spack.git
@@ -78,7 +78,7 @@ EOF
         cd artdaq-spack && git pull; cd ..
     fi
 
-    repo_found=`spack repo list|grep -c mu2e-spack`
+    repo_found=`spack repo list|awk '{print $1}'|grep -c mu2e-spack`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: mu2e-spack"
         git clone https://github.com/Mu2e/mu2e-spack.git
