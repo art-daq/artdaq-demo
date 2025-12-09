@@ -56,7 +56,7 @@ EOF
     else
         cd fnal_art && git fetch -a && git checkout ddeec355456e3bca5e4a743ce5d4906fa74a51b6 ; cd ..
     fi
-    
+
     repo_found=`spack repo list|grep -c scd_recipes`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: scd_recipes"
@@ -68,7 +68,7 @@ EOF
         cd scd_recipes && git fetch -a && git checkout e9c8cc8af792008c3c85724cc8ae3ee0662233d6 ; cd ..
         rm -rf scd_recipes/packages/perl-ipc-run3
     fi
-    
+
     repo_found=`spack repo list|grep -c artdaq-spack`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: artdaq-spack"
@@ -77,7 +77,7 @@ EOF
     else
         cd artdaq-spack && git pull; cd ..
     fi
-    
+
     repo_found=`spack repo list|grep -c mu2e-spack`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: mu2e-spack"
