@@ -6,11 +6,11 @@ function install_spack_build_system()
     if ! [ -d $spackdir ];then
         $(
         cd ${spackdir%/spack}
-        git clone https://github.com/art-daq/spack.git -b eflumerf/FixPerlPackageStash
+        git clone https://github.com/art-daq/spack.git -b artdaq/Spack1.1
             )
     else
         #cd $spackdir && git pull && cd $Base
-        cd $spackdir && git fetch -a && git checkout eflumerf/FixPerlPackageStash ; cd $Base
+        cd $spackdir && git fetch -a && git checkout artdaq/Spack1.1 ; cd $Base
     fi
 
     cat >setup-env.sh <<-EOF
@@ -24,17 +24,16 @@ EOF
         #git clone https://github.com/FNALssi/fermi-spack-tools.git # Upstream
         #cd fermi-spack-tools && git checkout 965e0e73896328f8137c2bd53bad77a42b39e0bf; cd $Base
         git clone https://github.com/art-daq/fermi-spack-tools.git # Fork
-        cd fermi-spack-tools && git checkout eflumerf/CMakeFix; cd $Base
+        cd fermi-spack-tools && git checkout artdaq/Spack1.1; cd $Base
     else
         #cd fermi-spack-tools && git fetch -a && git checkout 965e0e73896328f8137c2bd53bad77a42b39e0bf ; cd $Base # Upstream
-        cd fermi-spack-tools && git fetch -a && git checkout eflumerf/CMakeFix ; cd $Base # Fork
+        cd fermi-spack-tools && git fetch -a && git checkout artdaq/Spack1.1 ; cd $Base # Fork
     fi
     if ! [ -d spack-mpd ]; then
-        # git clone https://github.com/FNALssi/spack-mpd.git # Upstream
         git clone https://github.com/art-daq/spack-mpd.git # Fork
-        cd spack-mpd && git checkout artdaq/Spack0.28; cd $Base
+        cd spack-mpd && git checkout artdaq/Spack1.1; cd $Base
     else
-        cd spack-mpd && git fetch -a && git checkout artdaq/Spack0.28; cd $Base
+        cd spack-mpd && git fetch -a && git checkout artdaq/Spack1.1; cd $Base
     fi
 
     sed -i '/perl/d' fermi-spack-tools/templates/packagelist
@@ -48,44 +47,53 @@ EOF
     fi
 
     mkdir spack-repos 2>/dev/null;cd spack-repos
+
+    repo_found=`spack repo list|awk '{print $1}'|grep -c builtin`
+    if [ $repo_found -eq 0 ]; then
+        echo "Adding repo: spack-packages (builtin)"
+        git clone https://github.com/FNALssi/spack-packages.git
+        cd spack-packages && git checkout afd1e84c0ee2e2d630c7bbb1f01c3b9b094df219 ; cd $Base/spack-repos
+        spack repo add ./spack-packages/repos/spack_repo/builtin
+    else
+        cd spack-packages && git fetch -a && git checkout afd1e84c0ee2e2d630c7bbb1f01c3b9b094df219 ; cd $Base/spack-repos
+    fi
+
     repo_found=`spack repo list|awk '{print $1}'|grep -c fnal_art`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: fnal_art"
         git clone https://github.com/FNALssi/fnal_art.git
-        cd fnal_art && git checkout ddeec355456e3bca5e4a743ce5d4906fa74a51b6 ; cd ..
-        spack repo add ./fnal_art
+        cd fnal_art && git checkout 63c056f8e8cf80e42fdccb7492cad1bb96cc6c85 ; cd $Base/spack-repos
+        spack repo add ./fnal_art/spack_repo/fnal_art
     else
-        cd fnal_art && git fetch -a && git checkout ddeec355456e3bca5e4a743ce5d4906fa74a51b6 ; cd ..
+        cd fnal_art && git fetch -a && git checkout 63c056f8e8cf80e42fdccb7492cad1bb96cc6c85 ; cd $Base/spack-repos
     fi
 
     repo_found=`spack repo list|awk '{print $1}'|grep -c scd_recipes`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: scd_recipes"
         git clone https://github.com/fnal-fife/scd_recipes.git
-        cd scd_recipes && git checkout e9c8cc8af792008c3c85724cc8ae3ee0662233d6 ; cd ..
-        rm -rf scd_recipes/packages/perl-ipc-run3
-        spack repo add ./scd_recipes
+        cd scd_recipes && git checkout cb5246e9f679b69a0c3037b67b22d7990043d11a ; cd $Base/spack-repos
+        spack repo add ./scd_recipes/spack_repo/scd_recipes
     else
-        cd scd_recipes && git fetch -a && git checkout e9c8cc8af792008c3c85724cc8ae3ee0662233d6 ; cd ..
-        rm -rf scd_recipes/packages/perl-ipc-run3
+        cd scd_recipes && git fetch -a && git checkout cb5246e9f679b69a0c3037b67b22d7990043d11a ; cd $Base/spack-repos
     fi
 
-    repo_found=`spack repo list|awk '{print $1}'|grep -c artdaq-spack`
+    repo_found=`spack repo list|awk '{print $1}'|grep -c artdaq_spack`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: artdaq-spack"
-        git clone https://github.com/art-daq/artdaq-spack.git
-        spack repo add ./artdaq-spack
+        git clone https://github.com/art-daq/artdaq-spack.git -b artdaq/Spack1.1
+        spack repo add ./artdaq-spack/spack_repo/artdaq_spack
     else
-        cd artdaq-spack && git pull; cd ..
+        cd artdaq-spack && git fetch -a && git checkout artdaq/Spack1.1; cd $Base/spack-repos
     fi
 
-    repo_found=`spack repo list|awk '{print $1}'|grep -c mu2e-spack`
+    repo_found=`spack repo list|awk '{print $1}'|grep -c mu2e_spack`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: mu2e-spack"
-        git clone https://github.com/Mu2e/mu2e-spack.git
-        spack repo add ./mu2e-spack
+        git clone https://github.com/Mu2e/mu2e-spack.git -b artdaq/Spack1.1
+        spack repo add ./mu2e-spack/spack_repo/mu2e_spack
     else
-        cd mu2e-spack && git pull; cd ..
+        cd mu2e-spack && git fetch -a && git checkout artdaq/Spack1.1; cd $Base/spack-repos
     fi
     cd $Base
 
