@@ -14,6 +14,11 @@ find_package(cetmodules 3.08.00 REQUIRED)
 project(artdaq-demo VERSION 4.04.00)
 
 include(CetCMakeEnv)
+include(SetCompilerFlags)
+include(InstallHeaders)
+include(InstallSource)
+include(InstallFhicl)
+
 cet_cmake_env()
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
