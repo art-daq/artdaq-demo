@@ -95,4 +95,23 @@ EOF
       spack config --scope=site add config:install_tree:padded_length:255
     fi
 
+    echo "##############################################"
+    echo "Spack has been installed, checking for compiler and basic tools"
+    echo "##############################################"
+
+    function ensure_package() {
+        package=$1
+        reason=${2:-""}
+        if [ `spack find -H $package|wc -l` -eq 0 ];then
+            echo "##############################################"
+            echo "Installing $package $reason"
+            echo "##############################################"
+            spack install -j $BUILD_J $package $arch_opt
+        fi
+    }
+
+    ensure_package lcov "for test coverage collection"
+    ensure_package py-black "for Python code formatting"
+    ensure_package py-cmake-format "for CMakeLists formatting"
+
 }

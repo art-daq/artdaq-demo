@@ -111,27 +111,20 @@ EOF
     echo "Spack has been installed, checking for compiler and basic tools"
     echo "##############################################"
 
-    spack load --first gcc@13.4.0 >/dev/null 2>&1
-    if [ $? -ne 0 ];then
-        echo "##############################################"
-        echo "Installing gcc@13.4.0"
-        echo "##############################################"
-        spack install -j $BUILD_J gcc@13.4.0 $arch_opt +binutils
-        spack load gcc@13.4.0
-    fi
+    function ensure_package() {
+        package=$1
+        reason=${2:-""}
+        if [ `spack find -H $package|wc -l` -eq 0 ];then
+            echo "##############################################"
+            echo "Installing $package $reason"
+            echo "##############################################"
+            spack install -j $BUILD_J $package $arch_opt
+        fi
+    }
+
+    ensure_package gcc@13.4.0+binutils "as basic compiler"
     spack compiler find >&/dev/null
-
-    if [ `spack find -H lcov|wc -l` -eq 0 ];then
-        echo "##############################################"
-        echo "Installing lcov for coverage collection"
-        echo "##############################################"
-        spack install lcov
-    fi
-
-    if [ `spack find -H py-black|wc -l` -eq 0 ];then
-        echo "##############################################"
-        echo "Installing py-black for Python code formatting"
-        echo "##############################################"
-        spack install py-black
-    fi
+    ensure_package lcov "for test coverage collection"
+    ensure_package py-black "for Python code formatting"
+    ensure_package py-cmake-format "for CMakeLists formatting"
 }
