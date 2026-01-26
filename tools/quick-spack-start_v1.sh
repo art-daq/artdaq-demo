@@ -142,7 +142,7 @@ if [[ "x$build_system_script" == "x" ]];then
 fi
 source $build_system_script
 # Note that install_spack_build_system sources setup-env.sh
-install_spack_build_system $Base $spackdir
+install_spack_build_system $Base $spackdir $opt_padding $arch_opt
 
 if [[ $tag == "develop" ]] && [[ $opt_dev_only -eq 0 ]]; then
     tag=`spack list --format=version_json artdaq-suite|jq ".[]|.latest_version"| sed -e 's/^"//' -e 's/"$//'`
@@ -200,15 +200,6 @@ done
 spack reindex
 
 cd $Base
-
-BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
-spack load --first gcc@13.4.0 >/dev/null 2>&1
-if [ $? -ne 0 ];then
-  spack install -j $BUILD_J gcc@13.4.0 $arch_opt +binutils
-  installStatus=$?
-  spack load gcc@13.4.0
-fi
-spack compiler find
 
 if [ ${opt_dev_only:-0} -eq 0 ];then
     spack env create ${concrete_include_cmd} ${view_opt} artdaq-${tag}
@@ -269,12 +260,8 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
         spack mpd new-project --force -y --name artdaq-develop -C gcc@13.4.0 cxxstd=20 generator=ninja
     fi
     spack env activate artdaq-develop
-    spack add lcov # For coverage collection
-    spack concretize --force
-    spack install
-    spack mpd build
-    cd $Base/build
-    ninja install
+    spack mpd build --clean
+    spack mpd install
     installStatus=$?
 fi
 
@@ -289,6 +276,7 @@ fi
 
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
 export SPACK_DISABLE_LOCAL_CONFIG=true
+export BUILD_J=\$((\`cat /proc/cpuinfo|grep processor|tail -1|awk '{print \$3}'\` + 1))
 source $spackdir/share/spack/setup-env.sh
 
 spack load --first gcc@13.4.0 >/dev/null 2>&1
@@ -324,8 +312,8 @@ echo ...done with check for Toy
 alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disabling TRACE so that it will not affect rawEventDump output ; sleep 1; fi; art -c rawEventDump.fcl"
 alias mpd="spack mpd"
 
-alias mb="spack mpd build;spack mpd install"
-alias mz="spack mpd z;spack mpd build;spack mpd install"
+alias mb="spack mpd build -j\$BUILD_J;spack mpd install"
+alias mz="spack mpd z;spack mpd build -j\$BUILD_J;spack mpd install"
 
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
   # Now save a copy of the environment after setup

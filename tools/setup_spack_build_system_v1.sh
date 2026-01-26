@@ -1,7 +1,11 @@
+#!/bin/bash
+
 function install_spack_build_system()
 {
     Base=$1
     spackdir=$2
+    opt_padding=${3:-0}
+    arch_opt=${4:-""}
 
     if ! [ -d $spackdir ];then
         $(
@@ -14,6 +18,8 @@ function install_spack_build_system()
     fi
 
     cat >setup-env.sh <<-EOF
+
+export BUILD_J=\$((\`cat /proc/cpuinfo|grep processor|tail -1|awk '{print \$3}'\` + 1))
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
 EOF
@@ -73,7 +79,6 @@ EOF
         echo "Adding repo: scd_recipes"
         git clone https://github.com/fnal-fife/scd_recipes.git
         cd scd_recipes && git checkout cb5246e9f679b69a0c3037b67b22d7990043d11a ; cd $Base/spack-repos
-        spack repo add ./scd_recipes/spack_repo/scd_recipes
     else
         cd scd_recipes && git fetch -a && git checkout cb5246e9f679b69a0c3037b67b22d7990043d11a ; cd $Base/spack-repos
     fi
@@ -93,7 +98,7 @@ EOF
         git clone https://github.com/Mu2e/mu2e-spack.git -b artdaq/Spack1.1
         spack repo add ./mu2e-spack/spack_repo/mu2e_spack
     else
-        cd mu2e-spack && git fetch -a && git checkout artdaq/Spack1.1; cd $Base/spack-repos
+        cd mu2e-spack && git fetch -a && git checkout artdaq/Spack1.1; cd ${Base}/spack-repos
     fi
     cd $Base
 
@@ -103,4 +108,31 @@ EOF
       spack config --scope=site add config:install_tree:padded_length:255
     fi
 
+    echo "##############################################"
+    echo "Spack has been installed, checking for compiler and basic tools"
+    echo "##############################################"
+
+    spack load --first gcc@13.4.0 >/dev/null 2>&1
+    if [ $? -ne 0 ];then
+        echo "##############################################"
+        echo "Installing gcc@13.4.0"
+        echo "##############################################"
+        spack install -j $BUILD_J gcc@13.4.0 $arch_opt +binutils
+        spack load gcc@13.4.0
+    fi
+    spack compiler find >&/dev/null
+
+    if [ `spack find -H lcov|wc -l` -eq 0 ];then
+        echo "##############################################"
+        echo "Installing lcov for coverage collection"
+        echo "##############################################"
+        spack install lcov
+    fi
+
+    if [ `spack find -H py-black|wc -l` -eq 0 ];then
+        echo "##############################################"
+        echo "Installing py-black for Python code formatting"
+        echo "##############################################"
+        spack install py-black
+    fi
 }
