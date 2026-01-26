@@ -57,11 +57,10 @@ EOF
     repo_found=`spack repo list|awk '{print $1}'|grep -c builtin`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: spack-packages (builtin)"
-        git clone https://github.com/FNALssi/spack-packages.git
-        cd spack-packages && git checkout afd1e84c0ee2e2d630c7bbb1f01c3b9b094df219 ; cd $Base/spack-repos
+        git clone https://github.com/art-daq/spack-packages.git -b artdaq/Spack1.1
         spack repo add ./spack-packages/repos/spack_repo/builtin
     else
-        cd spack-packages && git fetch -a && git checkout afd1e84c0ee2e2d630c7bbb1f01c3b9b094df219 ; cd $Base/spack-repos
+        cd spack-packages && git fetch -a && git checkout artdaq/Spack1.1; cd $Base/spack-repos
     fi
 
     repo_found=`spack repo list|awk '{print $1}'|grep -c fnal_art`
