@@ -124,7 +124,4 @@ EOF
 
     ensure_package gcc@13.4.0+binutils "as basic compiler"
     spack compiler find >&/dev/null
-    ensure_package lcov "for test coverage collection"
-    ensure_package py-black "for Python code formatting"
-    ensure_package py-cmake-format "for CMakeLists formatting"
 }

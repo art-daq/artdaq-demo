@@ -272,6 +272,8 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     fi
     spack env activate artdaq-develop
     spack add lcov # For coverage collection
+    spack add py-black # For python code formatting
+    spack add py-cmake-format # For CMake code formatting
     spack concretize --force --deprecated
     spack install --deprecated
     # spack mpd build # Upstream
