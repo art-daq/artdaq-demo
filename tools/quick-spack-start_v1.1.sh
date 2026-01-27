@@ -133,16 +133,16 @@ if [ $opt_no_view -eq 1 ];then
     view_opt="--without-view"
 fi
 
-build_system_script=`find $Base -type f -name setup_spack_build_system.sh`
+build_system_script=`find $Base -type f -name setup_spack_build_system_v1.sh`
 if [[ "x$build_system_script" == "x" ]];then
-  echo "WARNING: setup_spack_build_system.sh not found, downloading from https://github.com/art-daq/artdaq-demo"
+  echo "WARNING: setup_spack_build_system_v1.sh not found, downloading from https://github.com/art-daq/artdaq-demo"
   cd $Base
-  wget https://raw.githubusercontent.com/art-daq/artdaq_demo/refs/heads/develop/tools/setup_spack_build_system.sh
-  build_system_script=$Base/setup_spack_build_system.sh
+  wget https://raw.githubusercontent.com/art-daq/artdaq_demo/refs/heads/develop/tools/setup_spack_build_system_v1.sh
+  build_system_script=$Base/setup_spack_build_system_v1.sh
 fi
 source $build_system_script
 # Note that install_spack_build_system sources setup-env.sh
-install_spack_build_system $Base $spackdir
+install_spack_build_system $Base $spackdir $opt_padding $arch_opt
 
 if [[ $tag == "develop" ]] && [[ $opt_dev_only -eq 0 ]]; then
     tag=`spack list --format=version_json artdaq-suite|jq ".[]|.latest_version"| sed -e 's/^"//' -e 's/"$//'`
@@ -150,9 +150,9 @@ fi
 
 concrete_include_cmd=
 
-if [ $opt_use_cvmfs -eq 1 ] && [ -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_areas ]; then
-  art=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_areas/art-suite-*|tail -1`
-  artdaq=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_areas/artdaq-*|tail -1`
+if [ $opt_use_cvmfs -eq 1 ] && [ -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1 ]; then
+  art=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/art-suite-*|tail -1`
+  artdaq=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/artdaq-*|tail -1`
 
   upstreams+=($artdaq $art)
 fi
@@ -201,15 +201,6 @@ spack reindex
 
 cd $Base
 
-BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
-spack load --first gcc@13.1.0 >/dev/null 2>&1
-if [ $? -ne 0 ];then
-  spack install --deprecated -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
-  installStatus=$?
-  spack load gcc@13.1.0
-fi
-spack compiler find
-
 if [ ${opt_dev_only:-0} -eq 0 ];then
     spack env create ${concrete_include_cmd} ${view_opt} artdaq-${tag}
     spack env activate artdaq-${tag}
@@ -222,10 +213,11 @@ if [ ${opt_dev_only:-0} -eq 0 ];then
         spack add trace+kmod
     fi
 
-    spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@13.1.0
+    spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} $arch_opt
+    spack add artdaq %gcc@13.4.0 # Ensure proper compiler is used
     env_to_activate="artdaq-${tag}"
 
-    spack concretize --deprecated --force && spack install --deprecated -j $BUILD_J
+    spack concretize --force && spack install -j $BUILD_J
     installStatus=$?
 fi
 
@@ -249,8 +241,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     spack env deactivate
     env_to_activate="artdaq-develop"
 
-    # spack mpd init # Upstream
-        spack mpd init -r site -u $Base/spack-repos/mpd # Fork
+    spack mpd init
 
     cd $Base
     mkdir srcs
@@ -264,22 +255,19 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     cd $Base
 
     if [ ${opt_dev_only:-0} -eq 0 ];then
-        # spack mpd new-project --force -y --name artdaq-develop -E artdaq-${tag} cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
-        spack mpd new-project --force -y --name artdaq-develop -E artdaq-${tag} cxxstd=20 %gcc@13.1.0 # Fork
+        spack mpd new-project --force -y --name artdaq-develop -C gcc@13.4.0 -E artdaq-${tag} cxxstd=20 generator=ninja
     else
-        # spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 generator=ninja # Upstream
-        spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@13.1.0 # Fork
+        spack mpd new-project --force -y --name artdaq-develop -C gcc@13.4.0 cxxstd=20 generator=ninja
     fi
     spack env activate artdaq-develop
-    spack add lcov # For coverage collection
-    spack add py-black # For python code formatting
-    spack add py-cmake-format # For CMake code formatting
-    spack concretize --force --deprecated
-    spack install --deprecated
-    # spack mpd build # Upstream
-    spack mpd build -G Ninja # Fork
-    cd $Base/build
-    ninja install
+
+    spack add lcov
+    spack add py-black
+    spack add py-cmake-format
+    spack concretize --force
+
+    spack mpd build --clean
+    spack mpd install
     installStatus=$?
 fi
 
@@ -294,9 +282,10 @@ fi
 
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
 export SPACK_DISABLE_LOCAL_CONFIG=true
+export BUILD_J=\$((\`cat /proc/cpuinfo|grep processor|tail -1|awk '{print \$3}'\` + 1))
 source $spackdir/share/spack/setup-env.sh
 
-spack load --first gcc@13.1.0 >/dev/null 2>&1
+spack load --first gcc@13.4.0 >/dev/null 2>&1
 spack compiler find >/dev/null 2>&1
 
 spack env activate ${env_to_activate}
@@ -328,9 +317,9 @@ echo ...done with check for Toy
 
 alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disabling TRACE so that it will not affect rawEventDump output ; sleep 1; fi; art -c rawEventDump.fcl"
 alias mpd="spack mpd"
-# Note that the Ninja install command is needed to activate built changes!
-# alias mb="spack mpd build;pushd $Base/build;ninja install;popd" # When using upstream spack-mpd
-alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd" # When using art-daq fork
+
+alias mb="spack mpd build -j\$BUILD_J;spack mpd install"
+alias mz="spack mpd z;spack mpd build -j\$BUILD_J;spack mpd install"
 
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
   # Now save a copy of the environment after setup

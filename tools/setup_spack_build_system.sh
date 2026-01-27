@@ -6,7 +6,7 @@ function install_spack_build_system()
     if ! [ -d $spackdir ];then
         $(
         cd ${spackdir%/spack}
-        git clone https://github.com/Mu2e/spack.git -b eflumerf/FixPerlPackageStash
+        git clone https://github.com/art-daq/spack.git -b eflumerf/FixPerlPackageStash
             )
     else
         #cd $spackdir && git pull && cd $Base
@@ -32,8 +32,9 @@ EOF
     if ! [ -d spack-mpd ]; then
         # git clone https://github.com/FNALssi/spack-mpd.git # Upstream
         git clone https://github.com/art-daq/spack-mpd.git # Fork
+        cd spack-mpd && git checkout artdaq/Spack0.28; cd $Base
     else
-        cd spack-mpd && git pull && cd ..
+        cd spack-mpd && git fetch -a && git checkout artdaq/Spack0.28; cd $Base
     fi
 
     sed -i '/perl/d' fermi-spack-tools/templates/packagelist
@@ -93,5 +94,4 @@ EOF
     if [ $opt_padding -eq 1 ];then
       spack config --scope=site add config:install_tree:padded_length:255
     fi
-
 }
