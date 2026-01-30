@@ -84,6 +84,7 @@ if [ -n "${squalifier-}" ]; then
 else
     squalifier="${defaultS#s}"
 fi
+env_name="art-s${squalifier//./_}"
 
 arch_opt=""
 if [ "x$arch" != "x" ]; then
@@ -135,14 +136,13 @@ spack reindex
 cd $Base
 
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
-spack env create ${view_opt} art-s${squalifier}
-spack env activate art-s${squalifier}
+spack env create ${view_opt} ${env_name}
+spack env activate ${env_name}
 
-ln -s ${spackdir}/var/spack/environments/art-s${squalifier}
+ln -s ${spackdir}/var/spack/environments/${env_name}
 
 spack add art-suite@s${squalifier} +root $arch_opt
 spack add art %gcc@13.4.0 # Ensure proper compiler is used
-env_to_activate="art-s${squalifier}"
 
 spack concretize --force && spack install -j $BUILD_J
 installStatus=$?

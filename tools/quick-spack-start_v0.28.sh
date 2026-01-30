@@ -133,12 +133,12 @@ if [ $opt_no_view -eq 1 ];then
     view_opt="--without-view"
 fi
 
-build_system_script=`find $Base -type f -name setup_spack_build_system.sh`
+build_system_script=`find $Base -type f -name setup_spack_build_system_v0.28.sh`
 if [[ "x$build_system_script" == "x" ]];then
-  echo "WARNING: setup_spack_build_system.sh not found, downloading from https://github.com/art-daq/artdaq-demo"
+  echo "WARNING: setup_spack_build_system_v0.28.sh not found, downloading from https://github.com/art-daq/artdaq-demo"
   cd $Base
-  wget https://raw.githubusercontent.com/art-daq/artdaq_demo/refs/heads/develop/tools/setup_spack_build_system.sh
-  build_system_script=$Base/setup_spack_build_system.sh
+  wget https://raw.githubusercontent.com/art-daq/artdaq_demo/refs/heads/develop/tools/setup_spack_build_system_v0.28.sh
+  build_system_script=$Base/setup_spack_build_system_v0.28.sh
 fi
 source $build_system_script
 # Note that install_spack_build_system sources setup-env.sh

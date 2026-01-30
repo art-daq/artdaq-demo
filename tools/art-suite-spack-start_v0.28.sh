@@ -84,6 +84,7 @@ if [ -n "${squalifier-}" ]; then
 else
     squalifier="${defaultS#s}"
 fi
+env_name="art-s${squalifier//./_}"
 
 arch_opt=""
 if [ "x$arch" != "x" ]; then
@@ -143,13 +144,12 @@ if [ $? -ne 0 ];then
 fi
 spack compiler find
 
-spack env create ${view_opt} art-s${squalifier}
-spack env activate art-s${squalifier}
+spack env create ${view_opt} ${env_name}
+spack env activate ${env_name}
 
-ln -s ${spackdir}/var/spack/environments/art-s${squalifier}
+ln -s ${spackdir}/var/spack/environments/${env_name}
 
 spack add art-suite@s${squalifier} +root $arch_opt %gcc@13.1.0
-env_to_activate="art-s${squalifier}"
 
 spack concretize --force --deprecated && spack install --deprecated -j $BUILD_J
 installStatus=$?
