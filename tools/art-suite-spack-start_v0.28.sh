@@ -13,7 +13,7 @@ starttime=`date`
 Base=$PWD
 test -d qms-log || mkdir qms-log
 
-env_opts_var=`basename $0 | sed 's/\.sh$//' | tr 'a-z-' 'A-Z_'`_OPTS
+env_opts_var=`basename $0 | sed 's/\.sh$//' | tr 'a-z-.' 'A-Z__'`_OPTS
 USAGE="\
    usage: `basename $0` [options] [demo_root]
 examples: `basename $0` .
@@ -95,11 +95,11 @@ if [ $opt_no_view -eq 1 ];then
     view_opt="--without-view"
 fi
 
-build_system_script=`find $Base -type f -name setup_spack_build_system.sh`
+build_system_script=`find $Base -type f -name setup_spack_build_system_v0.28.sh`
 if [[ "x$build_system_script" == "x" ]];then
-  echo "WARNING: setup_spack_build_system.sh not found, downloading from https://github.com/art-daq/artdaq-demo"
-  wget https://raw.githubusercontent.com/art-daq/artdaq_demo/refs/heads/develop/tools/setup_spack_build_system.sh $Base/setup_spack_build_system.sh
-  build_system_script=$Base/setup_spack_build_system.sh
+  echo "WARNING: setup_spack_build_system_v0.28.sh not found, downloading from https://github.com/art-daq/artdaq-demo"
+  wget https://raw.githubusercontent.com/art-daq/artdaq_demo/refs/heads/develop/tools/setup_spack_build_system_v0.28.sh $Base/setup_spack_build_system_v0.28.sh
+  build_system_script=$Base/setup_spack_build_system_v0.28.sh
 fi
 source $build_system_script
 # Note that install_spack_build_system sources setup-env.sh

@@ -13,7 +13,7 @@ starttime=`date`
 Base=$PWD
 test -d qms-log || mkdir qms-log
 
-env_opts_var=`basename $0 | sed 's/\.sh$//' | tr 'a-z-' 'A-Z_'`_OPTS
+env_opts_var=`basename $0 | sed 's/\.sh$//' | tr 'a-z-.' 'A-Z__'`_OPTS
 USAGE="\
    usage: `basename $0` [options] [demo_root]
 examples: `basename $0` .
