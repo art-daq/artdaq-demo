@@ -77,7 +77,7 @@ exec  > >(tee "$Base/qms-log/$alloutput_file")
 exec 2> >(tee "$Base/qms-log/$stderr_file")
 
 
-defaultS="s132.1"
+defaultS="s133"
 
 if [ -n "${squalifier-}" ]; then
     squalifier="${squalifier}"
