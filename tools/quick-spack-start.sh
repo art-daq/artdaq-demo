@@ -150,9 +150,9 @@ fi
 
 concrete_include_cmd=
 
-if [ $opt_use_cvmfs -eq 1 ] && [ -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_areas ]; then
-  art=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_areas/art-suite-*|tail -1`
-  artdaq=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_areas/artdaq-*|tail -1`
+if [ $opt_use_cvmfs -eq 1 ] && [ -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v0.28 ]; then
+  art=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v0.28/art-suite-*|tail -1`
+  artdaq=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v0.28/artdaq-*|tail -1`
 
   upstreams+=($artdaq $art)
 fi
