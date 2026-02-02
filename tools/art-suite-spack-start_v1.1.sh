@@ -131,6 +131,21 @@ for upstream in ${upstreams[@]}; do
 
 done
 
+
+cat >> "$spackdir/etc/spack/include.yaml" <<\EOF
+
+  # almalinux9 Packages
+  - path: \$spack/etc/spack/linux/almalinux9
+    optional: true
+    when: os == "almalinux9"
+
+  # almalinux10 Packages
+  - path: \$spack/etc/spack/linux/almalinux10
+    optional: true
+    when: os == "almalinux10"
+
+EOF
+
 spack reindex
 
 cd $Base
