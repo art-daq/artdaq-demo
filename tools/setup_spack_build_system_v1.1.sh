@@ -52,6 +52,10 @@ EOF
         ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
     fi
     
+    includecount=`grep -c "linux/almalinux9" $spackdir/etc/spack/include.yaml`
+    if [ $includecount -eq 0 ]; then
+      echo "Adding linux/almalinux9 to $spackdir/etc/spack/include.yaml"
+      cat >> "$spackdir/etc/spack/include.yaml" <<\EOF
     cat >> "$spackdir/etc/spack/include.yaml" <<\EOF
 
   # almalinux9 Packages
@@ -65,6 +69,7 @@ EOF
     when: os == "almalinux10"
 
 EOF
+    fi
 
     mkdir spack-repos 2>/dev/null;cd spack-repos
 
