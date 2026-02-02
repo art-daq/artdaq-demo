@@ -42,14 +42,15 @@ EOF
         cd spack-mpd && git fetch -a && git checkout artdaq/Spack1.1; cd $Base
     fi
 
+    os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
     sed -i '/perl/d' fermi-spack-tools/templates/packagelist
-    if [ -f $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml ];then
-        echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
-        echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml already exists"
+    if [ -f $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux$os/packages.yaml ];then
+        echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux$os"
+        echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux$os/packages.yaml already exists"
     else
-        echo "executing ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9"
-        echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml"
-        ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
+        echo "executing ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux$os"
+        echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux$os/packages.yaml"
+        ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux$os
     fi
 
     includecount=`grep -c "linux/almalinux9" $spackdir/etc/spack/include.yaml`
