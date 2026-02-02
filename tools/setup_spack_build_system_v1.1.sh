@@ -51,22 +51,21 @@ EOF
         echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml"
         ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
     fi
-    
+
     includecount=`grep -c "linux/almalinux9" $spackdir/etc/spack/include.yaml`
     if [ $includecount -eq 0 ]; then
       echo "Adding linux/almalinux9 to $spackdir/etc/spack/include.yaml"
       cat >> "$spackdir/etc/spack/include.yaml" <<\EOF
-    cat >> "$spackdir/etc/spack/include.yaml" <<\EOF
 
   # almalinux9 Packages
   - path: "$spack/etc/spack/linux/almalinux9"
     optional: true
-    when: os == "almalinux9"
+    when: 'os == "almalinux9"'
 
   # almalinux10 Packages
   - path: "$spack/etc/spack/linux/almalinux10"
     optional: true
-    when: os == "almalinux10"
+    when: 'os == "almalinux10"'
 
 EOF
     fi
