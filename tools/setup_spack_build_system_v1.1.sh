@@ -51,6 +51,20 @@ EOF
         echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux9/packages.yaml"
         ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux9
     fi
+    
+    cat >> "$spackdir/etc/spack/include.yaml" <<\EOF
+
+  # almalinux9 Packages
+  - path: \$spack/etc/spack/linux/almalinux9
+    optional: true
+    when: os == "almalinux9"
+
+  # almalinux10 Packages
+  - path: \$spack/etc/spack/linux/almalinux10
+    optional: true
+    when: os == "almalinux10"
+
+EOF
 
     mkdir spack-repos 2>/dev/null;cd spack-repos
 
