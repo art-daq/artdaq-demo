@@ -135,12 +135,18 @@ spack reindex
 
 cd $Base
 
+os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
+gccver=13.1.0
+if [ $os -eq 10 ];then
+    gccver=14.3.1
+fi
+
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
-spack load --first gcc@13.1.0 >/dev/null 2>&1
+spack load --first gcc@${gccver} >/dev/null 2>&1
 if [ $? -ne 0 ];then
-  spack install --deprecated -j $BUILD_J gcc@13.1.0 $arch_opt +binutils
+  spack install --deprecated -j $BUILD_J gcc@${gccver} $arch_opt +binutils
   installStatus=$?
-  spack load gcc@13.1.0
+  spack load gcc@${gccver}
 fi
 spack compiler find
 
@@ -149,7 +155,7 @@ spack env activate ${env_name}
 
 ln -s ${spackdir}/var/spack/environments/${env_name}
 
-spack add art-suite@s${squalifier} +root $arch_opt %gcc@13.1.0
+spack add art-suite@s${squalifier} +root $arch_opt %gcc@${gccver}
 
 spack concretize --force --deprecated && spack install --deprecated -j $BUILD_J
 installStatus=$?

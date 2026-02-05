@@ -142,6 +142,8 @@ EOF
         fi
     }
 
-    ensure_package gcc@13.4.0+binutils "as basic compiler"
-    spack compiler find >&/dev/null
+    if [ $os -eq 9 ]; then
+        ensure_package gcc@13.4.0+binutils "as basic compiler"
+        spack compiler find >&/dev/null
+    fi
 }

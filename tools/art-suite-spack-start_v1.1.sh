@@ -134,6 +134,12 @@ spack reindex
 
 cd $Base
 
+os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
+gccver=13.4.0
+if [ $os -eq 10 ];then
+    gccver=14.3.1
+fi
+
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
 spack env create ${view_opt} ${env_name}
 spack env activate ${env_name}
@@ -141,7 +147,7 @@ spack env activate ${env_name}
 ln -s ${spackdir}/var/spack/environments/${env_name}
 
 spack add art-suite@s${squalifier} +bundle+root $arch_opt
-spack add art %gcc@13.4.0 # Ensure proper compiler is used
+spack add art %gcc@${gccver} # Ensure proper compiler is used
 
 spack concretize --force && spack install -j $BUILD_J
 installStatus=$?

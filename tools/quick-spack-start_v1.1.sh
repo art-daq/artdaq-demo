@@ -199,6 +199,12 @@ done
 
 spack reindex
 
+os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
+gccver=13.4.0
+if [ $os -eq 10 ];then
+    gccver=14.3.1
+fi
+
 cd $Base
 
 if [ ${opt_dev_only:-0} -eq 0 ];then
@@ -214,7 +220,7 @@ if [ ${opt_dev_only:-0} -eq 0 ];then
     fi
 
     spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} $arch_opt
-    spack add artdaq %gcc@13.4.0 # Ensure proper compiler is used
+    spack add artdaq %${gccver} # Ensure proper compiler is used
     env_to_activate="artdaq-${tag}"
 
     spack concretize --force && spack install -j $BUILD_J
@@ -255,9 +261,9 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     cd $Base
 
     if [ ${opt_dev_only:-0} -eq 0 ];then
-        spack mpd new-project --force -y --name artdaq-develop -C gcc@13.4.0 -E artdaq-${tag} cxxstd=20 generator=ninja
+        spack mpd new-project --force -y --name artdaq-develop -C gcc@${gccver} -E artdaq-${tag} cxxstd=20 generator=ninja
     else
-        spack mpd new-project --force -y --name artdaq-develop -C gcc@13.4.0 cxxstd=20 generator=ninja
+        spack mpd new-project --force -y --name artdaq-develop -C gcc@${gccver} cxxstd=20 generator=ninja
     fi
     spack env activate artdaq-develop
 
@@ -285,7 +291,7 @@ export SPACK_DISABLE_LOCAL_CONFIG=true
 export BUILD_J=\$((\`cat /proc/cpuinfo|grep processor|tail -1|awk '{print \$3}'\` + 1))
 source $spackdir/share/spack/setup-env.sh
 
-spack load --first gcc@13.4.0 >/dev/null 2>&1
+spack load --first gcc@${gccver} >/dev/null 2>&1
 spack compiler find >/dev/null 2>&1
 
 spack env activate ${env_to_activate}
