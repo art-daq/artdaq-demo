@@ -73,7 +73,7 @@ EOF
 
     mkdir spack-repos 2>/dev/null;cd spack-repos
 
-    repo_found=`spack repo list|awk '{print $2}'|grep -c builtin`
+    repo_found=`spack repo list|grep -c spack-repos/spack-packages`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: spack-packages (builtin)"
         git clone https://github.com/art-daq/spack-packages.git -b artdaq/Spack1.1
@@ -82,7 +82,7 @@ EOF
         cd spack-packages && git fetch -a && git checkout artdaq/Spack1.1; cd $Base/spack-repos
     fi
 
-    repo_found=`spack repo list|awk '{print $2}'|grep -c fnal_art`
+    repo_found=`spack repo list|grep -c spack-repos/fnal_art`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: fnal_art"
         git clone https://github.com/FNALssi/fnal_art.git
@@ -92,7 +92,7 @@ EOF
         cd fnal_art && git fetch -a && git checkout 63c056f8e8cf80e42fdccb7492cad1bb96cc6c85 ; cd $Base/spack-repos
     fi
 
-    repo_found=`spack repo list|awk '{print $2}'|grep -c scd_recipes`
+    repo_found=`spack repo list|grep -c spack-repos/scd_recipes`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: scd_recipes"
         git clone https://github.com/fnal-fife/scd_recipes.git
@@ -102,7 +102,7 @@ EOF
         cd scd_recipes && git fetch -a && git checkout cb5246e9f679b69a0c3037b67b22d7990043d11a ; cd $Base/spack-repos
     fi
 
-    repo_found=`spack repo list|awk '{print $2}'|grep -c artdaq_spack`
+    repo_found=`spack repo list|grep -c spack-repos/artdaq-spack`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: artdaq-spack"
         git clone https://github.com/art-daq/artdaq-spack.git -b artdaq/Spack1.1
@@ -111,7 +111,7 @@ EOF
         cd artdaq-spack && git fetch -a && git checkout artdaq/Spack1.1; cd $Base/spack-repos
     fi
 
-    repo_found=`spack repo list|awk '{print $2}'|grep -c mu2e_spack`
+    repo_found=`spack repo list|grep -c spack-repos/mu2e-spack`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: mu2e-spack"
         git clone https://github.com/Mu2e/mu2e-spack.git -b artdaq/Spack1.1
