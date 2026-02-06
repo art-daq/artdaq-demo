@@ -203,6 +203,8 @@ os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
 env_name=artdaq-${tag}-al${os}
 if [ $os -eq 9 ];then
     gccver=13.4.0
+elif [ $os -eq 10 ];then
+    gccver=13.4.0
 fi
 
 cd $Base

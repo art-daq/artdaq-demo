@@ -84,7 +84,7 @@ EOF
     repo_found=`spack repo list|awk '{print $1}'|grep -c mu2e-spack`
     if [ $repo_found -eq 0 ]; then
         echo "Adding repo: mu2e-spack"
-        git clone https://github.com/Mu2e/mu2e-spack.git -b artdaq/Sapck0.28
+        git clone https://github.com/Mu2e/mu2e-spack.git -b artdaq/Spack0.28
         spack repo add ./mu2e-spack
     else
         cd mu2e-spack && git fetch -a && git checkout artdaq/Spack0.28; cd ${Base}/spack-repos

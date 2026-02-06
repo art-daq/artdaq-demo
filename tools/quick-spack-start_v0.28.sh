@@ -206,6 +206,11 @@ BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
 env_name=artdaq-${tag}-al${os}
 if [ $os -eq 9 ];then
     gccver=13.1.0
+elif [ $os -eq 10 ];then
+    gccver=13.3.0
+fi
+
+if [ "x$gccver" != "x" ];then
     spack load --first gcc@${gccver} >/dev/null 2>&1
     if [ $? -ne 0 ];then
       spack install --deprecated -j $BUILD_J gcc@${gccver} $arch_opt +binutils

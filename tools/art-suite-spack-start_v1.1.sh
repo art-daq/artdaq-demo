@@ -137,6 +137,8 @@ cd $Base
 
 if [ $os -eq 9 ];then
     gccver=13.4.0
+elif [ $os -eq 10 ];then
+    gccver=13.4.0
 fi
 
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
