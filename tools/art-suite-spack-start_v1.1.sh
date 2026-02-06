@@ -76,6 +76,7 @@ stderr_file=$( date | awk -v "SCRIPTNAME=$(basename $0)" '{print SCRIPTNAME"_"$1
 exec  > >(tee "$Base/qms-log/$alloutput_file")
 exec 2> >(tee "$Base/qms-log/$stderr_file")
 
+os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
 
 defaultS="s133"
 
@@ -84,7 +85,7 @@ if [ -n "${squalifier-}" ]; then
 else
     squalifier="${defaultS#s}"
 fi
-env_name="art-s${squalifier//./_}"
+env_name="art-s${squalifier//./_}-al${os}"
 
 arch_opt=""
 if [ "x$arch" != "x" ]; then
@@ -134,10 +135,8 @@ spack reindex
 
 cd $Base
 
-os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
-gccver=13.4.0
-if [ $os -eq 10 ];then
-    gccver=14.3.1
+if [ $os -eq 9 ];then
+    gccver=13.4.0
 fi
 
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
@@ -147,7 +146,7 @@ spack env activate ${env_name}
 ln -s ${spackdir}/var/spack/environments/${env_name}
 
 spack add art-suite@s${squalifier} +bundle+root $arch_opt
-spack add art %gcc@${gccver} # Ensure proper compiler is used
+spack add art %gcc${gccver:+@${gccver}} # Ensure proper compiler is used
 
 spack concretize --force && spack install -j $BUILD_J
 installStatus=$?

@@ -189,7 +189,7 @@ for upstream in ${upstreams[@]}; do
     for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
         echo "Looking for artdaq environments in $envdir"
 
-        environment="artdaq-${tag}"
+        environment="artdaq-${tag}-al${os}"
         if ! [ -d $environment ]; then continue; fi
         environment_dir=`realpath $environment`
         echo "Adding environment $environment_dir to include-concrete list"
@@ -202,25 +202,25 @@ spack reindex
 cd $Base
 
 os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
-gccver=13.1.0
-if [ $os -eq 10 ];then
-    gccver=14.3.1
+BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
+env_name=artdaq-${tag}-al${os}
+if [ $os -eq 9 ];then
+    gccver=13.1.0
+    spack load --first gcc@${gccver} >/dev/null 2>&1
+    if [ $? -ne 0 ];then
+      spack install --deprecated -j $BUILD_J gcc@${gccver} $arch_opt +binutils
+      installStatus=$?
+      spack load gcc@${gccver}
+    fi
 fi
 
-BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
-spack load --first gcc@${gccver} >/dev/null 2>&1
-if [ $? -ne 0 ];then
-  spack install --deprecated -j $BUILD_J gcc@${gccver} $arch_opt +binutils
-  installStatus=$?
-  spack load gcc@${gccver}
-fi
 spack compiler find
 
 if [ ${opt_dev_only:-0} -eq 0 ];then
-    spack env create ${concrete_include_cmd} ${view_opt} artdaq-${tag}
-    spack env activate artdaq-${tag}
+    spack env create ${concrete_include_cmd} ${view_opt} ${env_name}
+    spack env activate ${env_name}
 
-    ln -s ${spackdir}/var/spack/environments/artdaq-${tag}
+    ln -s ${spackdir}/var/spack/environments/${env_name}
 
     if [ $opt_no_kmod -eq 1 ];then
         spack add trace~kmod
@@ -228,8 +228,8 @@ if [ ${opt_dev_only:-0} -eq 0 ];then
         spack add trace+kmod
     fi
 
-    spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} $arch_opt %gcc@${gccver}
-    env_to_activate="artdaq-${tag}"
+    spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} $arch_opt %gcc${gccver:+@${gccver}}
+    env_to_activate=${env_name}
 
     spack concretize --deprecated --force && spack install --deprecated -j $BUILD_J
     installStatus=$?
@@ -255,8 +255,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     spack env deactivate
     env_to_activate="artdaq-develop"
 
-    # spack mpd init # Upstream
-        spack mpd init -r site -u $Base/spack-repos/mpd # Fork
+    spack mpd init -r site -u $Base/spack-repos/mpd
 
     cd $Base
     mkdir srcs
@@ -270,11 +269,9 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     cd $Base
 
     if [ ${opt_dev_only:-0} -eq 0 ];then
-        # spack mpd new-project --force -y --name artdaq-develop -E artdaq-${tag} cxxstd=20 %gcc@${gccver} generator=ninja # Upstream
-        spack mpd new-project --force -y --name artdaq-develop -E artdaq-${tag} cxxstd=20 %gcc@${gccver} # Fork
+        spack mpd new-project --force -y --name artdaq-develop -E ${env_name} cxxstd=20 %gcc${gccver:+@${gccver}}
     else
-        # spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@${gccver} generator=ninja # Upstream
-        spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc@${gccver} # Fork
+        spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc${gccver:+@${gccver}}
     fi
     spack env activate artdaq-develop
     spack add lcov # For coverage collection
@@ -282,8 +279,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     spack add py-cmake-format # For CMake code formatting
     spack concretize --force --deprecated
     spack install --deprecated
-    # spack mpd build # Upstream
-    spack mpd build -G Ninja # Fork
+    spack mpd build -G Ninja
     cd $Base/build
     ninja install
     installStatus=$?
@@ -301,9 +297,6 @@ fi
 sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the bash shell before running the artdaq-demo.'; exit; }" || exit
 export SPACK_DISABLE_LOCAL_CONFIG=true
 source $spackdir/share/spack/setup-env.sh
-
-spack load --first gcc@${gccver} >/dev/null 2>&1
-spack compiler find >/dev/null 2>&1
 
 spack env activate ${env_to_activate}
 
@@ -335,8 +328,7 @@ echo ...done with check for Toy
 alias rawEventDump="if [[ -n \\\$SETUP_TRACE ]]; then unsetup TRACE ; echo Disabling TRACE so that it will not affect rawEventDump output ; sleep 1; fi; art -c rawEventDump.fcl"
 alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
-# alias mb="spack mpd build;pushd $Base/build;ninja install;popd" # When using upstream spack-mpd
-alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd" # When using art-daq fork
+alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd"
 
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
   # Now save a copy of the environment after setup

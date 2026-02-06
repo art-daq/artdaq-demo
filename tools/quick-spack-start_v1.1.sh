@@ -189,7 +189,7 @@ for upstream in ${upstreams[@]}; do
     for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
         echo "Looking for artdaq environments in $envdir"
 
-        environment="artdaq-${tag}"
+        environment="artdaq-${tag}-al${os}"
         if ! [ -d $environment ]; then continue; fi
         environment_dir=`realpath $environment`
         echo "Adding environment $environment_dir to include-concrete list"
@@ -200,18 +200,18 @@ done
 spack reindex
 
 os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
-gccver=13.4.0
-if [ $os -eq 10 ];then
-    gccver=14.3.1
+env_name=artdaq-${tag}-al${os}
+if [ $os -eq 9 ];then
+    gccver=13.4.0
 fi
 
 cd $Base
 
 if [ ${opt_dev_only:-0} -eq 0 ];then
-    spack env create ${concrete_include_cmd} ${view_opt} artdaq-${tag}
-    spack env activate artdaq-${tag}
+    spack env create ${concrete_include_cmd} ${view_opt} ${env_name}
+    spack env activate ${env_name}
 
-    ln -s ${spackdir}/var/spack/environments/artdaq-${tag}
+    ln -s ${spackdir}/var/spack/environments/${env_name}
 
     if [ $opt_no_kmod -eq 1 ];then
         spack add trace~kmod
@@ -220,8 +220,8 @@ if [ ${opt_dev_only:-0} -eq 0 ];then
     fi
 
     spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} $arch_opt
-    spack add artdaq %${gccver} # Ensure proper compiler is used
-    env_to_activate="artdaq-${tag}"
+    spack add artdaq %gcc${gccver:+@${gccver}} # Ensure proper compiler is used
+    env_to_activate=${env_name}
 
     spack concretize --force && spack install -j $BUILD_J
     installStatus=$?
@@ -261,9 +261,9 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     cd $Base
 
     if [ ${opt_dev_only:-0} -eq 0 ];then
-        spack mpd new-project --force -y --name artdaq-develop -C gcc@${gccver} -E artdaq-${tag} cxxstd=20 generator=ninja
+        spack mpd new-project --force -y --name artdaq-develop -C gcc${gccver:+@${gccver}} -E ${env_name} cxxstd=20 generator=ninja
     else
-        spack mpd new-project --force -y --name artdaq-develop -C gcc@${gccver} cxxstd=20 generator=ninja
+        spack mpd new-project --force -y --name artdaq-develop -C gcc${gccver:+@${gccver}} cxxstd=20 generator=ninja
     fi
     spack env activate artdaq-develop
 
@@ -290,9 +290,6 @@ sh -c "[ \`ps \$\$ | grep bash | wc -l\` -gt 0 ] || { echo 'Please switch to the
 export SPACK_DISABLE_LOCAL_CONFIG=true
 export BUILD_J=\$((\`cat /proc/cpuinfo|grep processor|tail -1|awk '{print \$3}'\` + 1))
 source $spackdir/share/spack/setup-env.sh
-
-spack load --first gcc@${gccver} >/dev/null 2>&1
-spack compiler find >/dev/null 2>&1
 
 spack env activate ${env_to_activate}
 
