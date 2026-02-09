@@ -150,9 +150,10 @@ fi
 
 concrete_include_cmd=
 
+os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
 if [ $opt_use_cvmfs -eq 1 ] && [ -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1 ]; then
-  art=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/art-suite-*|tail -1`
-  artdaq=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/artdaq-*|tail -1`
+  art=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/art-suite-*-al${os}|tail -1`
+  artdaq=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/artdaq-*-al${os}|tail -1`
 
   upstreams+=($artdaq $art)
 fi
@@ -199,7 +200,6 @@ done
 
 spack reindex
 
-os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
 env_name=artdaq-${tag}-al${os}
 if [ $os -eq 9 ];then
     gccver=13.4.0
