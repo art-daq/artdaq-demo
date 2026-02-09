@@ -105,7 +105,7 @@ if [[ "x$build_system_script" == "x" ]];then
 fi
 source $build_system_script
 # Note that install_spack_build_system sources setup-env.sh
-install_spack_build_system $Base $spackdir $opt_padding $arch_opt
+install_spack_build_system $Base $spackdir $opt_padding
 
 for upstream in ${upstreams[@]}; do
     for upstreamdir in `find $upstream -type f -wholename */.spack-db/index.json 2>/dev/null`; do
@@ -140,6 +140,17 @@ if [ $os -eq 9 ];then
 elif [ $os -eq 10 ];then
     gccver=13.4.0
 fi
+
+if [ "x$gccver" != "x" ];then
+    spack load --first gcc@${gccver} >/dev/null 2>&1
+    if [ $? -ne 0 ];then
+      spack install -j $BUILD_J gcc@${gccver} $arch_opt +binutils
+      installStatus=$?
+      spack load gcc@${gccver}
+    fi
+fi
+
+spack compiler find
 
 BUILD_J=$((`cat /proc/cpuinfo|grep processor|tail -1|awk '{print $3}'` + 1))
 spack env create ${view_opt} ${env_name}

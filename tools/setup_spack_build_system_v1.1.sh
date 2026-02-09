@@ -5,7 +5,6 @@ function install_spack_build_system()
     Base=$1
     spackdir=$2
     opt_padding=${3:-0}
-    arch_opt=${4:-""}
 
     if ! [ -d $spackdir ];then
         $(
@@ -126,22 +125,4 @@ EOF
     if [ $opt_padding -eq 1 ];then
       spack config --scope=site add config:install_tree:padded_length:255
     fi
-
-    echo "##############################################"
-    echo "Spack has been installed, checking for compiler and basic tools"
-    echo "##############################################"
-
-    function ensure_package() {
-        package=$1
-        reason=${2:-""}
-        if [ `spack find -H $package|wc -l` -eq 0 ];then
-            echo "##############################################"
-            echo "Installing $package $reason"
-            echo "##############################################"
-            spack install -j $BUILD_J $package $arch_opt
-        fi
-    }
-
-    ensure_package gcc@13.4.0+binutils "as basic compiler"
-    spack compiler find >&/dev/null
 }

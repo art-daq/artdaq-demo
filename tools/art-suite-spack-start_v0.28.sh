@@ -106,7 +106,7 @@ if [[ "x$build_system_script" == "x" ]];then
 fi
 source $build_system_script
 # Note that install_spack_build_system sources setup-env.sh
-install_spack_build_system $Base $spackdir
+install_spack_build_system $Base $spackdir $opt_padding
 
 for upstream in ${upstreams[@]}; do
     for upstreamdir in `find $upstream -type f -wholename */.spack-db/index.json 2>/dev/null`; do

@@ -2,6 +2,7 @@ function install_spack_build_system()
 {
     Base=$1
     spackdir=$2
+    opt_padding=${3:-0}
 
     if ! [ -d $spackdir ];then
         $(

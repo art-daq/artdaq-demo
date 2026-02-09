@@ -142,7 +142,7 @@ if [[ "x$build_system_script" == "x" ]];then
 fi
 source $build_system_script
 # Note that install_spack_build_system sources setup-env.sh
-install_spack_build_system $Base $spackdir
+install_spack_build_system $Base $spackdir $opt_padding
 
 if [[ $tag == "develop" ]] && [[ $opt_dev_only -eq 0 ]]; then
     tag=`spack list --format=version_json artdaq-suite|jq ".[]|.latest_version"| sed -e 's/^"//' -e 's/"$//'`
