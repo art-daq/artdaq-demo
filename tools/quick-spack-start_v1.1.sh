@@ -233,7 +233,7 @@ if [ ${opt_dev_only:-0} -eq 0 ];then
     fi
 
     spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} $arch_opt
-    spack add artdaq %gcc${gccver:+@${gccver}} # Ensure proper compiler is used
+    spack add artdaq %%gcc${gccver:+@${gccver}} # Ensure proper compiler is used
     env_to_activate=${env_name}
 
     spack concretize --force && spack install -j $BUILD_J

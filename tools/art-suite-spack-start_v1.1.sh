@@ -159,7 +159,7 @@ spack env activate ${env_name}
 ln -s ${spackdir}/var/spack/environments/${env_name}
 
 spack add art-suite@s${squalifier} +bundle+root $arch_opt
-spack add art %gcc${gccver:+@${gccver}} # Ensure proper compiler is used
+spack add art %%gcc${gccver:+@${gccver}} # Ensure proper compiler is used
 
 spack concretize --force && spack install -j $BUILD_J
 installStatus=$?
