@@ -291,6 +291,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     spack add py-black
     spack add py-cmake-format
     spack concretize --force
+    spack install
 
     spack mpd build --clean
     spack mpd install
