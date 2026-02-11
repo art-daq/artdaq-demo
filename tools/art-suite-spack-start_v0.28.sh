@@ -104,6 +104,13 @@ if [[ "x$build_system_script" == "x" ]];then
   wget https://raw.githubusercontent.com/art-daq/artdaq_demo/refs/heads/develop/tools/setup_spack_build_system_v0.28.sh $Base/setup_spack_build_system_v0.28.sh
   build_system_script=$Base/setup_spack_build_system_v0.28.sh
 fi
+
+echo "c70e6c68ec1f7fddbf4afdcd5b24a3b1d9bbb660 *setup_spack_build_system_v0.28.sh" | sha1sum -c -
+if [ $? -ne 0 ]; then
+  echo "ERROR: setup_spack_build_system_v0.28.sh does not have the expected checksum! Please check Github for updates to this script!"
+  exit 1
+fi
+
 source $build_system_script
 # Note that install_spack_build_system sources setup-env.sh
 install_spack_build_system $Base $spackdir $opt_padding
