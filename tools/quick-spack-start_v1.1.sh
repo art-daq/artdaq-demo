@@ -36,7 +36,8 @@ prompted for this location.
 -x            set -x this script
 -w            Check out repositories read/write
 --upstream    Use <dir> as a Spack upstream (repeatable)
---use-cvmfs   Use CVMFS artdaq areas if available
+--no-use-cvmfs Do not search /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1 for upstreams
+              If --upstream is used, CVMFS will not be automatically searched for upstreams
 --no-view     Do not create Spack environment views
 --padding     Pad paths to 255 characters for relocatability
 --pcp         Install the artdaq-pcp-mmv-plugin metric component
@@ -58,7 +59,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0; opt_dev_only=0; opt_use_cvmfs=0;
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0; opt_dev_only=0; opt_use_cvmfs=1;
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -80,12 +81,12 @@ while [ -n "${1-}" ];do
             -spackdir)   eval $op1arg; spackdir=$1; shift;;
             -arch)       eval $op1arg; arch=$1; shift;;
             -mfext)      opt_mfext=1;;
-            -upstream)   eval $op1arg; upstreams+=($1); shift;;
+            -upstream)   eval $op1arg; upstreams+=($1); opt_use_cvmfs=0; shift;;
             -padding)    opt_padding=1;;
             -pcp)        opt_pcp=1;;
             -no-kmod)    opt_no_kmod=1;;
             -no-view)    opt_no_view=1;;
-            -use-cvmfs)  opt_use_cvmfs=1;;
+            -no-use-cvmfs)  opt_use_cvmfs=0;;
             *)           echo "Unknown option -$op"; do_help=1;;
         esac
     else
