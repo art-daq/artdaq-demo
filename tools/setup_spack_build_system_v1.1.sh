@@ -96,7 +96,7 @@ EOF
         echo "Adding repo: scd_recipes"
         git clone https://github.com/fnal-fife/scd_recipes.git
         cd scd_recipes && git checkout cb5246e9f679b69a0c3037b67b22d7990043d11a ; cd $Base/spack-repos
-        spack repo add ./fnal_art/spack_repo/scd_recipes
+        spack repo add ./scd_recipes/spack_repo/scd_recipes
     else
         cd scd_recipes && git fetch -a && git checkout cb5246e9f679b69a0c3037b67b22d7990043d11a ; cd $Base/spack-repos
     fi
