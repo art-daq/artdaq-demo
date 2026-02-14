@@ -294,8 +294,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     spack concretize --force
     spack install
 
-    spack mpd build --clean
-    spack mpd install
+    spack mpd build --clean && spack mpd install
     installStatus=$?
 fi
 
