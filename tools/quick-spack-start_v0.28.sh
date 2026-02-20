@@ -273,7 +273,7 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     cd $Base
     mkdir srcs
     cd srcs
-    for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-utilities artdaq-daqinterface trace;do
+    for pkg in artdaq artdaq-core artdaq-core-demo artdaq-database artdaq-demo artdaq-epics-plugin artdaq-mfextensions artdaq-utilities artdaq-daqinterface trace artdaq-suite;do
         checkout_package $pkg
     done
     if [ $opt_pcp -eq 1 ];then
@@ -287,11 +287,6 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
         spack mpd new-project --force -y --name artdaq-develop cxxstd=20 %gcc${gccver:+@${gccver}}
     fi
     spack env activate artdaq-develop
-    spack add lcov # For coverage collection
-    spack add py-black # For python code formatting
-    spack add py-cmake-format # For CMake code formatting
-    spack concretize --force --deprecated
-    spack install --deprecated
     spack mpd build -G Ninja
     installStatus=$?
     if [ $installStatus -eq 0 ]; then
