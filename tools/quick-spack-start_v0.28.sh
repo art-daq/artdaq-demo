@@ -41,6 +41,7 @@ prompted for this location.
 --no-view     Do not create Spack environment views
 --padding     Pad paths to 255 characters for relocatability
 --pcp         Install the artdaq-pcp-mmv-plugin metric component
+--caen        Install the artdaq-caen plugin for CAEN digitizer support
 --no-kmod     Do not build TRACE kernel module (for Docker builds)
 --arch        Architecture for build (e.g. linux-almalinux9-x86_64_v3)
 "
@@ -59,7 +60,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0; opt_dev_only=0; opt_use_cvmfs=1;
+args= do_help= opt_v=0; opt_w=0; opt_develop=0; opt_padding=0; opt_pcp=0; opt_caen=0; opt_no_kmod=0; opt_no_view=0; opt_dev_only=0; opt_use_cvmfs=1;
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -84,6 +85,7 @@ while [ -n "${1-}" ];do
             -upstream)   eval $op1arg; upstreams+=($1); opt_use_cvmfs=0; shift;;
             -padding)    opt_padding=1;;
             -pcp)        opt_pcp=1;;
+            -caen)       opt_caen=1;;
             -no-kmod)    opt_no_kmod=1;;
             -no-view)    opt_no_view=1;;
             -no-use-cvmfs)  opt_use_cvmfs=0;;
@@ -122,6 +124,11 @@ fi
 pcp_opt="~pcp"
 if [ $opt_pcp -eq 1 ];then
   pcp_opt="+pcp"
+fi
+
+caen_opt="~caen"
+if [ $opt_caen -eq 1 ];then
+    caen_opt="+caen"
 fi
 
 arch_opt=""
@@ -241,7 +248,7 @@ if [ ${opt_dev_only:-0} -eq 0 ];then
         spack add trace+kmod
     fi
 
-    spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} $arch_opt %gcc${gccver:+@${gccver}}
+    spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} ${caen_opt} $arch_opt %gcc${gccver:+@${gccver}}
     env_to_activate=${env_name}
 
     spack concretize --deprecated --force && spack install --deprecated -j $BUILD_J
@@ -278,6 +285,9 @@ if [[ ${opt_develop:-0} -eq 1 ]];then
     done
     if [ $opt_pcp -eq 1 ];then
         checkout_package artdaq-pcp-mmv-plugin
+    fi
+    if [ $opt_caen -eq 1 ];then
+        checkout_package artdaq-caen
     fi
     cd $Base
 
