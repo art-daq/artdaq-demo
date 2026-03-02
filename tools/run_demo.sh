@@ -304,6 +304,7 @@ if [ $do_om -eq 1 ]; then
 	sed -r -i "/end_paths:/s/a3/a1/" ${thisrecorddir}/${om_fhicl}2.fcl
     sed -r -i "s/om1/om2/"  ${thisrecorddir}/${om_fhicl}2.fcl
 	sed -r -i "s/destination_rank: [0-9]+/destination_rank: 57/" ${thisrecorddir}/${om_fhicl}2.fcl
+	sed -r -i "s/port: [0-9]+/port: 9957/" ${thisrecorddir}/${om_fhicl}2.fcl
 
 		chmod $save_perm ${thisrecorddir}
 

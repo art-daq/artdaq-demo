@@ -28,6 +28,7 @@ transfer_plugin_config: {
 		max_fragment_size_words: 2097152
 		source_rank: 55
 		destination_rank: 56
+		port: 9956
 	}
 }
 
