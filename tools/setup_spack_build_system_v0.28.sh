@@ -16,6 +16,7 @@ function install_spack_build_system()
 
     cat >setup-env.sh <<-EOF
 export SPACK_DISABLE_LOCAL_CONFIG=true
+export SPACK_USER_CACHE_PATH=$Base/.spack-cache
 source $spackdir/share/spack/setup-env.sh
 EOF
 
@@ -38,15 +39,16 @@ EOF
         cd spack-mpd && git fetch -a && git checkout artdaq/Spack0.28; cd $Base
     fi
 
-    os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
+    os=$(spack arch -o)
     sed -i '/perl/d' fermi-spack-tools/templates/packagelist
-    if [ -f $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux$os/packages.yaml ];then
-        echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux$os"
-        echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux$os/packages.yaml already exists"
+    touch fermi-spack-tools/templates/package_opts.$os
+    if [ -f $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/$os/packages.yaml ];then
+        echo "Skipping ./fermi-spack-tools/bin/make_packages_yaml $spackdir $os"
+        echo "... $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/$os/packages.yaml already exists"
     else
-        echo "executing ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux$os"
-        echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/almalinux$os/packages.yaml"
-        ./fermi-spack-tools/bin/make_packages_yaml $spackdir almalinux$os
+        echo "executing ./fermi-spack-tools/bin/make_packages_yaml $spackdir $os"
+        echo "... to produce $spackdir/etc/spack/`uname -s | tr [A-Z] [a-z]`/$os/packages.yaml"
+        ./fermi-spack-tools/bin/make_packages_yaml $spackdir $os
     fi
 
     mkdir spack-repos 2>/dev/null;cd spack-repos

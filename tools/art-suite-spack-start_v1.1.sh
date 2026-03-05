@@ -76,8 +76,6 @@ stderr_file=$( date | awk -v "SCRIPTNAME=$(basename $0)" '{print SCRIPTNAME"_"$1
 exec  > >(tee "$Base/qms-log/$alloutput_file")
 exec 2> >(tee "$Base/qms-log/$stderr_file")
 
-os=$(cat /etc/redhat-release |grep -oE "release [0-9]+"|cut -d' ' -f2)
-
 defaultS="s133"
 
 if [ -n "${squalifier-}" ]; then
@@ -85,7 +83,6 @@ if [ -n "${squalifier-}" ]; then
 else
     squalifier="${defaultS#s}"
 fi
-env_name="art-s${squalifier//./_}-al${os}"
 
 arch_opt=""
 if [ "x$arch" != "x" ]; then
@@ -104,7 +101,7 @@ if [[ "x$build_system_script" == "x" ]];then
   build_system_script=$Base/setup_spack_build_system_v1.1.sh
 fi
 
-echo "65aba39314fb588b2d0b256d675fa05cf7a044db *$build_system_script" | sha1sum -c -
+echo "924add2e07a0ff2acb5ca7915f0ba20074f9881a *$build_system_script" | sha1sum -c -
 if [ $? -ne 0 ]; then
   echo "ERROR: setup_spack_build_system_v1.1.sh does not have the expected checksum! Please check Github for updates to this script!"
   exit 1
@@ -113,6 +110,10 @@ fi
 source $build_system_script
 # Note that install_spack_build_system sources setup-env.sh
 install_spack_build_system $Base $spackdir $opt_padding
+
+os_long=$(spack arch -o)
+os=$(echo ${os_long//./_}|sed 's/almalinux/al/;s/ubuntu/u/')
+env_name="art-s${squalifier//./_}-${os}"
 
 for upstream in ${upstreams[@]}; do
     for upstreamdir in `find $upstream -type f -wholename */.spack-db/index.json 2>/dev/null`; do
@@ -142,11 +143,7 @@ spack reindex
 
 cd $Base
 
-if [ $os -eq 9 ];then
-    gccver=13.4.0
-elif [ $os -eq 10 ];then
-    gccver=13.4.0
-fi
+gccver=13.4.0
 
 if [ "x$gccver" != "x" ];then
     spack load --first gcc@${gccver} >/dev/null 2>&1
