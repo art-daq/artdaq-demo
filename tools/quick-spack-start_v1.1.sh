@@ -216,7 +216,7 @@ done
 
 spack reindex
 
-env_name=artdaq-${tag}-${os_long//./_}
+env_name=artdaq-${tag}-${os}
 gccver=13.4.0
 
 if [ "x$gccver" != "x" ];then
