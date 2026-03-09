@@ -57,7 +57,7 @@ EOF
     includecount=`grep -c "linux/$os" $spackdir/etc/spack/include.yaml`
     if [ $includecount -eq 0 ]; then
       echo "Adding linux/$os to $spackdir/etc/spack/include.yaml"
-      cat >> "$spackdir/etc/spack/include.yaml" <<\EOF
+      cat >> "$spackdir/etc/spack/include.yaml" <<-EOF
 
   # $os Packages
   - path: "$spack/etc/spack/linux/$os"
