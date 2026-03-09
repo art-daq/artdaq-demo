@@ -125,7 +125,7 @@ void ToyHardwareInterface::StopDatataking()
 
 void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 {
-	TLOG(TLVL_TRACE) << "FillBuffer BEGIN";
+	TLOG(TLVL_DEBUG + 12) << "FillBuffer BEGIN";
 	if (taking_data_)
 	{
 		auto elapsed_secs_since_datataking_start = artdaq::TimeUtils::GetElapsedTime(start_time_);
@@ -162,15 +162,15 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 
 			if ((pause_after_N_seconds_ != 0u) && (static_cast<size_t>(elapsed_secs_since_datataking_start) % change_after_N_seconds_ == 0))
 			{
-				TLOG(TLVL_DEBUG + 3) << "pausing " << pause_after_N_seconds_ << " seconds";
+				TLOG(TLVL_DEBUG + 13) << "pausing " << pause_after_N_seconds_ << " seconds";
 				sleep(pause_after_N_seconds_);
-				TLOG(TLVL_DEBUG + 3) << "resuming after pause of " << pause_after_N_seconds_ << " seconds";
+				TLOG(TLVL_DEBUG + 13) << "resuming after pause of " << pause_after_N_seconds_ << " seconds";
 			}
 		}
 
-		TLOG(TLVL_DEBUG + 3) << "FillBuffer: Setting bytes_read to " << sizeof(demo::ToyFragment::Header) + bytes_to_nWords_(current_rate_->size_bytes) * sizeof(demo::ToyFragment::Header::data_t);
+		TLOG(TLVL_DEBUG + 13) << "FillBuffer: Setting bytes_read to " << sizeof(demo::ToyFragment::Header) + bytes_to_nWords_(current_rate_->size_bytes) * sizeof(demo::ToyFragment::Header::data_t);
 		*bytes_read = sizeof(demo::ToyFragment::Header) + bytes_to_nWords_(current_rate_->size_bytes) * sizeof(demo::ToyFragment::Header::data_t);
-		TLOG(TLVL_DEBUG + 3) << "FillBuffer: Making the fake data, starting with the header";
+		TLOG(TLVL_DEBUG + 13) << "FillBuffer: Making the fake data, starting with the header";
 
 		// Can't handle a fragment whose size isn't evenly divisible by
 		// the demo::ToyFragment::Header::data_t type size in bytes
@@ -184,7 +184,7 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 		header->trigger_number = 99;
 		header->distribution_type = static_cast<uint8_t>(distribution_type_);
 
-		TLOG(TLVL_DEBUG + 3) << "FillBuffer: Generating nADCcounts ADC values ranging from 0 to max based on the desired distribution";
+		TLOG(TLVL_DEBUG + 13) << "FillBuffer: Generating nADCcounts ADC values ranging from 0 to max based on the desired distribution";
 
 		std::function<demo::ToyFragment::adc_t()> generator;
 		demo::ToyFragment::adc_t gen_seed = 0;
@@ -226,7 +226,7 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 
 		if (distribution_type_ != DistributionType::uninitialized && distribution_type_ != DistributionType::uninit2)
 		{
-			TLOG(TLVL_DEBUG + 3) << "FillBuffer: Calling generate_n";
+			TLOG(TLVL_DEBUG + 13) << "FillBuffer: Calling generate_n";
 			std::generate_n(reinterpret_cast<demo::ToyFragment::adc_t*>(reinterpret_cast<demo::ToyFragment::Header*>(buffer) + 1),  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
 			                bytes_to_nADCs_(current_rate_->size_bytes), generator);
 		}
@@ -244,7 +244,7 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 		std::this_thread::sleep_until(next_trigger_time_());
 	}
 	++rate_send_calls_;
-	TLOG(TLVL_TRACE) << "FillBuffer END";
+	TLOG(TLVL_DEBUG + 12) << "FillBuffer END";
 }
 
 void ToyHardwareInterface::AllocateReadoutBuffer(char** buffer)
