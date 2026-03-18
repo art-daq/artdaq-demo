@@ -10,8 +10,7 @@ function install_spack_build_system()
         git clone https://github.com/art-daq/spack.git -b eflumerf/FixPerlPackageStash
             )
     else
-        #cd $spackdir && git pull && cd $Base
-        cd $spackdir && git fetch -a && git checkout eflumerf/FixPerlPackageStash ; cd $Base
+        cd $spackdir && git checkout eflumerf/FixPerlPackageStash && git pull ; cd $Base
     fi
 
     cat >setup-env.sh <<-EOF
@@ -23,20 +22,14 @@ EOF
     source setup-env.sh
 
     if ! [ -d fermi-spack-tools ]; then
-        #git clone https://github.com/FNALssi/fermi-spack-tools.git # Upstream
-        #cd fermi-spack-tools && git checkout 965e0e73896328f8137c2bd53bad77a42b39e0bf; cd $Base
-        git clone https://github.com/art-daq/fermi-spack-tools.git # Fork
-        cd fermi-spack-tools && git checkout artdaq/Spack0.28; cd $Base
+        git clone https://github.com/art-daq/fermi-spack-tools.git -b artdaq/Spack0.28
     else
-        #cd fermi-spack-tools && git fetch -a && git checkout 965e0e73896328f8137c2bd53bad77a42b39e0bf ; cd $Base # Upstream
-        cd fermi-spack-tools && git fetch -a && git checkout artdaq/Spack0.28 ; cd $Base # Fork
+        cd fermi-spack-tools && git checkout artdaq/Spack0.28 && git pull ; cd $Base
     fi
     if ! [ -d spack-mpd ]; then
-        # git clone https://github.com/FNALssi/spack-mpd.git # Upstream
-        git clone https://github.com/art-daq/spack-mpd.git # Fork
-        cd spack-mpd && git checkout artdaq/Spack0.28; cd $Base
+        git clone https://github.com/art-daq/spack-mpd.git -b artdaq/Spack0.28
     else
-        cd spack-mpd && git fetch -a && git checkout artdaq/Spack0.28; cd $Base
+        cd spack-mpd && git checkout artdaq/Spack0.28 && git pull; cd $Base
     fi
 
     os=$(spack arch -o)
@@ -81,7 +74,7 @@ EOF
         git clone https://github.com/art-daq/artdaq-spack.git -b artdaq/Spack0.28
         spack repo add ./artdaq-spack
     else
-        cd artdaq-spack && git fetch -a && git checkout artdaq/Spack0.28; cd $Base/spack-repos
+        cd artdaq-spack && git checkout artdaq/Spack0.28 && git pull; cd $Base/spack-repos
     fi
 
     repo_found=`spack repo list|awk '{print $1}'|grep -c mu2e-spack`
@@ -90,7 +83,7 @@ EOF
         git clone https://github.com/Mu2e/mu2e-spack.git -b artdaq/Spack0.28
         spack repo add ./mu2e-spack
     else
-        cd mu2e-spack && git fetch -a && git checkout artdaq/Spack0.28; cd ${Base}/spack-repos
+        cd mu2e-spack && git checkout artdaq/Spack0.28 && git pull; cd ${Base}/spack-repos
     fi
     cd $Base
 
