@@ -30,6 +30,9 @@ validate_toolsdir()
 	if [ -f $toolsdir/xt_cmd.sh ]; then
 		valid_toolsdir=1
 	fi
+	if [ -f $toolsdir/tmux_cmd.sh ]; then
+		valid_toolsdir=1
+	fi
 }
 
 validate_fhicldir()
@@ -75,6 +78,7 @@ examples: `basename $0`
 --om_fhicl    Name of Fhicl file to use for online monitoring ($om_fhicl)
 --partition=<N> set a partition number -- to allow multiple demos
 --auto        Close DAQInterface windows after run. Do not exit this script until run complete
+--tmux        Use tmux_cmd.sh (tmux) instead of xt_cmd.sh (xterm) to manage terminal windows
 "
 
 # Process script arguments and options
@@ -83,7 +87,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= do_jdi_help= do_om=1 auto_mode=0 do_db=0;
+args= do_help= do_jdi_help= do_om=1 auto_mode=0 do_db=0 use_tmux=0;
 while [ -n "${1-}" ];do
 	if expr "x${1-}" : 'x-' >/dev/null;then
 		op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -103,6 +107,7 @@ while [ -n "${1-}" ];do
 		-om_fhicl)  eval $reqarg; om_fhicl=$1; shift;;
 			-auto)         auto_mode=1;;
 			-partition) eval $reqarg; export ARTDAQ_PARTITION_NUMBER=$1; export DAQINTERFACE_PARTITION_NUMBER=$1; shift;;
+			-tmux)         use_tmux=1;;
 			*)          aa=`echo "-$op" | sed -e"s/'/'\"'\"'/g"` args="$args '$aa'";
 		esac
 	else
@@ -254,8 +259,20 @@ fi
 # And now, actually run DAQInterface as described in
 # https://cdcvs.fnal.gov/redmine/projects/artdaq-utilities/wiki/Artdaq-daqinterface
 
+# Select the terminal-management tool and set up the tmux session name (when
+# using tmux) so that all windows for this demo land in the same session.
+if [ $use_tmux -eq 1 ]; then
+	cmd_tool="$toolsdir/tmux_cmd.sh"
+	tmux_session=artdaq-demo
+	if [ -n "${ARTDAQ_PARTITION_NUMBER-}" ]; then
+		tmux_session="artdaq-demo-${ARTDAQ_PARTITION_NUMBER}"
+	fi
+else
+	cmd_tool="$toolsdir/xt_cmd.sh"
+fi
+
 xt_pids=
-$toolsdir/xt_cmd.sh $daqintdir --geom '132x33 -sl 2500' \
+$cmd_tool $daqintdir --geom '132x33 -sl 2500' \
 	-c 'source mock_ups_setup.sh' \
 	-c 'export DAQINTERFACE_USER_SOURCEFILE='"$DAQINTERFACE_USER_SOURCEFILE" \
 	${ARTDAQ_PARTITION_NUMBER:+-c"export DAQINTERFACE_PARTITION_NUMBER=$ARTDAQ_PARTITION_NUMBER"}\
@@ -270,7 +287,7 @@ echo "Waiting for DAQInterface to reached the 'stopped' state before continuing.
 wait_for_state "stopped"
 echo "Done waiting."
 
-$toolsdir/xt_cmd.sh $daqintdir --geom 132 \
+$cmd_tool $daqintdir --geom 132 \
 	-c 'source mock_ups_setup.sh' \
 	-c 'export DAQINTERFACE_USER_SOURCEFILE='"$DAQINTERFACE_USER_SOURCEFILE" \
 	${ARTDAQ_PARTITION_NUMBER:+-c"export DAQINTERFACE_PARTITION_NUMBER=$ARTDAQ_PARTITION_NUMBER"} \
@@ -308,23 +325,26 @@ if [ $do_om -eq 1 ]; then
 
 		chmod $save_perm ${thisrecorddir}
 
-	xrdbproc=$( which xrdb )
-
-		xloc=
+	# Online monitors only make sense when an X display is available; skip
+	# the xrdb query when running in tmux mode to avoid spurious errors.
+	# 800 is a reasonable fallback position (pixels from the left edge) when
+	# X display information is unavailable or when running in tmux mode.
+	xloc=800
+	if [ $use_tmux -eq 0 ]; then
+		xrdbproc=$( which xrdb )
 		if [[ -e $xrdbproc ]]; then
 			xloc=$( xrdb -symbols | grep DWIDTH | awk 'BEGIN {FS="="} {pixels = $NF; print pixels/2}' )
-		else
-			xloc=800
 		fi
+	fi
 
-	$toolsdir/xt_cmd.sh $basedir --geom '150x33+'$xloc'+0 -sl 2500' \
+	$cmd_tool $basedir --geom '150x33+'$xloc'+0 -sl 2500' \
 			-c '. ./setupARTDAQDEMO' \
 			-c 'art -c '$thisrecorddir'/'$om_fhicl'.fcl|tee om1.log' --exec &
 		xt_pids="$xt_pids $!"
 
 	sleep 4;
 
-	$toolsdir/xt_cmd.sh $basedir --geom '100x33+0+0 -sl 2500' \
+	$cmd_tool $basedir --geom '100x33+0+0 -sl 2500' \
 			-c '. ./setupARTDAQDEMO' \
 			-c 'art -c  '$thisrecorddir'/'$om_fhicl'2.fcl|tee om2.log' --exec &
 		xt_pids="$xt_pids $!"
@@ -343,7 +363,17 @@ if [ $auto_mode -eq 1 ];then
 	wait_for_state "stopped"
 	echo "Done waiting."
 
-	kill $xt_pids
+	if [ $use_tmux -eq 1 ]; then
+		if ! tmux kill-session -t "$tmux_session" 2>/dev/null; then
+			echo "Warning: could not kill tmux session '$tmux_session' (may already be gone)"
+		fi
+	else
+		kill $xt_pids
+	fi
 else
-	echo "cleanup via kill $xt_pids"
+	if [ $use_tmux -eq 1 ]; then
+		echo "cleanup via: tmux kill-session -t $tmux_session"
+	else
+		echo "cleanup via kill $xt_pids"
+	fi
 fi
