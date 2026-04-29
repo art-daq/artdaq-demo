@@ -162,8 +162,8 @@ void DemoViewer::beginJob()
 	tmp_argv[0] = new char[100];
 	tmp_argv[1] = new char[100];
 
-	strcpy(tmp_argv[0], "-b");
-	strcpy(tmp_argv[1], "--web=server:8877");
+	strlcpy(tmp_argv[0], "-b", 100);
+	strlcpy(tmp_argv[1], "--web=server:8877", 100);
 
 	_app = new TApplication("DemoViewer", &tmp_argc, tmp_argv);
 

@@ -53,6 +53,12 @@ function run_simple_test_config() {
 	echo "=============================================="
 
 	configDir=$simple_test_config_dir/$config
+
+    if ! [ -d $configDir ]; then
+        echo "ERROR: Could not find config directory $configDir for config $config" >&2
+        return 4
+    fi
+
 	bootfile="--bootfile $daqinterface_rundir/$bootfile_name"
 	brlist=""
 	brs=
