@@ -263,7 +263,7 @@ int ToyHardwareInterface::BoardType() const
 	return static_cast<int>(fragment_type_) + 1000;
 }
 
-std::chrono::microseconds ToyHardwareInterface::rate_to_delay_(std::size_t hz) { return std::chrono::microseconds(static_cast<int>(1000000.0 / hz)); }
+std::chrono::microseconds ToyHardwareInterface::rate_to_delay_(std::size_t hz) { return hz > 0 ? std::chrono::microseconds(static_cast<int>(1000000.0 / hz)) : std::chrono::microseconds(0); }
 
 std::chrono::steady_clock::time_point ToyHardwareInterface::next_trigger_time_()
 {

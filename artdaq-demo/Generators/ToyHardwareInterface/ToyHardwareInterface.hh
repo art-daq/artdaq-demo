@@ -123,8 +123,8 @@ private:
 
 	time_type start_time_;
 	time_type rate_start_time_;
-	int rate_send_calls_;
-	int serial_number_;
+	size_t rate_send_calls_;
+	size_t serial_number_;
 
 	std::chrono::microseconds rate_to_delay_(std::size_t hz);
 	std::chrono::steady_clock::time_point next_trigger_time_();
