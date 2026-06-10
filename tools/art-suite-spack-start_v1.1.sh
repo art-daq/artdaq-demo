@@ -27,7 +27,8 @@ prompted for this location.
 --upstream    Use <dir> as a Spack upstream (repeatable)
 --no-view     Do not create Spack environment views
 --padding     Pad paths to 255 characters for relocatability
---arch        Architecture for build (e.g. linux-almalinux9-x86_64_v3)
+--arch        Architecture for build (Defaults to linux-almalinux9-x86_64_v3)
+--host-arch   Use Spack-default arch
 "
 
 # Process script arguments and options
@@ -40,7 +41,7 @@ eval "set -- $env_opts \"\$@\""
 op1chr='rest=`expr "$op" : "[^-]\(.*\)"`   && set -- "-$rest" "$@"'
 op1arg='rest=`expr "$op" : "[^-]\(.*\)"`   && set --  "$rest" "$@"'
 reqarg="$op1arg;"'test -z "${1+1}" &&echo opt -$op requires arg. &&echo "$USAGE" &&exit'
-args= do_help= opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0
+args= do_help= opt_develop=0; opt_padding=0; opt_pcp=0; opt_no_kmod=0; opt_no_view=0; opt_host_arch=0
 while [ -n "${1-}" ];do
     if expr "x${1-}" : 'x-' >/dev/null;then
         op=`expr "x$1" : 'x-\(.*\)'`; shift   # done with $1
@@ -52,6 +53,7 @@ while [ -n "${1-}" ];do
             s*)         eval $op1arg; squalifier=$1; shift;;
             -spackdir)  eval $op1arg; spackdir=$1; shift;;
             -arch)      eval $op1arg; arch=$1; shift;;
+            -host-arch) opt_host_arch=1;;
             -upstream)  eval $op1arg; upstreams+=($1); shift;;
             -padding)   opt_padding=1;;
             -no-view)   opt_no_view=1;;
@@ -84,17 +86,12 @@ else
     squalifier="${defaultS#s}"
 fi
 
-arch_opt=""
-if [ "x$arch" != "x" ]; then
-   arch_opt="arch=$arch"
-fi
-
 view_opt=""
 if [ $opt_no_view -eq 1 ];then
     view_opt="--without-view"
 fi
 
-build_system_script=`find $Base -maxdepth 4 -type f -name setup_spack_build_system_v1.1.sh`
+build_system_script=`find $Base/srcs $Base -maxdepth 4 -type f -name setup_spack_build_system_v1.1.sh|head -1`
 if [[ "x$build_system_script" == "x" ]];then
   echo "WARNING: setup_spack_build_system_v1.1.sh not found, downloading from https://github.com/art-daq/artdaq-demo"
   wget https://raw.githubusercontent.com/art-daq/artdaq_demo/refs/heads/develop/tools/setup_spack_build_system_v1.1.sh $Base/setup_spack_build_system_v1.1.sh
@@ -112,6 +109,15 @@ source $build_system_script
 install_spack_build_system $Base $spackdir $opt_padding
 
 os_long=$(spack arch -o)
+
+if [ $opt_host_arch -eq 1 ]; then
+    arch_opt=""
+elif [[ "x$arch" != "x" ]]; then
+    arch_opt="arch=$arch"
+else
+    arch_opt="arch=linux-${os_long}-x86_64_v3"
+fi
+
 os=$(echo ${os_long//./_}|sed 's/almalinux/al/;s/ubuntu/u/')
 env_name="art-s${squalifier//./_}-${os}"
 
