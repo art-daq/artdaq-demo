@@ -43,7 +43,8 @@ prompted for this location.
 --pcp         Install the artdaq-pcp-mmv-plugin metric component
 --caen        Install the artdaq-caen plugin for CAEN digitizer support
 --no-kmod     Do not build TRACE kernel module (for Docker builds)
---arch        Architecture for build (e.g. linux-almalinux9-x86_64_v3)
+--arch        Architecture for build (Defaults to linux-almalinux9-x86_64_v3)
+--host-arch   Use Spack-default arch
 "
 
 # Process script arguments and options
@@ -81,6 +82,7 @@ while [ -n "${1-}" ];do
             -recordsdir) eval $op1arg; recordsdir=$1; shift;;
             -spackdir)   eval $op1arg; spackdir=$1; shift;;
             -arch)       eval $op1arg; arch=$1; shift;;
+            -host-arch)  arch="";;
             -mfext)      opt_mfext=1;;
             -upstream)   eval $op1arg; upstreams+=($1); opt_use_cvmfs=0; shift;;
             -padding)    opt_padding=1;;
@@ -141,7 +143,7 @@ if [ $opt_no_view -eq 1 ];then
     view_opt="--without-view"
 fi
 
-build_system_script=`find $Base -maxdepth 4 -type f -name setup_spack_build_system_v1.1.sh`
+build_system_script=`find $Base/srcs $Base -maxdepth 4 -type f -name setup_spack_build_system_v1.1.sh|head -1`
 if [[ "x$build_system_script" == "x" ]];then
   echo "WARNING: setup_spack_build_system_v1.1.sh not found, downloading from https://github.com/art-daq/artdaq-demo"
   cd $Base
