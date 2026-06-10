@@ -34,7 +34,7 @@ prompted for this location.
 # Process script arguments and options
 eval env_opts=\${$env_opts_var-} # can be args too
 spackdir="${ARTDAQDEMO_SPACK_DIR:-$Base/spack}"
-arch="linux-almalinux9-x86_64_v3"
+arch=""
 upstreams=()
 installStatus=0
 eval "set -- $env_opts \"\$@\""
