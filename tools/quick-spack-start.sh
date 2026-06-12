@@ -1,1 +1,1 @@
-quick-spack-start_v0.28.sh
+quick-spack-start_v1.1.sh
