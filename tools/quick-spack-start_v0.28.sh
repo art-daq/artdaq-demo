@@ -255,6 +255,7 @@ if [ ${opt_dev_only:-0} -eq 0 ];then
     fi
 
     spack add artdaq-suite@${tag} ${svariant} +demo ${pcp_opt} ${caen_opt} $arch_opt %gcc${gccver:+@${gccver}}
+    spack add node-js@22.4.0 # Newer Node.js does not build correctly on AL10
     env_to_activate=${env_name}
 
     spack concretize --deprecated --force && spack install --deprecated -j $BUILD_J
