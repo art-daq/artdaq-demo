@@ -9,6 +9,8 @@ if [ $git_sts -eq 0 ];then
     exit 1
 fi
 
+echo "$0 $@" >$PWD/quick-spack-start.lastrun.sh
+
 starttime=`date`
 Base=$PWD
 test -d qms-log || mkdir qms-log
