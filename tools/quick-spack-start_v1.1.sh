@@ -323,6 +323,9 @@ export BUILD_J=\$((\`cat /proc/cpuinfo|grep processor|tail -1|awk '{print \$3}'\
 source $spackdir/share/spack/setup-env.sh
 
 spack env activate ${env_to_activate}
+pushd $Base
+spack mpd select .
+popd
 
 if [ -d $Base/local/install ]; then
   export PATH=$Base/local/install/bin:\$PATH
