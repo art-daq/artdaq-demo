@@ -60,8 +60,8 @@ function get_run_config {
 }
 
 function get_run_files {
-    run_files=`ls daqdata|grep -e "_r0*${1}_"|grep -v dump`
-    run_files_count=`ls daqdata|grep -e "_r0*${1}_"|grep -v dump|wc -l`
+    run_files=`ls daqdata|grep -e "_r0*${1}_"|grep -v dump|grep -v _sr-`
+    run_files_count=`ls daqdata|grep -e "_r0*${1}_"|grep -v dump|grep -v _sr-|wc -l`
 }
 
 function get_run_dump_file {

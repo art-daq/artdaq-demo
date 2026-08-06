@@ -75,8 +75,8 @@ pseudo_home=`cd "$pseudo_home" >/dev/null;pwd` # convert from potentially relati
 # Normally, I handle rcfile and bash_opts automatically --
 # but if an expert user has specified BOTH, then assume he knows what he is doing
 if [ -z "${rcfile+1}" -o -z "${bash_opts+1}" ];then
-    links_resolved_pseudo=`csh -fc "cd \"$pseudo_home\";pwd"`
-    links_resolved_home=`  csh -fc "cd \"$HOME\";pwd"`
+    links_resolved_pseudo=`sh -fc "cd \"$pseudo_home\";pwd"`
+    links_resolved_home=`  sh -fc "cd \"$HOME\";pwd"`
     if [ "$links_resolved_pseudo" = "$links_resolved_home" ];then
         rcfile=.bashrc_xt_cmd
         bash_opts="--rcfile $rcfile"
