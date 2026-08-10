@@ -184,7 +184,8 @@ for run in `ls -d run_records/*|sort -V`;do
 	if [ $run_files_count -gt 0 ]; then
 		for file in $run_files;do
 			#echo "    $file"
-			res=$(($res + $(check_event_count $file $run_config_name)))
+            check_event_count $file $run_config_name
+			res=$(($res + $?))
 		    check_fragment_count $file $run_config_name
 	    done
     else
