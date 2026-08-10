@@ -119,7 +119,6 @@ function check_event_count() {
 	fi
 	if [ $ooevents -gt 0 ];then
 		echo "    File $lfile has $ooevents out-of-order events! This could be benign, but check dump output for other problems!"
-		res=1
 	fi
 
     return $res
@@ -171,6 +170,7 @@ function check_fragment_count() {
     return $res
 }
 
+res=0
 for run in `ls -d run_records/*|sort -V`;do
     run_number=`echo $run|sed 's|.*/||g'`
 
@@ -184,13 +184,16 @@ for run in `ls -d run_records/*|sort -V`;do
 	if [ $run_files_count -gt 0 ]; then
 		for file in $run_files;do
 			#echo "    $file"
-			check_event_count $file $run_config_name
+			res=$(($res + $(check_event_count $file $run_config_name)))
 		    check_fragment_count $file $run_config_name
 	    done
     else
         echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         echo "!!!!!RUN $run_number WITH CONFIGURATION $run_config_name HAS NO DATA!!!!"
         echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        res=$(($res + 1))
 	fi
 done
 check_onmon
+
+exit $res
