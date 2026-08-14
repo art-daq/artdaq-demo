@@ -9,11 +9,9 @@ physics:
 	  # The maximum number of ADC values to print to screen. -1 to disable printing to screen, 0 for "all"
       num_adcs_to_print: 10
 	  # The maximum number of ADC values to write to output file. -1 to disable, 0 for "all"
-	  num_adcs_to_write: 0
+	  num_adcs_to_write: -1
 	  # The number of ADC values to print per line
 	  columns_to_display_on_screen: 10
-	  # The output file name
-	  output_file_name: "out.bin"
     }
 
     printBuildInfo: {
