@@ -176,19 +176,23 @@ fi
 
 os=$(echo ${os_long//./_}|sed 's/almalinux/al/;s/ubuntu/u/')
 if [ $opt_use_cvmfs -eq 1 ] && [ -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1 ]; then
-  art=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/art-suite-*-${os}|tail -1`
-  artdaq=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/artdaq-*-${os}|tail -1`
-
-  upstreams+=($artdaq $art)
+  if [ $opt_dev_only -eq 1 ]; then
+    artdaq=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/artdaq-*-${os}|tail -1`
+    upstreams+=($artdaq)
+  else
+    art=`ls -d /cvmfs/fermilab.opensciencegrid.org/products/artdaq/spack_v1.1/art-suite-*-${os}|tail -1`
+    upstreams+=($art)
+  fi
 fi
 
 # If updating upstreams, clear existing file first
 if [ ${#upstreams[@]} -gt 0 ]; then
   rm $spackdir/etc/spack/upstreams.yaml
 fi
+
 for upstream in ${upstreams[@]}; do
     echo "Adding upstream $upstream"
-    for upstreamdir in `find $upstream -type f -wholename '*/.spack-db/index.json' 2>/dev/null`; do
+    for upstreamdir in `find $upstream -type f -wholename '*/.spack-db/index.json'|grep -v bootstrap 2>/dev/null`; do
         echo "Getting real directory for upstream database $upstreamdir"
         upstreamdir=`dirname $upstreamdir`
         upstreamdir=`dirname $upstreamdir`
@@ -210,6 +214,11 @@ for upstream in ${upstreams[@]}; do
             echo "    install_tree: $upstreamdir" >>$spackdir/etc/spack/upstreams.yaml
         fi
     done
+
+    # Get this upstream's upstreams
+    if [ -f $upstream/spack/etc/spack/upstreams.yaml ]; then
+        tail -n +2 $upstream/spack/etc/spack/upstreams.yaml >>$spackdir/etc/spack/upstreams.yaml
+    fi
 
     for envdir in `find $upstream -type d -wholename '*/var/spack/environments' 2>/dev/null`; do
         echo "Looking for artdaq environments in $envdir"
