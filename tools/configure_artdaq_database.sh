@@ -35,11 +35,11 @@ Usage: $(basename $0) [options]
    --verbose                      Show verbose output
    --setup-script=<script-path>   Path to the setupARTDAQDEMO script (default is $PWD/setupARTDAQDEMO)
    --database-version=<version>   Version of artdaq_database to \"setup\" (default is the latest version)
-   --database-qualifiers=<quals>  UPS qualifiers for \"setting-up\" artdaq_database (default is \$MRB_QUALS)
+   --database-qualifiers=<quals>  Spack qualifiers for \"setting-up\" artdaq_database (default is \$MRB_QUALS)
    --database-data-dir=<dir-path> Full path to the \"filesytem\" database data files (default is \$MRB_TOP/database)
    --basedir=<dir-path>           Base directory (default is \$MRB_TOP)
    --toolsdir=<dir-path>          artdaq_demo/tools directory (default is \$MRB_TOP$def_toolsdir_dir)
-   --extra-products=<dir-list>    Additional UPS products directories
+   --extra-products=<dir-list>    Additional Spack package directories
 
 "
 }

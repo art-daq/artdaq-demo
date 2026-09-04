@@ -1,6 +1,6 @@
 #! /bin/bash
-# quick-mrb-start.sh - Eric Flumerfelt, May 20, 2016
-# Downloads, installs, and runs the artdaq_demo as an MRB-controlled repository
+# quick-spack-start.sh - Eric Flumerfelt, May 20, 2016
+# Downloads, installs, and runs the artdaq_demo using spack mpd
 
 git_status=`git status 2>/dev/null`
 git_sts=$?

@@ -4,7 +4,7 @@ cet_script(ALWAYS_COPY
 	configure_artdaq_database.sh
 	#	downloadDeps.sh
 	#	installArtDaqDemo.sh
-	#	quick-mrb-start.sh
+	#	quick-spack-start.sh
 	#	quick-start.sh
 	run_demo.sh
 	run_integration_tests.sh
