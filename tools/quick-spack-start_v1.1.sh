@@ -368,6 +368,21 @@ alias mpd="spack mpd"
 alias mb="spack mpd build -j\$BUILD_J;spack mpd install"
 alias mz="spack mpd z;spack mpd build -j\$BUILD_J;spack mpd install"
 
+function mlint() {
+  pushd $Base
+  if ! [ -d styleguide ]; then
+    git clone https://github.com/art-daq/styleguide.git
+  fi
+  if [ `grep -c COMPILE_COMMANDS srcs/CMakeLists.txt` -eq 0 ]; then
+    sed -i '/^project/a\set(CMAKE_EXPORT_COMPILE_COMMANDS ON)' srcs/CMakeLists.txt
+    echo "Building to generate compile commands..."
+    spack mpd build -G Ninja -j$CETPKG_J &>/dev/null
+  fi
+  echo "Executing dune-cpp-style-check build $*"
+  styleguide/cpplint/dune-cpp-style-check.sh build $*
+  popd
+}
+
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
   # Now save a copy of the environment after setup
   declare -x >$Base/.env_after_setupARTDAQDEMO
