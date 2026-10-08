@@ -372,19 +372,30 @@ alias mpd="spack mpd"
 # Note that the Ninja install command is needed to activate built changes!
 alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd"
 
-function mlint() {
-  pushd $Base
+function mtidy() {
+  base=$Base
+  path=\`realpath --relative-to=\$base $1\`
+  pushd \$base &>/dev/null
   if ! [ -d styleguide ]; then
     git clone https://github.com/art-daq/styleguide.git
   fi
   if [ `grep -c COMPILE_COMMANDS srcs/CMakeLists.txt` -eq 0 ]; then
     sed -i '/^project/a\set(CMAKE_EXPORT_COMPILE_COMMANDS ON)' srcs/CMakeLists.txt
     echo "Building to generate compile commands..."
-    spack mpd build -G Ninja -j$CETPKG_J &>/dev/null
+    spack mpd build -G Ninja -j\$CETPKG_J &>/dev/null
   fi
-  echo "Executing dune-cpp-style-check build $*"
-  styleguide/cpplint/dune-cpp-style-check.sh build $*
-  popd
+  styleguide/cpplint/dune-cpp-style-check.sh build \$path
+  popd &>/dev/null
+}
+function mlint() {
+  base=$Base
+  path=\`realpath --relative-to=\$base $1\`
+  pushd \$base &>/dev/null
+  if ! [ -d styleguide ]; then
+    git clone https://github.com/art-daq/styleguide.git
+  fi
+  styleguide/cpplint/dunecpplint.sh \$path
+  popd &>/dev/null
 }
 
 if [ \${ARTDAQ_SETUP:-0} -eq 0 ]; then
