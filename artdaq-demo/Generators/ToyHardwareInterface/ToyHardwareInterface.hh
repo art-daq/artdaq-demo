@@ -8,6 +8,9 @@
 
 #include <chrono>
 #include <random>
+#include <vector>
+#include <limits>
+#include <memory>
 
 /**
  * \brief JCF, Mar-17-2016: ToyHardwareInterface is meant to mimic a vendor-provided hardware

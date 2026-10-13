@@ -14,6 +14,8 @@
 #include "ToyHardwareInterface/ToyHardwareInterface.hh"
 
 #include <atomic>
+#include <memory>
+#include <set>
 #include <random>
 #include <vector>
 

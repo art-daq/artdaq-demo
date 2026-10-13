@@ -11,6 +11,7 @@
 #include <random>
 #include <thread>
 #include <vector>
+#include <string>
 
 namespace demo {
 /**

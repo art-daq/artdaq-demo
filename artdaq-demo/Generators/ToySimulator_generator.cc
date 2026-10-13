@@ -121,7 +121,7 @@ bool demo::ToySimulator::getNext_(artdaq::FragmentPtrs& frags)
 		// GetRequest methods (controlled by the LAZY_MODEL pre-processor variable).
 		if (lazy_mode_)
 		{
-#define LAZY_MODEL 0
+#define LAZY_MODEL 0 // NOLINT(build/define_used)
 #if LAZY_MODEL == 0
 
 			auto requests = GetRequestBuffer();
@@ -242,7 +242,7 @@ bool demo::ToySimulator::getNext_(artdaq::FragmentPtrs& frags)
 
 	TLOG(TLVL_DEBUG + 3) << "getNext_: DONE";
 	return true;
-}
+} // NOLINT(readability/fn_size)
 
 void demo::ToySimulator::start()
 {

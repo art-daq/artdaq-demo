@@ -1,6 +1,12 @@
 // Collect lumi stream information and write it out at lower frequency in subruns (and potentially
 // events)
 
+#include "TRACE/trace.h"
+#define TRACE_NAME "DemoDataProducer"
+
+#include "artdaq-core-demo/Data/DemoDataProduct.hh"
+#include "artdaq/DAQdata/Globals.hh"
+
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
@@ -11,15 +17,10 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 
-#include "artdaq-core-demo/Data/DemoDataProduct.hh"
-#include "artdaq/DAQdata/Globals.hh"
-
 #include <algorithm>
 #include <iostream>
 #include <string>
 
-#include "trace.h"
-#define TRACE_NAME "DemoDataProducer"
 
 namespace demo {
 
@@ -35,9 +36,9 @@ public:
 	};
 
 	explicit DemoDataProducer(const art::EDProducer::Table<Config>& config);
-	virtual void produce(art::Event& event) override;
-	virtual void endSubRun(art::SubRun& sr) override;
-	virtual void endRun(art::Run& r) override;
+	void produce(art::Event& event) override;
+	void endSubRun(art::SubRun& sr) override;
+	void endRun(art::Run& r) override;
 
 private:
 	bool produces_events_;

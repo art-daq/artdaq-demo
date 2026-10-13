@@ -27,6 +27,7 @@
 #include <atomic>
 #include <list>
 #include <queue>
+#include <string>
 
 namespace demo {
 /**
