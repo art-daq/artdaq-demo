@@ -1,5 +1,5 @@
-#ifndef artdaq_ots_Generators_UDPTFGTest_hh
-#define artdaq_ots_Generators_UDPTFGTest_hh
+#ifndef ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_UDPRECEIVER_HH_
+#define ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_UDPRECEIVER_HH_
 
 // The UDP Receiver class recieves UDP data from an OtSDAQ applicance and
 // puts that data into UDPFragments for further ARTDAQ analysis.
@@ -143,4 +143,4 @@ private:
 };
 }  // namespace demo
 
-#endif /* artdaq_demo_Generators_ToySimulator_hh */
+#endif  // ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_UDPRECEIVER_HH_

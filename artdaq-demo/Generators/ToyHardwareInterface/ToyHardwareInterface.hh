@@ -1,5 +1,5 @@
-#ifndef artdaq_demo_Generators_ToyHardwareInterface_ToyHardwareInterface_hh
-#define artdaq_demo_Generators_ToyHardwareInterface_ToyHardwareInterface_hh
+#ifndef ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_TOYHARDWAREINTERFACE_TOYHARDWAREINTERFACE_HH_
+#define ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_TOYHARDWAREINTERFACE_TOYHARDWAREINTERFACE_HH_
 
 #include "artdaq-core-demo/Overlays/FragmentType.hh"
 #include "artdaq-core-demo/Overlays/ToyFragment.hh"
@@ -133,4 +133,4 @@ private:
 	size_t maxADCcounts_();
 };
 
-#endif
+#endif  // ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_TOYHARDWAREINTERFACE_TOYHARDWAREINTERFACE_HH_

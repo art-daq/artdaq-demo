@@ -34,7 +34,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "tracemf.h"
+#include "TRACE/tracemf.h"
 #define TRACE_NAME "WFViewer"
 
 namespace demo {

@@ -1,5 +1,5 @@
-#ifndef artdaq_demo_Generators_ToySimulator_hh
-#define artdaq_demo_Generators_ToySimulator_hh
+#ifndef ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_TOYSIMULATOR_HH_
+#define ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_TOYSIMULATOR_HH_
 
 // Some C++ conventions used:
 
@@ -123,4 +123,4 @@ private:
 };
 }  // namespace demo
 
-#endif /* artdaq_demo_Generators_ToySimulator_hh */
+#endif  // ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_TOYSIMULATOR_HH_

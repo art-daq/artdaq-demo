@@ -134,7 +134,7 @@ void demo::ASCIIDump::analyze(art::Event const& evt)
 			auto const* md = frag.metadata<AsciiFragment::Metadata>();
 			std::cout << "Chars in line: ";
 			auto mdChars = md->charsInLine;
-			std::cout.write(reinterpret_cast<const char*>(&mdChars), sizeof(uint32_t) / sizeof(char));  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+			std::cout.write(reinterpret_cast<const char*>(&mdChars), sizeof(uint32_t) / sizeof(char));  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 			std::cout << std::endl;
 			std::cout << std::endl;
 		}

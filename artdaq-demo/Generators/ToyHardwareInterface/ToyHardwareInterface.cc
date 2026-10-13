@@ -178,7 +178,7 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 		// sizeof(demo::ToyFragment::Header::data_t) << std::endl;
 		assert(*bytes_read % sizeof(demo::ToyFragment::Header::data_t) == 0);
 
-		auto* header = reinterpret_cast<demo::ToyFragment::Header*>(buffer);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+		auto* header = reinterpret_cast<demo::ToyFragment::Header*>(buffer);  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 
 		header->event_size = *bytes_read / sizeof(demo::ToyFragment::Header::data_t);
 		header->trigger_number = 99;
@@ -249,7 +249,7 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 
 void ToyHardwareInterface::AllocateReadoutBuffer(char** buffer)
 {
-	*buffer = reinterpret_cast<char*>(  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+	*buffer = reinterpret_cast<char*>(  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 	    new uint8_t[sizeof(demo::ToyFragment::Header) + maxADCcounts_() * sizeof(demo::ToyFragment::Header::data_t)]);
 }
 
