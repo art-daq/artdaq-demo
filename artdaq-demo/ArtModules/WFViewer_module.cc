@@ -221,7 +221,7 @@ void demo::WFViewer::bookCanvas_()
 		histogram_canvas_ = new TCanvas("wf0");
 		histogram_canvas_->Divide(num_x_plots_, num_y_plots_);
 		histogram_canvas_->Update();
-		dynamic_cast<TRootCanvas*>(histogram_canvas_->GetCanvasImp())->DontCallClose(); // NOLINT
+		dynamic_cast<TRootCanvas*>(histogram_canvas_->GetCanvasImp())->DontCallClose();  // NOLINT
 		histogram_canvas_->SetTitle("ADC Value Distribution");
 	}
 	if (!digital_sum_only_)
@@ -229,7 +229,7 @@ void demo::WFViewer::bookCanvas_()
 		graph_canvas_ = new TCanvas("wf1");
 		graph_canvas_->Divide(num_x_plots_, num_y_plots_);
 		graph_canvas_->Update();
-		dynamic_cast<TRootCanvas*>(graph_canvas_->GetCanvasImp())->DontCallClose(); // NOLINT
+		dynamic_cast<TRootCanvas*>(graph_canvas_->GetCanvasImp())->DontCallClose();  // NOLINT
 		graph_canvas_->SetTitle("ADC Values, Event Snapshot");
 	}
 
@@ -479,7 +479,7 @@ void demo::WFViewer::analyze(art::Event const& e)
 			graph_canvas_->cd(ind + 1);
 			auto* pad = static_cast<TVirtualPad*>(graph_canvas_->GetPad(ind + 1));
 
-			Double_t lo_x, hi_x, lo_y, hi_y, dummy; // NOLINT
+			Double_t lo_x, hi_x, lo_y, hi_y, dummy;  // NOLINT
 
 			graphs_[fragment_id]->GetPoint(0, lo_x, dummy);
 			graphs_[fragment_id]->GetPoint(graphs_[fragment_id]->GetN() - 1, hi_x, dummy);
@@ -529,7 +529,7 @@ void demo::WFViewer::analyze(art::Event const& e)
 			fFile_->Write();
 		}
 	}
-} // NOLINT(readability/fn_size)
+}  // NOLINT(readability/fn_size)
 
 void demo::WFViewer::beginRun(art::Run const& e)
 {

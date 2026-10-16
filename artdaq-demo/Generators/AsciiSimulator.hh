@@ -9,9 +9,9 @@
 
 #include <atomic>
 #include <random>
+#include <string>
 #include <thread>
 #include <vector>
-#include <string>
 
 namespace demo {
 /**

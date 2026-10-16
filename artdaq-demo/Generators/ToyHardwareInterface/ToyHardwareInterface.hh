@@ -7,10 +7,10 @@
 #include "fhiclcpp/fwd.h"
 
 #include <chrono>
-#include <random>
-#include <vector>
 #include <limits>
 #include <memory>
+#include <random>
+#include <vector>
 
 /**
  * \brief JCF, Mar-17-2016: ToyHardwareInterface is meant to mimic a vendor-provided hardware

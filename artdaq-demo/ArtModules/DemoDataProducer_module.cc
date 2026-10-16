@@ -21,7 +21,6 @@
 #include <iostream>
 #include <string>
 
-
 namespace demo {
 
 class DemoDataProducer : public art::EDProducer

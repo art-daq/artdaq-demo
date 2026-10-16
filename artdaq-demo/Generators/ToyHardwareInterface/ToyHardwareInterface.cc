@@ -10,10 +10,10 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <iostream>
-#include <random>
-#include <thread>
 #include <limits>
+#include <random>
 #include <string>
+#include <thread>
 #include <vector>
 
 // JCF, Mar-17-2016
@@ -249,7 +249,7 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 	}
 	++rate_send_calls_;
 	TLOG(TLVL_DEBUG + 12) << "FillBuffer END";
-} // NOLINT(readability/fn_size)
+}  // NOLINT(readability/fn_size)
 
 void ToyHardwareInterface::AllocateReadoutBuffer(char** buffer)
 {
@@ -275,8 +275,9 @@ std::chrono::steady_clock::time_point ToyHardwareInterface::next_trigger_time_()
 	if (next_time > rate_start_time_ + current_rate_->duration)
 	{
 		current_rate_++;
-		if (current_rate_ == configured_rates_.end()) {
-		current_rate_ = configured_rates_.begin();
+		if (current_rate_ == configured_rates_.end())
+		{
+			current_rate_ = configured_rates_.begin();
 		}
 		rate_send_calls_ = 0;
 		rate_start_time_ = next_time;

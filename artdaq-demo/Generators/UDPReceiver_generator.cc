@@ -277,7 +277,7 @@ bool demo::UDPReceiver::getNext_(artdaq::FragmentPtrs &frags)
 	}
 
 	return true;
-} // NOLINT(readability/fn_size)
+}  // NOLINT(readability/fn_size)
 
 void demo::UDPReceiver::start() { send(CommandType::Start_Burst); }
 

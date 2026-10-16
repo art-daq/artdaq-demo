@@ -158,7 +158,7 @@ void demo::ToyDump::analyze(art::Event const& evt)
 	// look for raw Toy data
 	TLOG(TLVL_INFO) << "Run " << evt.run() << ", subrun " << evt.subRun() << ", event " << eventNumber << " has "
 	                << fragments.size() << " fragment(s) of type TOY1 or TOY2";
-	fragment_counts_[fragments.size()]++; // NOLINT(runtime/increment_decrement)
+	fragment_counts_[fragments.size()]++;  // NOLINT(runtime/increment_decrement)
 	event_count_++;
 
 	for (const auto& frag : fragments)
@@ -254,7 +254,7 @@ void demo::ToyDump::analyze(art::Event const& evt)
 			}
 		}
 	}
-} // NOLINT(readability/fn_size)
+}  // NOLINT(readability/fn_size)
 
 void demo::ToyDump::endSubRun(art::SubRun const& sr)
 {

@@ -11,7 +11,7 @@ namespace demo {
 /**
  * \brief Instance name for the artdaq_demo version of BuildInfo module
  */
-static std::string instanceName = "ArtdaqDemoBuildInfo"; // NOLINT
+static std::string instanceName = "ArtdaqDemoBuildInfo";  // NOLINT
 /**
  * \brief ArtdaqDemoBuildInfo is a BuildInfo type containing information about artdaq_core, artdaq, artdaq_core_demo and artdaq_demo builds.
  */
