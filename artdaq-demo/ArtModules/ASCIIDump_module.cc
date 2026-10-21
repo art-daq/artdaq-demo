@@ -104,7 +104,7 @@ void demo::ASCIIDump::analyze(art::Event const& evt)
 		{
 			if (handle->front().type() == demo::FragmentType::ASCII)
 			{
-				for (auto frag : *handle)
+				for (auto const& frag : *handle)
 				{
 					fragments.emplace_back(frag);
 				}
@@ -112,6 +112,7 @@ void demo::ASCIIDump::analyze(art::Event const& evt)
 		}
 	}
 
+	// NOLINTBEGIN(runtime/output_format)
 	std::cout << "######################################################################" << std::endl;
 	std::cout << std::endl;
 	std::cout << "Run " << evt.run() << ", subrun " << evt.subRun() << ", event " << eventNumber << " has "
@@ -134,7 +135,7 @@ void demo::ASCIIDump::analyze(art::Event const& evt)
 			auto const* md = frag.metadata<AsciiFragment::Metadata>();
 			std::cout << "Chars in line: ";
 			auto mdChars = md->charsInLine;
-			std::cout.write(reinterpret_cast<const char*>(&mdChars), sizeof(uint32_t) / sizeof(char));  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+			std::cout.write(reinterpret_cast<const char*>(&mdChars), sizeof(uint32_t) / sizeof(char));  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 			std::cout << std::endl;
 			std::cout << std::endl;
 		}
@@ -149,6 +150,7 @@ void demo::ASCIIDump::analyze(art::Event const& evt)
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
+	// NOLINTEND(runtime/output_format)
 }
 
 DEFINE_ART_MODULE(demo::ASCIIDump)  // NOLINT(performance-unnecessary-value-param)

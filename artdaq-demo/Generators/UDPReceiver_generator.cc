@@ -38,7 +38,7 @@ demo::UDPReceiver::UDPReceiver(fhicl::ParameterSet const &ps)
 	si_me_data.sin_family = AF_INET;
 	si_me_data.sin_port = htons(dataport_);
 	si_me_data.sin_addr.s_addr = htonl(INADDR_ANY);
-	if (bind(datasocket_, reinterpret_cast<struct sockaddr *>(&si_me_data), sizeof(si_me_data)) == -1)  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+	if (bind(datasocket_, reinterpret_cast<struct sockaddr *>(&si_me_data), sizeof(si_me_data)) == -1)  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 	{
 		throw art::Exception(art::errors::Configuration)  // NOLINT(cert-err60-cpp)
 		    << "UDPReceiver: Cannot bind data socket to port " << dataport_ << std::endl;
@@ -112,7 +112,7 @@ bool demo::UDPReceiver::getNext_(artdaq::FragmentPtrs &frags)
 			{
 				uint8_t peekBuffer[2];
 				socklen_t addr_len = sizeof(si_data_);
-				recvfrom(datasocket_, peekBuffer, sizeof(peekBuffer), MSG_PEEK, reinterpret_cast<struct sockaddr *>(&si_data_),  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+				recvfrom(datasocket_, peekBuffer, sizeof(peekBuffer), MSG_PEEK, reinterpret_cast<struct sockaddr *>(&si_data_),  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 				         &addr_len);
 
 				TLOG(TLVL_INFO) << "Recieved UDP Packet with sequence number " << std::hex << static_cast<int>(peekBuffer[1])
@@ -147,7 +147,7 @@ bool demo::UDPReceiver::getNext_(artdaq::FragmentPtrs &frags)
 						packetBuffer_t buffer;
 						memset(&buffer[0], 0, sizeof(packetBuffer_t));
 						socklen_t addr_len = sizeof(si_data_);
-						recvfrom(datasocket_, &buffer[0], sizeof(packetBuffer_t), 0, reinterpret_cast<struct sockaddr *>(&si_data_),  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+						recvfrom(datasocket_, &buffer[0], sizeof(packetBuffer_t), 0, reinterpret_cast<struct sockaddr *>(&si_data_),  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 						         &addr_len);
 						packetBuffers_.push_back(buffer);
 						TLOG(TLVL_DEBUG) << "Now placing UDP packet with sequence number " << std::hex << seqNum
@@ -168,7 +168,7 @@ bool demo::UDPReceiver::getNext_(artdaq::FragmentPtrs &frags)
 						packetBuffer_t buffer;
 						memset(&buffer[0], 0, sizeof(packetBuffer_t));
 						socklen_t addr_len = sizeof(si_data_);
-						recvfrom(datasocket_, &buffer[0], sizeof(packetBuffer_t), 0, reinterpret_cast<struct sockaddr *>(&si_data_),  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+						recvfrom(datasocket_, &buffer[0], sizeof(packetBuffer_t), 0, reinterpret_cast<struct sockaddr *>(&si_data_),  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 						         &addr_len);
 						if (droppedPackets == 0)
 						{
@@ -223,7 +223,7 @@ bool demo::UDPReceiver::getNext_(artdaq::FragmentPtrs &frags)
 					packetBuffer_t discardBuffer;
 					socklen_t addr_len = sizeof(si_data_);
 					recvfrom(datasocket_, &discardBuffer[0], sizeof(discardBuffer), 0,
-					         reinterpret_cast<struct sockaddr *>(&si_data_), &addr_len);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+					         reinterpret_cast<struct sockaddr *>(&si_data_), &addr_len);  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 					TLOG(TLVL_WARNING) << "Out-of-sequence packet detected and discarded!";
 				}
 			}
@@ -256,7 +256,7 @@ bool demo::UDPReceiver::getNext_(artdaq::FragmentPtrs &frags)
 
 			if (rawOutput_)
 			{
-				output.write(reinterpret_cast<const char *>(&(jj.at(ii))), sizeof(uint8_t));  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+				output.write(reinterpret_cast<const char *>(&(jj.at(ii))), sizeof(uint8_t));  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 			}
 			*(thisFrag.dataBegin() + pos) = jj.at(ii);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 			++pos;
@@ -277,7 +277,7 @@ bool demo::UDPReceiver::getNext_(artdaq::FragmentPtrs &frags)
 	}
 
 	return true;
-}
+}  // NOLINT(readability/fn_size)
 
 void demo::UDPReceiver::start() { send(CommandType::Start_Burst); }
 
@@ -294,7 +294,7 @@ void demo::UDPReceiver::send(CommandType command)
 		CommandPacket packet;
 		packet.type = command;
 		packet.dataSize = 0;
-		sendto(datasocket_, &packet, sizeof(packet), 0, reinterpret_cast<struct sockaddr *>(&si_data_), sizeof(si_data_));  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+		sendto(datasocket_, &packet, sizeof(packet), 0, reinterpret_cast<struct sockaddr *>(&si_data_), sizeof(si_data_));  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 	}
 }
 

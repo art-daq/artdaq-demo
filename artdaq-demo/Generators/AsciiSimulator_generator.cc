@@ -15,7 +15,6 @@
 
 #include <unistd.h>
 
-namespace {
 /**
  * \brief Convert sizeof(T) characters of a string to a number containing the ASCII representation of that string
  * \tparam T Output type
@@ -46,7 +45,6 @@ T convertToASCII(std::string input)
 	// outputStr.close();
 	return static_cast<T>(bigOutput);
 }
-}  // namespace
 
 demo::AsciiSimulator::AsciiSimulator(fhicl::ParameterSet const& ps)
     : CommandableFragmentGenerator(ps)

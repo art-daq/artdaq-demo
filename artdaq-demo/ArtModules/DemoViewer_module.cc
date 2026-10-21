@@ -50,9 +50,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "tracemf.h"
-#define TRACE_NAME "DemoViewer"
-
 namespace demo {
 /**
  * \brief An example art analysis module which plots events both as histograms and event snapshots (plot of ADC value vs ADC number)
@@ -159,11 +156,11 @@ void DemoViewer::beginJob()
 	char** tmp_argv;
 
 	tmp_argv = new char*[2];
-	tmp_argv[0] = new char[100];
-	tmp_argv[1] = new char[100];
+	tmp_argv[0] = new char[100];  // NOLINT
+	tmp_argv[1] = new char[100];  // NOLINT
 
-	strlcpy(tmp_argv[0], "-b", 100);
-	strlcpy(tmp_argv[1], "--web=server:8877", 100);
+	strlcpy(tmp_argv[0], "-b", 100);                 // NOLINT
+	strlcpy(tmp_argv[1], "--web=server:8877", 100);  // NOLINT
 
 	_app = new TApplication("DemoViewer", &tmp_argc, tmp_argv);
 
@@ -386,12 +383,12 @@ void DemoViewer::analyze(art::Event const& e)
 			case FragmentType::TOY1:
 				toyPtr = std::make_unique<ToyFragment>(frag);
 				total_adc_values = toyPtr->total_adc_values();
-				max_adc_count = static_cast<size_t>(pow(2, frag.template metadata<ToyFragment::Metadata>()->num_adc_bits) - 1);
+				max_adc_count = static_cast<size_t>(pow(2, static_cast<double>(frag.template metadata<ToyFragment::Metadata>()->num_adc_bits)) - 1);
 				break;
 			case FragmentType::TOY2:
 				toyPtr = std::make_unique<ToyFragment>(frag);
 				total_adc_values = toyPtr->total_adc_values();
-				max_adc_count = static_cast<size_t>(pow(2, frag.template metadata<ToyFragment::Metadata>()->num_adc_bits) - 1);
+				max_adc_count = static_cast<size_t>(pow(2, static_cast<double>(frag.template metadata<ToyFragment::Metadata>()->num_adc_bits)) - 1);
 				break;
 			default:
 				throw cet::exception("Error in DemoViewer: unknown fragment type supplied");
@@ -475,7 +472,7 @@ void DemoViewer::analyze(art::Event const& e)
 	}
 
 	gSystem->ProcessEvents();
-}
+}  // NOLINT(readability/fn_size)
 
 //-----------------------------------------------------------------------------
 void DemoViewer::beginRun(art::Run const& e)

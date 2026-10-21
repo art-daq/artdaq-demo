@@ -1,5 +1,5 @@
-#ifndef artdaq_demo_Generators_AsciiSimulator_hh
-#define artdaq_demo_Generators_AsciiSimulator_hh
+#ifndef ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_ASCIISIMULATOR_HH_
+#define ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_ASCIISIMULATOR_HH_
 
 #include "artdaq-core-demo/Overlays/AsciiFragment.hh"
 #include "artdaq-core-demo/Overlays/FragmentType.hh"
@@ -9,6 +9,7 @@
 
 #include <atomic>
 #include <random>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -67,4 +68,4 @@ private:
 };
 }  // namespace demo
 
-#endif /* artdaq_demo_Generators_AsciiSimulator_hh */
+#endif  // ARTDAQ_DEMO_ARTDAQ_DEMO_GENERATORS_ASCIISIMULATOR_HH_
