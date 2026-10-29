@@ -153,7 +153,7 @@ DemoViewer::DemoViewer(fhicl::ParameterSet const& ps)
 void DemoViewer::beginJob()
 {
 	int tmp_argc(2);
-	char** tmp_argv;
+	char** tmp_argv = nullptr;
 
 	tmp_argv = new char*[2];
 	tmp_argv[0] = new char[100];  // NOLINT
@@ -327,7 +327,7 @@ void DemoViewer::analyze(art::Event const& e)
 		}
 		else
 		{
-			for (auto frag : *handle)
+			for (const auto& frag : *handle)
 			{
 				fragments.emplace_back(frag);
 				if (newCanvas_ && !id_to_index_.count(fragments.back().fragmentID()))

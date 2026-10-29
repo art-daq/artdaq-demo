@@ -309,7 +309,7 @@ void demo::WFViewer::analyze(art::Event const& e)
 		}
 		else
 		{
-			for (auto frag : *handle)
+			for (const auto& frag : *handle)
 			{
 				fragments.emplace_back(frag);
 				if (newCanvas_ && !id_to_index_.count(fragments.back().fragmentID()))

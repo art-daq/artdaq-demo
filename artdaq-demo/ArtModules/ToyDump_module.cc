@@ -147,7 +147,7 @@ void demo::ToyDump::analyze(art::Event const& evt)
 		{
 			if (handle->front().type() == demo::FragmentType::TOY1 || handle->front().type() == demo::FragmentType::TOY2)
 			{
-				for (auto frag : *handle)
+				for (const auto& frag : *handle)
 				{
 					fragments.emplace_back(frag);
 				}
