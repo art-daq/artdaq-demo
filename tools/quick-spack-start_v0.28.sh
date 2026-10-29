@@ -374,7 +374,6 @@ alias mb="spack mpd build -G Ninja;pushd $Base/build;ninja install;popd"
 
 function mtidy() {
   base=$Base
-  path=\`realpath --relative-to=\$base $1\`
   pushd \$base &>/dev/null
   if ! [ -d styleguide ]; then
     git clone https://github.com/art-daq/styleguide.git
@@ -384,7 +383,10 @@ function mtidy() {
     echo "Building to generate compile commands..."
     spack mpd build -G Ninja -j\$CETPKG_J &>/dev/null
   fi
-  styleguide/cpplint/dune-cpp-style-check.sh build \$path
+  for relpath in \$@;do
+    path=`realpath --relative-to=\$base \$relpath`
+    styleguide/cpplint/dune-cpp-style-check.sh build \$path
+  done
   popd &>/dev/null
 }
 function mlint() {
