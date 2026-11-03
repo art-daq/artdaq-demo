@@ -84,7 +84,7 @@ void MisbehaviorTest::CreateRoutingTable(artdaq::detail::RoutingPacket& table)
 	size_t counter = 0;
 	for (; counter < half; ++counter)
 	{
-		table.emplace_back(artdaq::detail::RoutingPacketEntry(next_sequence_id_, tokens_.at(counter)));
+		table.emplace_back(next_sequence_id_, tokens_.at(counter));
 		next_sequence_id_++;
 	}
 
@@ -123,7 +123,7 @@ void MisbehaviorTest::CreateRoutingTable(artdaq::detail::RoutingPacket& table)
 
 	for (; counter < tokens_.size(); ++counter)
 	{
-		table.emplace_back(artdaq::detail::RoutingPacketEntry(next_sequence_id_, tokens_.at(counter)));
+		table.emplace_back(next_sequence_id_, tokens_.at(counter));
 		next_sequence_id_++;
 	}
 }

@@ -10,8 +10,11 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <random>
+#include <string>
 #include <thread>
+#include <vector>
 
 // JCF, Mar-17-2016
 
@@ -178,7 +181,7 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 		// sizeof(demo::ToyFragment::Header::data_t) << std::endl;
 		assert(*bytes_read % sizeof(demo::ToyFragment::Header::data_t) == 0);
 
-		auto* header = reinterpret_cast<demo::ToyFragment::Header*>(buffer);  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+		auto* header = reinterpret_cast<demo::ToyFragment::Header*>(buffer);  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 
 		header->event_size = *bytes_read / sizeof(demo::ToyFragment::Header::data_t);
 		header->trigger_number = 99;
@@ -207,7 +210,8 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 
 			case DistributionType::monotonic: {
 				generator = [&]() {
-					if (++gen_seed > maxADCvalue_)
+					gen_seed++;
+					if (gen_seed > maxADCvalue_)
 					{
 						gen_seed = 0;
 					}
@@ -227,7 +231,7 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 		if (distribution_type_ != DistributionType::uninitialized && distribution_type_ != DistributionType::uninit2)
 		{
 			TLOG(TLVL_DEBUG + 13) << "FillBuffer: Calling generate_n";
-			std::generate_n(reinterpret_cast<demo::ToyFragment::adc_t*>(reinterpret_cast<demo::ToyFragment::Header*>(buffer) + 1),  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
+			std::generate_n(reinterpret_cast<demo::ToyFragment::adc_t*>(reinterpret_cast<demo::ToyFragment::Header*>(buffer) + 1),  // NOLINT
 			                bytes_to_nADCs_(current_rate_->size_bytes), generator);
 		}
 	}
@@ -245,11 +249,11 @@ void ToyHardwareInterface::FillBuffer(char* buffer, size_t* bytes_read)
 	}
 	++rate_send_calls_;
 	TLOG(TLVL_DEBUG + 12) << "FillBuffer END";
-}
+}  // NOLINT(readability/fn_size)
 
 void ToyHardwareInterface::AllocateReadoutBuffer(char** buffer)
 {
-	*buffer = reinterpret_cast<char*>(  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+	*buffer = reinterpret_cast<char*>(  // NOLINT(runtime/casting,cppcoreguidelines-pro-type-reinterpret-cast)
 	    new uint8_t[sizeof(demo::ToyFragment::Header) + maxADCcounts_() * sizeof(demo::ToyFragment::Header::data_t)]);
 }
 
@@ -270,7 +274,11 @@ std::chrono::steady_clock::time_point ToyHardwareInterface::next_trigger_time_()
 	auto next_time = rate_start_time_ + (rate_send_calls_ + 1) * rate_to_delay_(current_rate_->rate_hz);
 	if (next_time > rate_start_time_ + current_rate_->duration)
 	{
-		if (++current_rate_ == configured_rates_.end()) current_rate_ = configured_rates_.begin();
+		current_rate_++;
+		if (current_rate_ == configured_rates_.end())
+		{
+			current_rate_ = configured_rates_.begin();
+		}
 		rate_send_calls_ = 0;
 		rate_start_time_ = next_time;
 	}

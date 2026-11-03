@@ -111,7 +111,7 @@ void demo::CheckIntegrity::analyze(art::Event const& evt)
 		{
 			if (handle->front().type() == demo::FragmentType::TOY1 || handle->front().type() == demo::FragmentType::TOY2)
 			{
-				for (auto frag : *handle)
+				for (auto const& frag : *handle)
 				{
 					fragments.emplace_back(frag);
 				}
@@ -132,7 +132,7 @@ void demo::CheckIntegrity::analyze(art::Event const& evt)
 		auto evtSize = bb.hdr_event_size() * sizeof(ToyFragment::Header::data_t);
 		if (bb.hdr_event_size() % (sizeof(artdaq::RawDataType) / sizeof(ToyFragment::Header::data_t)) != 0)
 		{
-			evtSize = ceil(evtSize / static_cast<double>(sizeof(artdaq::RawDataType))) * sizeof(artdaq::RawDataType);
+			evtSize = ceil(evtSize / static_cast<double>(sizeof(artdaq::RawDataType))) * sizeof(artdaq::RawDataType);  // NOLINT(cppcoreguidelines-narrowing-conversions)
 		}
 
 		if (evtSize !=
@@ -240,6 +240,6 @@ void demo::CheckIntegrity::analyze(art::Event const& evt)
 		TLOG(TLVL_DEBUG) << "In run " << evt.run() << ", subrun " << evt.subRun() << ", event " << evt.event()
 		                 << ", everything is fine";
 	}
-}
+}  // NOLINT(readability/fn_size)
 
 DEFINE_ART_MODULE(demo::CheckIntegrity)  // NOLINT(performance-unnecessary-value-param)

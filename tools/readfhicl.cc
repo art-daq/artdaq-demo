@@ -1,7 +1,7 @@
-#include <iostream>
 #include "fhiclcpp/ParameterSet.h"
 
 #include <boost/program_options.hpp>
+#include <iostream>
 
 using namespace fhicl;
 namespace bpo = boost::program_options;

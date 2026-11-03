@@ -6,7 +6,6 @@ cet_build_plugin(ArtdaqDemoBuildInfo art::module
   artdaq-demo::BuildInfo
   artdaq-core::BuildInfo
   artdaq-core-demo::BuildInfo
-  artdaq-utilities::BuildInfo
   artdaq::BuildInfo)
 
 cet_build_plugin(NthEvent art::module)
